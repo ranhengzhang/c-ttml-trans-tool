@@ -255,11 +255,11 @@ QString Lyric::getLRCHead() {
 
     QStringList text{};
 
-    for (auto value: meta[R"(ti)"])
+    for (const auto& value: meta[R"(ti)"])
         text.append(QString(R"([ti:%1])").arg(value));
-    for (auto value: meta[R"(ar)"])
+    for (const auto& value: meta[R"(ar)"])
         text.append(QString(R"([ar:%1])").arg(value));
-    for (auto value: meta[R"(al)"])
+    for (const auto& value: meta[R"(al)"])
         text.append(QString(R"([al:%1])").arg(value));
 
     return text.join("\n");

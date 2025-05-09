@@ -168,7 +168,7 @@ QString LyricLine::toASS() {
             .arg(this->_is_bg ? R"(x-bg)" : "")
             .arg(this->_roman));
     if (!this->_trans.isEmpty()) {
-        for (auto lang: this->_trans.keys()) {
+        for (const auto& lang: this->_trans.keys())
             ass.append(QString(R"(Dialogue: 0,%1,%2,ts,%3,0,0,0,,%4)")
                 .arg(this->_begin.toString(true, true, true))
                 .arg(this->_end.toString(true, true, true))
@@ -177,7 +177,6 @@ QString LyricLine::toASS() {
                     .arg(R"(x-lang:)" + lang)
                     .trimmed())
                 .arg(this->_trans[lang]));
-        }
     }
     if (this->_bg_line)
         ass.append(this->_bg_line->toASS());
@@ -194,7 +193,7 @@ QString LyricLine::toTXT() {
     return line.join("");
 }
 
-QString LyricLine::toLRC(const QString &extra, LyricTime next) {
+QString LyricLine::toLRC(const QString &extra, const LyricTime next) {
     QStringList line{};
     QString ext{};
 
@@ -209,9 +208,6 @@ QString LyricLine::toLRC(const QString &extra, LyricTime next) {
         if (this->_trans.contains(lang))
             ext = this->_trans[lang];
     }
-
-    if (next - this->_end > (5 * 1000))
-        next = this->_end + (5 * 1000);
     if (!ext.isEmpty())
         line.append(QString(R"([%1]%2)")
             .arg(next.toString(false, true, true))
@@ -234,7 +230,7 @@ QString LyricLine::toLRC(const QString &extra, LyricTime next) {
         }
     }
     if (next - this->_end >= (5 * 1000))
-        line.append(QString(R"([%1])").arg(next.toString(false, true, true)));
+        line.append(QString(R"([%1])").arg(this->_end.toString(false, true, true)));
 
     return line.join("\n");
 }
