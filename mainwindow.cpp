@@ -624,3 +624,21 @@ void MainWindow::on_toTXT_triggered() {
     this->setEnabled(true);
     ui->statusbar->showMessage(R"(TXT 生成完成)");
 }
+
+void MainWindow::on_fromLYS_triggered()
+{
+
+}
+
+
+void MainWindow::on_fromQRC_triggered()
+{
+
+}
+
+
+void MainWindow::on_fromYRC_triggered()
+{
+
+}
+

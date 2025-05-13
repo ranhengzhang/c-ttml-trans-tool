@@ -26,7 +26,7 @@ LyricLine LyricLine::parse(const QDomElement &p, const bool is_bg, bool *ok) {
     LyricTime last_end = line._begin;
 
     for (int i = 0; i < syl_s.count(); ++i) {
-        const auto child = syl_s.at(i).toElement();
+        const auto child = syl_s.at(i);
         if (child.isText()) {
             LyricTime next_begin;
             if (i != syl_s.count() - 1) {
@@ -34,18 +34,20 @@ LyricLine LyricLine::parse(const QDomElement &p, const bool is_bg, bool *ok) {
             } else {
                 next_begin = line._end;
             }
-            auto syl = LyricSyl::parse(child.text(), last_end, next_begin, ok);
+            auto syl = LyricSyl::parse(child.nodeValue(), last_end, next_begin, ok);
             // ReSharper disable once CppDFAConstantConditions
             // ReSharper disable once CppDFAUnreachableCode
             if (ok) line._syl_s.push_back(syl);
+            continue;
         }
 
+        const auto element = child.toElement();
         // ReSharper disable once CppTooWideScopeInitStatement
-        const auto role = child.attribute(R"(ttm:role)");
+        const auto role = element.attribute(R"(ttm:role)");
 
         if (role.isEmpty()) {
             // normal syl
-            auto syl = LyricSyl::parse(child, ok);
+            auto syl = LyricSyl::parse(element, ok);
             line._syl_s.push_back(syl);
             // ReSharper disable once CppDFAConstantConditions
             // ReSharper disable once CppDFAUnreachableCode
@@ -53,19 +55,19 @@ LyricLine LyricLine::parse(const QDomElement &p, const bool is_bg, bool *ok) {
             last_end = syl.getEnd();
         } else if (R"(x-bg)" == role) {
             // bg line
-            auto bg_line = LyricLine::parse(child, true, ok);
+            auto bg_line = LyricLine::parse(element, true, ok);
             // ReSharper disable once CppDFAConstantConditions
             // ReSharper disable once CppDFAUnreachableCode
             if (!ok) return {};
             line._bg_line = std::make_unique<LyricLine>(std::move(bg_line));
         } else if (R"(x-translation)" == role) {
             // trans line
-            QString lang = child.attribute(R"(xml:lang)");
+            QString lang = element.attribute(R"(xml:lang)");
 
-            line._trans.insert(lang, child.firstChild().nodeValue());
+            line._trans.insert(lang, element.firstChild().nodeValue());
         } else if (R"(x-roman)" == role) {
             // roman line
-            line._roman = child.text();
+            line._roman = element.text();
         }
     }
 

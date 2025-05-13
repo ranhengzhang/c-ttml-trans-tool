@@ -12,6 +12,12 @@ class Lyric {
 public:
     [[nodiscard]] static Lyric parse(const QDomElement &tt, bool *ok);
 
+    [[nodiscard]] static Lyric fromLYS(QStringList orig, QStringList ts, bool *ok);
+
+    [[nodiscard]] static Lyric fromYRC(QStringList orig, QStringList ts, bool *ok);
+
+    [[nodiscard]] static Lyric fromQRC(QStringList orig, QStringList ts, QStringList roman, bool *ok);
+
     [[nodiscard]] QString getTitle(const QString &postfix = "");
 
     [[nodiscard]] bool haveDuet() const;

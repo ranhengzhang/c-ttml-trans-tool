@@ -17,7 +17,7 @@ public:
 
     int64_t operator-(const LyricTime &rhs) const;
 
-    LyricTime operator+(const int64_t rhs) const;
+    LyricTime operator+(int64_t rhs) const;
 
     friend bool operator<(const LyricTime &lhs, const LyricTime &rhs);
 
@@ -32,6 +32,8 @@ public:
     [[nodiscard]] QString toString(bool to_long, bool to_short, bool to_dot) const;
 
     [[nodiscard]] int64_t getCount() const;
+
+    [[nodiscard]] LyricTime toShort() const;
 
 private:
     static QRegularExpression _timeReg;

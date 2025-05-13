@@ -75,6 +75,12 @@ int64_t LyricTime::getCount() const {
     return this->_count;
 }
 
+LyricTime LyricTime::toShort() const {
+    LyricTime time{};
+    time._count = this->_count - this->_count % 10;
+    return time;
+}
+
 bool LyricTime::operator==(const LyricTime &rhs) const {
     return _count == rhs._count;
 }

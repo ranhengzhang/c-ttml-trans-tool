@@ -102,8 +102,17 @@
     <addaction name="toYRC"/>
     <addaction name="toTXT"/>
    </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>解析</string>
+    </property>
+    <addaction name="fromLYS"/>
+    <addaction name="fromQRC"/>
+    <addaction name="fromYRC"/>
+   </widget>
    <addaction name="menu_input"/>
    <addaction name="menu_output"/>
+   <addaction name="menu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="fromFile">
@@ -152,6 +161,21 @@
    </property>
   </action>
   <action name="toYRC">
+   <property name="text">
+    <string>YRC</string>
+   </property>
+  </action>
+  <action name="fromLYS">
+   <property name="text">
+    <string>LYS</string>
+   </property>
+  </action>
+  <action name="fromQRC">
+   <property name="text">
+    <string>QRC</string>
+   </property>
+  </action>
+  <action name="fromYRC">
    <property name="text">
     <string>YRC</string>
    </property>

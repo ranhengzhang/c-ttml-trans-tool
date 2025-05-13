@@ -47,6 +47,12 @@ private slots:
 
     void on_toTXT_triggered();
 
+    void on_fromLYS_triggered();
+
+    void on_fromQRC_triggered();
+
+    void on_fromYRC_triggered();
+
 private:
     Ui::MainWindow *ui;
 
