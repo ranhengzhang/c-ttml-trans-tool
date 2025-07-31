@@ -4,8 +4,7 @@
 >
 > opencc.lib 来自 [apoint123/ferrous-opencc](https://github.com/apoint123/ferrous-opencc)
 
-<p align="center"><img src="https://img.shields.io/badge/CLion-JetBrains-44bba1?logo=clion"/> <img src="https://img.shields.io/badge/Qt-6.7.1-41CD52?logo=Qt&logoColor=f5f5f5"/> <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Franhengzhang%2Fc-ttml-trans-tool%2Frefs%2Fheads%2Fmain%2Fbadge.json
-"/> <img src="https://img.shields.io/badge/Apple Music-TTML-FA243C?logo=applemusic"/> <img src="https://img.shields.io/badge/Icons-Material Design-2196F3?logo=materialdesignicons&logoColor=f5f5f5"/> <img src="https://img.shields.io/badge/Icons-Fluent_Emoji-f5f5f5"/></p>
+<p align="center"><img src="https://img.shields.io/badge/CLion-JetBrains-44bba1?logo=clion"/> <img src="https://img.shields.io/badge/Qt-6.7.1-41CD52?logo=Qt&logoColor=f5f5f5"/> <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Franhengzhang%2Fc-ttml-trans-tool%2Frefs%2Fheads%2Fmain%2Fbadge.json"/> <img src="https://img.shields.io/badge/Apple Music-TTML-FA243C?logo=applemusic"/> <img src="https://img.shields.io/badge/Icons-Material Design-2196F3?logo=materialdesignicons&logoColor=f5f5f5"/> <img src="https://img.shields.io/badge/Icons-Fluent_Emoji-f5f5f5"/></p>
 
 <p align="center"><img src="https://img.shields.io/badge/C++-17-00599C?logo=cplusplus"/> <img src="https://img.shields.io/badge/CMake-3.25.0-064F8C?logo=cmake"/> <img src="https://img.shields.io/badge/Build-Release-brightgreen"/></p>
 
