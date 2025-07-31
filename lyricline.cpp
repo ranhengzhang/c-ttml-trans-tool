@@ -4,17 +4,19 @@
 
 #include "lyricline.h"
 
-LyricLine LyricLine::parse(const QDomElement &p, const bool is_bg, bool *ok) {
+LyricLine LyricLine::parse(const QDomElement &p, const LyricLine *parent, bool *ok) {
     // NOLINT(*-no-recursion)
     LyricLine line;
 
     const auto begin = p.attribute(R"(begin)");
     const auto end = p.attribute(R"(end)");
     const auto agent = p.attribute(R"(ttm:agent)");
+    const auto num = p.attribute(R"(itunes:key)");
 
-    line._is_bg = is_bg;
-    line._is_duet = R"(v1)" != agent;
+    line._is_bg = parent != nullptr;
+    line._is_duet = parent ? parent->_is_duet : R"(v1)" != agent;
     line._begin = LyricTime::parse(begin, ok);
+    line._num = num.mid(1).toUInt(ok);
     if (!ok) return {};
     line._end = LyricTime::parse(end, ok);
     // ReSharper disable once CppDFAConstantConditions
@@ -55,7 +57,7 @@ LyricLine LyricLine::parse(const QDomElement &p, const bool is_bg, bool *ok) {
             last_end = syl.getEnd();
         } else if (R"(x-bg)" == role) {
             // bg line
-            auto bg_line = LyricLine::parse(element, true, ok);
+            auto bg_line = LyricLine::parse(element, &line, ok);
             // ReSharper disable once CppDFAConstantConditions
             // ReSharper disable once CppDFAUnreachableCode
             if (!ok) return {};
@@ -73,6 +75,10 @@ LyricLine LyricLine::parse(const QDomElement &p, const bool is_bg, bool *ok) {
 
     *ok = true;
     return line;
+}
+
+qsizetype LyricLine::getCount() const {
+    return this->_syl_s.count();
 }
 
 bool LyricLine::haveBg() const {
@@ -96,7 +102,7 @@ QSet<QString> LyricLine::getLang() const {
     return QSet(lang.begin(), lang.end());
 }
 
-QString LyricLine::toTTML(const int num) { // NOLINT(misc-no-recursion)
+QString LyricLine::toTTML() { // NOLINT(misc-no-recursion)
     QStringList line{};
 
     line.append(QString(R"(<%1 begin="%2" end="%3" %4>)")
@@ -107,12 +113,12 @@ QString LyricLine::toTTML(const int num) { // NOLINT(misc-no-recursion)
                  ? R"(ttm:role="x-bg")"
                  : QString(R"(ttm:agent="%1" itunes:key="L%2")")
                  .arg(this->_is_duet ? R"(v2)" : R"(v1)")
-                 .arg(num)));
+                 .arg(this->_num)));
 
     for (auto &syl: this->_syl_s)
         line.append(syl.toTTML());
     if (!this->_trans.isEmpty())
-        for (auto lang: this->_trans.keys())
+        for (const auto& lang: this->_trans.keys())
             line.append(QString(R"(<span ttm:role="x-translation" xml:lang="%1">%2</span>)")
                 .arg(lang)
                 .arg(this->_trans[lang]));
@@ -170,7 +176,7 @@ QString LyricLine::toASS() {
             .arg(this->_is_bg ? R"(x-bg)" : "")
             .arg(this->_roman));
     if (!this->_trans.isEmpty()) {
-        for (const auto& lang: this->_trans.keys())
+        for (const auto &lang: this->_trans.keys())
             ass.append(QString(R"(Dialogue: 0,%1,%2,ts,%3,0,0,0,,%4)")
                 .arg(this->_begin.toString(true, true, true))
                 .arg(this->_end.toString(true, true, true))
@@ -360,4 +366,32 @@ QPair<QString, QString> LyricLine::toYRC(const QString &lang) {
     }
 
     return {orig.join("\n"), ts.join("\n")};
+}
+
+QStringList LyricLine::toKRCLang(const QString &lang) {
+    QStringList ts{};
+
+    ts.append(this->_trans.contains(lang) ? this->_trans[lang] : "");
+    if (this->_bg_line)
+        ts.append(this->_bg_line->_trans.contains(lang) ? this->_bg_line->_trans[lang] : "");
+
+    return ts;
+}
+
+QString LyricLine::toKRC() {
+    QStringList line{};
+
+    line.append(QString(R"([%1,%2])")
+        .arg(this->_begin.getCount())
+        .arg(this->_end - this->_begin));
+    for (auto &syl: this->_syl_s)
+        line.append(syl.toKRC(this->_begin));
+    if (this->_bg_line) {
+        line.append(QString(R"(\n[%1,%2])")
+            .arg(this->_bg_line->_begin.getCount())
+            .arg(this->_bg_line->_end - this->_bg_line->_begin));
+        for (auto &syl: this->_bg_line->_syl_s)
+            line.append(syl.toKRC(this->_begin));
+    }
+    return line.join("");
 }

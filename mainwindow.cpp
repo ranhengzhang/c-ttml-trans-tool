@@ -29,10 +29,16 @@ MainWindow::MainWindow(QWidget *parent)
             ui->TTMLTextEdit->setFont(m_font);
         }
     }
+
+    opencc_create("s2t.json", &ot_s2t);
+    opencc_create("t2s.json", &ot_t2s);
 }
 
 MainWindow::~MainWindow() {
     delete ui;
+
+    opencc_destroy(ot_t2s);
+    opencc_destroy(ot_s2t);
 }
 
 void MainWindow::on_offsetButton_clicked() {
@@ -642,3 +648,282 @@ void MainWindow::on_fromYRC_triggered()
 
 }
 
+
+void MainWindow::on_copyTTML_triggered()
+{
+    // ReSharper disable once CppTooWideScopeInitStatement
+    const auto ok = this->parse();
+
+    if (!ok) return;
+
+    const auto text = this->_lyric->toTTML();
+    QApplication::clipboard()->setText(text);
+}
+
+void MainWindow::on_copyASS_triggered()
+{
+    // ReSharper disable once CppTooWideScopeInitStatement
+    const auto ok = this->parse();
+
+    if (!ok) return;
+
+    const auto text = this->_lyric->toASS();
+    QApplication::clipboard()->setText(text);
+    ui->statusbar->showMessage("导出成功");
+}
+
+void MainWindow::on_copyLRC_triggered()
+{
+    // ReSharper disable once CppTooWideScopeInitStatement
+    const auto ok = this->parse();
+
+    if (!ok) return;
+
+    const auto text = this->_lyric->toLRC("");
+    QApplication::clipboard()->setText(text);
+    ui->statusbar->showMessage("导出成功");
+}
+
+void MainWindow::on_copySPL_triggered()
+{
+    // ReSharper disable once CppTooWideScopeInitStatement
+    const auto ok = this->parse();
+
+    if (!ok) return;
+
+    const auto text = this->_lyric->toSPL();
+    QApplication::clipboard()->setText(text);
+    ui->statusbar->showMessage("导出成功");
+}
+
+
+void MainWindow::on_copyLYS_triggered()
+{
+    // ReSharper disable once CppTooWideScopeInitStatement
+    const auto ok = this->parse();
+
+    if (!ok) return;
+
+    const auto text = this->_lyric->toLYS("");
+    QApplication::clipboard()->setText(text.first);
+    ui->statusbar->showMessage("导出成功");
+}
+
+
+void MainWindow::on_copyQRC_triggered()
+{
+    // ReSharper disable once CppTooWideScopeInitStatement
+    const auto ok = this->parse();
+
+    if (!ok) return;
+
+    const auto text = this->_lyric->toQRC("");
+    QApplication::clipboard()->setText(text[R"(orig)"]);
+    ui->statusbar->showMessage("导出成功");
+}
+
+
+void MainWindow::on_copyYRC_triggered()
+{
+    // ReSharper disable once CppTooWideScopeInitStatement
+    const auto ok = this->parse();
+
+    if (!ok) return;
+
+    const auto text = this->_lyric->toYRC("");
+    QApplication::clipboard()->setText(text.first);
+    ui->statusbar->showMessage("导出成功");
+}
+
+
+void MainWindow::on_copyTXT_triggered()
+{
+    // ReSharper disable once CppTooWideScopeInitStatement
+    const auto ok = this->parse();
+
+    if (!ok) return;
+
+    const auto text = this->_lyric->toTXT();
+    QApplication::clipboard()->setText(text);
+    ui->statusbar->showMessage("导出成功");
+}
+
+QString MainWindow::s2t(QString val) {
+    auto str = val.toStdString();
+    auto buffer = opencc_convert(ot_s2t, str.c_str());
+    return QString::fromUtf8(buffer);
+}
+
+QString MainWindow::t2s(QString val) {
+    auto str = val.toStdString();
+    auto buffer = opencc_convert(ot_t2s, str.c_str());
+    return QString::fromUtf8(buffer);
+}
+
+void MainWindow::node_t2s(QDomNode &node) {
+    // 递归终止条件
+    if (node.isNull()) return;
+
+    // 处理当前节点
+    if (node.isElement()) {
+        const QDomElement el = node.toElement();
+
+        // 跳过metadata标签
+        if (el.tagName() == "metadata") {
+            return;
+        }
+
+        // 跳过带有特定属性的span
+        if (el.tagName() == "span") {
+            if (el.hasAttribute("ttm:role") &&
+                el.attribute("ttm:role") == "x-translation") {
+                return;
+                }
+        }
+    }
+
+    // 处理文本节点
+    if (node.isText()) {
+        const QString content = node.nodeValue();
+        if (!content.trimmed().isEmpty()) {
+            node.setNodeValue(t2s(content));
+        }
+    }
+
+    // 递归处理子节点
+    QDomNode child = node.firstChild();
+    while (!child.isNull()) {
+        const QDomNode next = child.nextSibling();  // 先获取下一个兄弟节点
+        node_t2s(child);                        // 递归处理当前子节点
+        child = next;                               // 移动到下一个兄弟节点
+    }
+}
+
+void MainWindow::node_s2t(QDomNode &node) {
+    // 递归终止条件
+    if (node.isNull()) return;
+
+    // 处理当前节点
+    if (node.isElement()) {
+        const QDomElement el = node.toElement();
+
+        // 跳过metadata标签
+        if (el.tagName() == "metadata") {
+            return;
+        }
+
+        // 跳过带有特定属性的span
+        if (el.tagName() == "span") {
+            if (el.hasAttribute("ttm:role") &&
+                el.attribute("ttm:role") == "x-translation") {
+                return;
+                }
+        }
+    }
+
+    // 处理文本节点
+    if (node.isText()) {
+        const QString content = node.nodeValue();
+        if (!content.trimmed().isEmpty()) {
+            node.setNodeValue(s2t(content));
+        }
+    }
+
+    // 递归处理子节点
+    QDomNode child = node.firstChild();
+    while (!child.isNull()) {
+        const QDomNode next = child.nextSibling();  // 先获取下一个兄弟节点
+        node_s2t(child);                        // 递归处理当前子节点
+        child = next;                               // 移动到下一个兄弟节点
+    }
+}
+
+void MainWindow::on_actions2t_triggered()
+{
+    const auto text = ui->TTMLTextEdit->toPlainText();
+    QDomDocument doc;
+
+    // ReSharper disable once CppTooWideScopeInitStatement
+    const auto res = doc.setContent(text, QDomDocument::ParseOption::PreserveSpacingOnlyNodes);
+
+    if (!res) {
+        QMessageBox::critical(this, R"(错误)",
+                              QString("无法解析TTML于 (%1,%2)\n%3")
+                              .arg(res.errorLine)
+                              .arg(res.errorLine)
+                              .arg(res.errorMessage));
+        ui->statusbar->showMessage(R"(TTML 解析失败)");
+        return;
+    }
+
+    node_s2t(doc);
+    ui->TTMLTextEdit->setPlainText(doc.toString(-1));
+}
+
+void MainWindow::on_actiont2s_triggered()
+{
+    const auto text = ui->TTMLTextEdit->toPlainText();
+    QDomDocument doc;
+
+    // ReSharper disable once CppTooWideScopeInitStatement
+    const auto res = doc.setContent(text, QDomDocument::ParseOption::PreserveSpacingOnlyNodes);
+
+    if (!res) {
+        QMessageBox::critical(this, R"(错误)",
+                              QString("无法解析TTML于 (%1,%2)\n%3")
+                              .arg(res.errorLine)
+                              .arg(res.errorLine)
+                              .arg(res.errorMessage));
+        ui->statusbar->showMessage(R"(TTML 解析失败)");
+        return;
+    }
+
+    node_t2s(doc);
+    ui->TTMLTextEdit->setPlainText(doc.toString(-1));
+}
+
+void MainWindow::on_actionPreset_triggered()
+{
+    // ReSharper disable once CppTooWideScopeInitStatement
+    auto ok = this->parse();
+
+    if (!ok) return;
+
+    auto metas = this->_lyric->getPresetMeta();
+
+    if (metas.isEmpty())
+        return;
+
+    QStringList buffer{};
+
+    for (const auto &[key, alt] : Lyric::presetMetas) {
+        if (metas.contains(key)) {
+            buffer.append("### " + alt);
+
+            for (const auto &meta : metas[key])
+                buffer.append("- " + ("`" + meta + "`"));
+        }
+    }
+
+    QApplication::clipboard()->setText(buffer.join('\n'));
+    ui->statusbar->showMessage("复制成功");
+}
+
+
+void MainWindow::on_actionExtra_triggered()
+{
+    // ReSharper disable once CppTooWideScopeInitStatement
+    auto ok = this->parse();
+
+    if (!ok) return;
+
+    auto metas = this->_lyric->getExtraMeta();
+    QStringList buffer{"扩展元数据：", "| *key* | *value* |", "| -: | :- |"};
+
+    for (const auto &[key, value] : metas) {
+        buffer.append(QString("| **%1** | `%2` |").arg(key).arg(value));
+    }
+
+    QApplication::clipboard()->setText(buffer.join('\n'));
+    ui->statusbar->showMessage("复制成功");
+}

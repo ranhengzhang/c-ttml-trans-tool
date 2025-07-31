@@ -4,6 +4,7 @@
 #include <QMainWindow>
 
 #include "lyric.h"
+#include "opencc.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -53,11 +54,47 @@ private slots:
 
     void on_fromYRC_triggered();
 
+    void on_copyTTML_triggered();
+
+    void on_copyASS_triggered();
+
+    void on_copyLRC_triggered();
+
+    void on_copySPL_triggered();
+
+    void on_copyLYS_triggered();
+
+    void on_copyQRC_triggered();
+
+    void on_copyYRC_triggered();
+
+    void on_copyTXT_triggered();
+
+    void on_actions2t_triggered();
+
+    void on_actiont2s_triggered();
+
+    void on_actionPreset_triggered();
+
+    void on_actionExtra_triggered();
+
 private:
+    [[nodiscard]] QString t2s(QString val);
+
+    [[nodiscard]] QString s2t(QString val);
+
+    void node_t2s(QDomNode &node);
+
+    void node_s2t(QDomNode &node);
+
+    OpenCCHandle *ot_t2s{nullptr};
+
+    OpenCCHandle *ot_s2t{nullptr};
+
+    bool parse();
+
     Ui::MainWindow *ui;
 
     std::unique_ptr<Lyric> _lyric{};
-
-    bool parse();
 };
 #endif // MAINWINDOW_H

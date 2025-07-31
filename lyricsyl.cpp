@@ -110,3 +110,10 @@ QString LyricSyl::toYRC() const {
             .arg(this->_begin.getCount())
             .arg(this->_end - this->_begin);
 }
+
+QString LyricSyl::toKRC(const LyricTime &begin) const {
+    return QString(R"(<%1,%2,0>%3)")
+            .arg(this->_begin - begin)
+            .arg(this->_end - this->_begin)
+            .arg(this->_text);
+}

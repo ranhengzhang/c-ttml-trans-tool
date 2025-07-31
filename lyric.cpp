@@ -5,8 +5,30 @@
 #include "lyric.h"
 
 #include <qdatetime.h>
-#include <QMessageBox>
+#include <QRegularExpression>
 #include <QScreen>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonDocument>
+
+#include "mainwindow.h"
+
+QList<QPair<QString, QString> > Lyric::presetMetas{
+    {"musicName", "音乐名称"},
+    {"artists", "音乐作者"},
+    {"album", "音乐专辑名称"},
+    {"ncmMusicId", "歌曲关联网易云音乐 ID"},
+    {"qqMusicId", "歌曲关联 QQ 音乐 ID"},
+    {"spotifyId", "歌曲关联 Spotify 音乐 ID"},
+    {"appleMusicId", "歌曲关联 Apple Music 音乐 ID"}
+};
+
+QRegularExpression Lyric::_header(R"(\[(ti|ar|al):(.+)\])");
+QRegularExpression Lyric::_lys_role(R"(\[(\d)\])");
+QRegularExpression Lyric::_line_time(R"(\[(\d+),(\d+)\])");
+QRegularExpression Lyric::_syl_time(R"(\((\d+),(\d+)(,0)?\))");
+QStringList Lyric::presetKey{"musicName", "artists", "album", "ncmMusicId", "qqMusicId", "spotifyId", "appleMusicId"};
+
 
 Lyric Lyric::parse(const QDomElement &tt, bool *ok) {
     Lyric lyric{};
@@ -51,31 +73,50 @@ Lyric Lyric::parse(const QDomElement &tt, bool *ok) {
 
     const auto div_s = body.elementsByTagName(R"(div)");
 
-    if (div_s.length() != 1) {
+    if (div_s.length() == 1 && div_s.at(0).toElement().attribute(R"(itunes:songPart)").isEmpty()) {
         *ok = false;
         return {};
     }
 
-    const auto div = div_s.at(0).toElement();
-    const auto p_s = div.childNodes();
+    for (int j = 0; j < div_s.length(); ++j) {
+        const auto div = div_s.at(j).toElement();
+        const auto p_s = div.childNodes();
+        LyricPart part{};
 
-    // 解析歌词行
-    for (int i = 0; i < p_s.length(); ++i) {
-        const auto p = p_s.at(i).toElement();
-        auto line = LyricLine::parse(p, false, ok);
+        part._songPart = div.attribute(R"(itunes:songPart)");
+        // 解析歌词行
+        for (int i = 0; i < p_s.length(); ++i) {
+            const auto p = p_s.at(i).toElement();
+            auto line = LyricLine::parse(p, nullptr, ok);
 
-        if (!*ok) {
-            return {};
+            if (!*ok) {
+                return {};
+            }
+            lyric._line_s.push_back(line);
+            lyric._have_bg |= line.haveBg();
+            lyric._have_roman |= line.haveRoman();
+            lyric._lang_s = lyric._lang_s.unite(line.getLang());
+            lyric._end = line.getEnd();
+            part._count++;
         }
-        lyric._line_s.push_back(line);
-        lyric._have_bg |= line.haveBg();
-        lyric._have_roman |= line.haveRoman();
-        lyric._lang_s = lyric._lang_s.unite(line.getLang());
-        lyric._end = line.getEnd();
+        lyric._part_s.push_back(part);
     }
 
     *ok = true;
     return lyric;
+}
+
+Lyric Lyric::fromLYS(QStringList orig, QStringList ts, bool *ok) {
+    // for (auto &line: orig) {}
+    return {};
+}
+
+Lyric Lyric::fromYRC(QStringList orig, QStringList ts, bool *ok) {
+    return {};
+}
+
+Lyric Lyric::fromQRC(QStringList orig, QStringList ts, QStringList roman, bool *ok) {
+    return {};
 }
 
 // ReSharper disable once CppDFAConstantFunctionResult
@@ -90,6 +131,28 @@ QString Lyric::getTitle(const QString &postfix) {
     }
 
     return title;
+}
+
+QMap<QString, QStringList> Lyric::getPresetMeta() {
+    QMap<QString, QStringList> preset{};
+
+    for (const auto &[key, value]: _meta_s) {
+        if (presetKey.contains(key))
+            preset[key].append(value);
+    }
+
+    return preset;
+}
+
+QList<QPair<QString, QString> > Lyric::getExtraMeta() {
+    QList<QPair<QString, QString> > extra{};
+
+    for (const auto &[key, value]: _meta_s) {
+        if (!presetKey.contains(key))
+            extra.append({key, value});
+    }
+
+    return extra;
 }
 
 QString Lyric::toTTML() {
@@ -145,6 +208,44 @@ QPair<QString, QString> Lyric::toYRC(const QString &lang) {
     return {orig.join("\n"), ts.join("\n")};
 }
 
+QString Lyric::toKRC(const QString &lang) {
+    QStringList orig{};
+    QJsonObject language{};
+    QJsonObject ts{};
+
+    if (!this->_lang_s.contains(lang))
+        return {};
+
+    ts["language"] = 0;
+    ts["lyricContent"] = QJsonArray::fromStringList(this->getKRCLang(lang));
+    ts["type"] = 1;
+    language["content"] = QJsonArray::fromVariantList({ts});
+    language["version"] = 1;
+
+    // 将JSON对象转换为字节数组
+    QJsonDocument doc(language);
+    QByteArray jsonData = doc.toJson(QJsonDocument::Compact);
+    // Base64编码
+    QByteArray base64 = jsonData.toBase64();
+
+    QString creator = "unknow";
+
+    for (const auto &[key, value]: _meta_s) {
+        if (key == R"(ttmlAuthorGithubLogin)")
+            creator = value;
+    }
+
+    return this->getLRCHead()
+           + "[id:$00000000]\n"
+           + "[sign:]\n"
+           + "[qq:00000000\n]"
+           + "[offset:0]\n"
+           + QString("[by:%1]\n").arg(creator)
+           + QString("[total:%1]\n").arg(this->getDur().getCount())
+           + QString("[language:%1]\n").arg(QString::fromLatin1(base64))
+           + this->getKRCBody();
+}
+
 QString Lyric::toTXT() {
     QStringList text{};
     for (auto &line: this->_line_s)
@@ -186,12 +287,19 @@ QString Lyric::getTTMLBody() {
     QStringList text{};
 
     text.append(QString(R"(<body dur="%1">)").arg(this->_line_s.back().getEnd().toString(false, false, true)));
-    text.append(QString(R"(<div begin="%1" end="%2">)")
-        .arg(this->_line_s.front().getBegin().toString(false, false, true))
-        .arg(this->_line_s.back().getEnd().toString(false, false, true)));
-    for (int i = 0; i < this->_line_s.size(); ++i)
-        text.append(this->_line_s[i].toTTML(i + 1));
-    text.append(R"(</div></body>)");
+    int n = 0;
+    for (int i = 0; i < this->_part_s.size(); ++i) {
+        text.append(QString(R"(<div begin="%1" end="%2"%3>)")
+            .arg(this->_line_s.front().getBegin().toString(false, false, true))
+            .arg(this->_line_s.back().getEnd().toString(false, false, true))
+            .arg(this->_part_s[i]._songPart.isEmpty()
+                     ? ""
+                     : QString(R"( itunes:songPart="%1")").arg(this->_part_s[i]._songPart)));
+        for (int j = 0; j < this->_part_s[i]._count; ++j)
+            text.append(this->_line_s[n++].toTTML());
+        text.append(R"(</div>)");
+    }
+    text.append(R"(</body>)");
 
     return text.join("");
 }
@@ -255,11 +363,11 @@ QString Lyric::getLRCHead() {
 
     QStringList text{};
 
-    for (const auto& value: meta[R"(ti)"])
+    for (const auto &value: meta[R"(ti)"])
         text.append(QString(R"([ti:%1])").arg(value));
-    for (const auto& value: meta[R"(ar)"])
+    for (const auto &value: meta[R"(ar)"])
         text.append(QString(R"([ar:%1])").arg(value));
-    for (const auto& value: meta[R"(al)"])
+    for (const auto &value: meta[R"(al)"])
         text.append(QString(R"([al:%1])").arg(value));
 
     return text.join("\n");
@@ -315,4 +423,26 @@ QMap<QString, QString> Lyric::getQRCBody(const QString &lang) {
     }
 
     return {{R"(orig)", orig.join("\n")}, {R"(ts)", ts.join("\n")}, {R"(roman)", roman.join("\n")}};
+}
+
+QStringList Lyric::getKRCLang(const QString &lang) {
+    QStringList content{};
+
+    for (auto &line: this->_line_s)
+        content.append(line.toKRCLang(lang));
+
+    return content;
+}
+
+QString Lyric::getKRCBody() {
+    QStringList text{};
+
+    for (auto &line: this->_line_s)
+        text.append(line.toKRC());
+
+    return text.join('\n');
+}
+
+LyricTime Lyric::getDur() {
+    return this->_line_s.last().getEnd();
 }

@@ -20,6 +20,10 @@ public:
 
     [[nodiscard]] QString getTitle(const QString &postfix = "");
 
+    [[nodiscard]] QMap<QString, QStringList> getPresetMeta();
+
+    [[nodiscard]] QList<QPair<QString, QString>> getExtraMeta();
+
     [[nodiscard]] bool haveDuet() const;
 
     [[nodiscard]] bool haveBg() const;
@@ -42,11 +46,26 @@ public:
 
     [[nodiscard]] QPair<QString, QString> toYRC(const QString &lang);
 
+    [[nodiscard]] QString toKRC(const QString &lang);
+
     [[nodiscard]] QString toTXT();
 
+    static QList<QPair<QString, QString>> presetMetas;
+
 private:
-    QList<QPair<QString, QString> > _meta_s{};
+    struct LyricPart {
+        uint8_t _count{};
+        QString _songPart{};
+    };
+
+    static QRegularExpression _header;
+    static QRegularExpression _lys_role;
+    static QRegularExpression _line_time;
+    static QRegularExpression _syl_time;
+    static QStringList presetKey;
+    QList<QPair<QString, QString>> _meta_s{};
     QList<LyricLine> _line_s{};
+    QList<LyricPart> _part_s{};
     bool _have_duet{false};
     bool _have_bg{false};
     bool _have_roman{false};
@@ -71,6 +90,12 @@ private:
     [[nodiscard]] QPair<QString, QString> getLYSBody(const QString &lang);
 
     [[nodiscard]] QMap<QString, QString> getQRCBody(const QString &lang);
+
+    [[nodiscard]] QStringList getKRCLang(const QString &lang);
+
+    [[nodiscard]] QString getKRCBody();
+
+    [[nodiscard]] LyricTime getDur();
 };
 
 

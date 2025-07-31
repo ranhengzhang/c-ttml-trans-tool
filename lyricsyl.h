@@ -43,6 +43,8 @@ public:
 
     [[nodiscard]] QString toYRC() const;
 
+    [[nodiscard]] QString toKRC(const LyricTime &begin) const;
+
 private:
     static QRegularExpression _before;
     static QRegularExpression _after;

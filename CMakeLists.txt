@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(ttml-tool VERSION 0.3 LANGUAGES CXX)
+project(ttml-tool VERSION 0.4 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -36,6 +36,8 @@ set(PROJECT_SOURCES
 
         mplaintextedit.cpp
         mplaintextedit.h
+
+        opencc.h
 )
 
 if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -64,6 +66,7 @@ endif ()
 target_link_libraries(ttml-tool PRIVATE
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Xml
+        F:/Qt/ttml-tool/ferrous_opencc.dll.lib
 )
 
 set_target_properties(ttml-tool PROPERTIES

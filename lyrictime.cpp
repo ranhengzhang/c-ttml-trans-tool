@@ -7,7 +7,7 @@
 #include <qregularexpression.h>
 
 QRegularExpression LyricTime::_timeReg =
-        QRegularExpression(R"(((\d+):)?(\d{2,}):(\d{2})[:\.](\d{2,3}))");
+        QRegularExpression(R"(((\d+):)?((\d+):)?(\d{2})[:\.](\d{2,3}))");
 
 LyricTime LyricTime::parse(const QString &str, bool *ok) {
     if (str.isEmpty()) {
@@ -25,9 +25,9 @@ LyricTime LyricTime::parse(const QString &str, bool *ok) {
     }
 
     const auto hours = match.captured(2).isEmpty() ? 0 : match.captured(2).toInt();
-    const auto minutes = match.captured(3).toInt();
-    const auto seconds = match.captured(4).toInt();
-    auto milliseconds = match.captured(5).toInt();
+    const auto minutes = match.captured(4).isEmpty() ? 0 : match.captured(4).toInt();
+    const auto seconds = match.captured(5).toInt();
+    auto milliseconds = match.captured(6).toInt();
 
     if (2 == match.captured(5).length()) milliseconds *= 10;
     // 计算总毫秒数

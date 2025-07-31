@@ -13,7 +13,9 @@
 
 class LyricLine {
 public:
-    [[nodiscard]] static LyricLine parse(const QDomElement &p, bool is_bg, bool *ok);
+    [[nodiscard]] static LyricLine parse(const QDomElement &p, const LyricLine *parent, bool *ok);
+
+    [[nodiscard]] qsizetype getCount() const;
 
     [[nodiscard]] bool haveBg() const;
 
@@ -25,7 +27,7 @@ public:
 
     [[nodiscard]] QSet<QString> getLang() const;
 
-    [[nodiscard]] QString toTTML(int num = -1);
+    [[nodiscard]] QString toTTML();
 
     [[nodiscard]] QString toASS();
 
@@ -41,6 +43,10 @@ public:
 
     [[nodiscard]] QPair<QString, QString> toYRC(const QString &lang);
 
+    [[nodiscard]] QStringList toKRCLang(const QString &lang);
+
+    [[nodiscard]] QString toKRC();
+
 private:
     std::shared_ptr<LyricLine> _bg_line{};
     QMap<QString, QString> _trans{};
@@ -48,6 +54,7 @@ private:
     QList<LyricSyl> _syl_s{};
     LyricTime _begin{};
     LyricTime _end{};
+    uint8_t _num{};
     bool _is_duet{false};
     bool _is_bg{false};
 };
