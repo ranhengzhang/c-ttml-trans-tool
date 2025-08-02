@@ -73,7 +73,7 @@ Lyric Lyric::parse(const QDomElement &tt, bool *ok) {
 
     const auto div_s = body.elementsByTagName(R"(div)");
 
-    if (div_s.length() == 1 && div_s.at(0).toElement().attribute(R"(itunes:songPart)").isEmpty()) {
+    if (div_s.length() == 0) {
         *ok = false;
         return {};
     }

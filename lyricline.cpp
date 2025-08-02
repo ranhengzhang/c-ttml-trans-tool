@@ -151,7 +151,7 @@ QString LyricLine::toASS() {
         auto syl = this->_syl_s[i];
 
         if (syl.getBegin() > last)
-            text.append(QString(R"({\k%1})").arg((syl.getBegin() - last) / 10));
+            text.append(QString(R"({\k%1})").arg(static_cast<int64_t>(syl.getBegin() - last) / 10));
         if (i == 0)
             syl.normalize(LyricSyl::NormalizeOption::FRONT);
         if (i == this->_syl_s.size() - 1)

@@ -32,6 +32,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     opencc_create("s2t.json", &ot_s2t);
     opencc_create("t2s.json", &ot_t2s);
+
+    ui->offsetCount->setMinimum(INT32_MIN);
+    ui->offsetCount->setMaximum(INT32_MAX);
 }
 
 MainWindow::~MainWindow() {
