@@ -27,7 +27,6 @@ QRegularExpression Lyric::_header(R"(\[(ti|ar|al):(.+)\])");
 QRegularExpression Lyric::_lys_role(R"(\[(\d)\])");
 QRegularExpression Lyric::_line_time(R"(\[(\d+),(\d+)\])");
 QRegularExpression Lyric::_syl_time(R"(\((\d+),(\d+)(,0)?\))");
-QStringList Lyric::presetKey{"musicName", "artists", "album", "ncmMusicId", "qqMusicId", "spotifyId", "appleMusicId"};
 
 
 Lyric Lyric::parse(const QDomElement &tt, bool *ok) {
@@ -135,6 +134,7 @@ QString Lyric::getTitle(const QString &postfix) {
 
 QMap<QString, QStringList> Lyric::getPresetMeta() {
     QMap<QString, QStringList> preset{};
+    QStringList presetKey{"musicName", "artists", "album", "ncmMusicId", "qqMusicId", "spotifyId", "appleMusicId"};
 
     for (const auto &[key, value]: _meta_s) {
         if (presetKey.contains(key))
@@ -146,6 +146,7 @@ QMap<QString, QStringList> Lyric::getPresetMeta() {
 
 QList<QPair<QString, QString> > Lyric::getExtraMeta() {
     QList<QPair<QString, QString> > extra{};
+    QStringList presetKey{"musicName", "artists", "album", "ncmMusicId", "qqMusicId", "spotifyId", "appleMusicId", "isrc", "ttmlAuthorGithub", "ttmlAuthorGithubLogin"};
 
     for (const auto &[key, value]: _meta_s) {
         if (!presetKey.contains(key))

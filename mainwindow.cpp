@@ -5,6 +5,9 @@
 #include <QFileDialog>
 #include <QClipboard>
 #include <QInputDialog>
+#include <QStack>
+#include <QNetworkReply>
+#include <QTimer>
 
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -57,6 +60,7 @@ void MainWindow::on_offsetButton_clicked() {
     int8_t sign = 1;
 
     auto pos = text.indexOf(R"(dur=")");
+    auto is_dur = true;
     if (pos == -1) {
         ui->statusbar->showMessage(R"(无法查找 dur)");
         this->setEnabled(true);
@@ -67,7 +71,7 @@ void MainWindow::on_offsetButton_clicked() {
     while (pos != -1) {
         const auto valueStart = pos + (sign & 1 ? 5 : 7);
         // ReSharper disable once CppTooWideScopeInitStatement
-        const auto valueEnd = text.indexOf('"', valueStart);
+        auto valueEnd = text.indexOf('"', valueStart);
 
         if (valueEnd == -1) {
             ui->statusbar->showMessage(QString(R"(无法查找时间于：%1)").arg(valueStart));
@@ -94,6 +98,10 @@ void MainWindow::on_offsetButton_clicked() {
                      valueEnd - valueStart,
                      time.toString(false, false, true));
 
+        if (is_dur) {
+            valueEnd = 0;
+            is_dur = false;
+        }
         // ReSharper disable once CppCompileTimeConstantCanBeReplacedWithBooleanConstant
         if (sign & 1) {
             // ReSharper disable once CppDFAUnreachableCode
@@ -216,12 +224,53 @@ void MainWindow::on_toASS_triggered() {
     ui->statusbar->showMessage(R"(ASS 生成完成)");
 }
 
+QString compress_ttml(QString ttml) {
+    ttml = ttml.trimmed();
+
+    const QRegularExpression compress_reg(R"([\n\r]+\s*)");
+    ttml.replace(compress_reg, "");
+
+    if (ttml.contains("iTunesMetadata")) {
+        const QRegularExpression empty_span_reg(R"(([\s　])(</span><span[^>]*>)(</span>))");
+        ttml.replace(empty_span_reg, R"(\2\1\3)");
+    }
+
+    const QRegularExpression space_span_reg(R"(<span[^>]*>([\s　])</span>)");
+    ttml.replace(space_span_reg, R"(\1)");
+
+    const QRegularExpression span_space_reg(R"(([\s　])+</span>([\s　])+)");
+    ttml.replace(span_space_reg, R"(</span>\2)");
+
+    const QRegularExpression same_time_reg(R"#(<span[^>]+begin="([^"]+)"[^>]+end="\1"[^>]*>(.*?)</span>)#");
+    ttml.replace(same_time_reg, R"(\2)");
+
+
+    if (ttml.contains("iTunesMetadata")) {
+        const QRegularExpression bg_index_reg(R"(<span[^>]+ttm:role="x-bg")");
+        QRegularExpressionMatchIterator ite = bg_index_reg.globalMatch(ttml);
+        QList<QRegularExpressionMatch> matches;
+
+        while (ite.hasNext())
+            matches.append(ite.next());
+
+        std::reverse(matches.begin(), matches.end());
+
+        for (const auto &match: matches) {
+            const int start_index = match.capturedStart();
+            if (start_index == 0 || ttml[start_index - 1] != ' ')
+                ttml.insert(start_index, ' ');
+        }
+    }
+
+    return ttml;
+}
+
 bool MainWindow::parse() {
     if (this->_lyric) {
         return true;
     }
 
-    const auto text = ui->TTMLTextEdit->toPlainText();
+    const auto text = compress_ttml(ui->TTMLTextEdit->toPlainText());
     QDomDocument doc;
 
     // ReSharper disable once CppTooWideScopeInitStatement
@@ -929,4 +978,57 @@ void MainWindow::on_actionExtra_triggered()
 
     QApplication::clipboard()->setText(buffer.join('\n'));
     ui->statusbar->showMessage("复制成功");
+}
+
+void MainWindow::on_compressButton_clicked()
+{
+    ui->TTMLTextEdit->setPlainText(compress_ttml(ui->TTMLTextEdit->toPlainText()));
+}
+
+void MainWindow::on_fromURL_triggered()
+{
+    bool ok{};
+    QString url = QInputDialog::getText(this, "输入URL", "请输入TTML文件的URL：", QLineEdit::EchoMode::Normal, "", &ok);
+
+    if (!ok || url.isEmpty()) return;
+
+    QNetworkAccessManager manager;
+    const auto request = QNetworkRequest(QUrl(url));
+    QNetworkReply *reply = manager.get(request);
+
+    // 阻塞等待请求完成
+    QEventLoop loop;
+    QTimer timer;
+    timer.setSingleShot(true);
+
+    // 连接信号（完成/超时）
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    connect(&timer, &QTimer::timeout, [&](){
+        loop.quit();
+        reply->abort(); // 主动终止请求
+    });
+
+    timer.start(10*1000);
+    loop.exec();
+
+    // 判断超时情况
+    const bool isTimeout = !timer.isActive();
+    if (isTimeout) {
+        reply->deleteLater();
+        ui->statusbar->showMessage("请求超时");
+        return;
+    }
+
+    // 正常错误处理
+    if (reply->error() != QNetworkReply::NoError) {
+        reply->deleteLater();
+        ui->statusbar->showMessage("请求出错");
+        return;
+    }
+
+    // 处理内容...
+    const QString content = QString::fromUtf8(reply->readAll());
+    reply->deleteLater();
+
+    ui->TTMLTextEdit->setPlainText(content);
 }

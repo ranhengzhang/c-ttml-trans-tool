@@ -36,7 +36,6 @@ public:
     [[nodiscard]] LyricTime toShort() const;
 
 private:
-    static QRegularExpression _timeReg;
     int64_t _count{0};
 };
 

@@ -62,7 +62,6 @@ private:
     static QRegularExpression _lys_role;
     static QRegularExpression _line_time;
     static QRegularExpression _syl_time;
-    static QStringList presetKey;
     QList<QPair<QString, QString>> _meta_s{};
     QList<LyricLine> _line_s{};
     QList<LyricPart> _part_s{};

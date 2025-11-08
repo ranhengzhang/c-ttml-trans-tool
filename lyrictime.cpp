@@ -6,9 +6,6 @@
 
 #include <qregularexpression.h>
 
-QRegularExpression LyricTime::_timeReg =
-        QRegularExpression(R"((((\d+):)?(\d+):)?(\d{2})[:\.](\d{2,3})$)");
-
 LyricTime LyricTime::parse(const QString &str, bool *ok) {
     if (str.isEmpty()) {
         *ok = false;
@@ -16,20 +13,29 @@ LyricTime LyricTime::parse(const QString &str, bool *ok) {
     }
 
     LyricTime time{};
+    QList<QString> matchs{};
+    QString match{};
 
-    const auto match = LyricTime::_timeReg.match(str);
-
-    if (!match.hasMatch()) {
-        *ok = false;
-        return {};
+    for (int i = str.length() - 1; i >= 0; --i) {
+        if (str[i] == '.' || str[i] == ':') {
+            matchs.push_back(match);
+            matchs.push_back(str[i]);
+            match.clear();
+        } else if (str[i].isDigit()) {
+            match.push_front(str[i]);
+        } else {
+            *ok = false;
+            return time;
+        }
     }
+    matchs.push_back(match);
 
-    const auto hours = match.captured(3).isEmpty() ? 0 : match.captured(3).toInt();
-    const auto minutes = match.captured(4).isEmpty() ? 0 : match.captured(4).toInt();
-    const auto seconds = match.captured(5).toInt();
-    auto milliseconds = match.captured(6).toInt();
+    const auto hours = matchs.length() > 5 ? matchs.at(6).toInt() : 0;
+    const auto minutes = matchs.length() > 3 ? matchs.at(4).toInt() : 0;
+    const auto seconds = matchs.at(2).toInt();
+    auto milliseconds = matchs.at(0).toInt();
 
-    if (2 == match.captured(6).length()) milliseconds *= 10; // 处理厘秒格式
+    if (2 == matchs.at(0).length()) milliseconds *= 10; // 处理厘秒格式
     // 计算总毫秒数
     time._count = hours * 3600 * 1000 // 小时转毫秒
                   + minutes * 60 * 1000 // 分钟转毫秒

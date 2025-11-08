@@ -78,6 +78,10 @@ private slots:
 
     void on_actionExtra_triggered();
 
+    void on_compressButton_clicked();
+
+    void on_fromURL_triggered();
+
 private:
     [[nodiscard]] QString t2s(QString val);
 
