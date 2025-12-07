@@ -338,6 +338,34 @@ bool MainWindow::parse() {
 void MainWindow::on_TTMLTextEdit_textChanged() {
     this->_lyric.reset();
     ui->countLabel->setText(QString::number(ui->TTMLTextEdit->toPlainText().length()));
+
+    // 1. find index <amll:meta key="musicName" value="
+    // 2. find index "
+    // 3. text.mid(begin,end)
+
+    // find first (?<=<amll:meta key="musicName" value=").*(?=" ?/>)
+    const auto musicNameBegin = ui->TTMLTextEdit->toPlainText().indexOf(R"(<amll:meta key="musicName" value=")");
+    const auto musicNameEnd= ui->TTMLTextEdit->toPlainText().indexOf(R"(")", musicNameBegin + 34);
+    QString musicName = "";
+    if (musicNameBegin != -1 && musicNameEnd > musicNameBegin)
+        musicName = ui->TTMLTextEdit->toPlainText().mid(musicNameBegin + 34, musicNameEnd - musicNameBegin - 34);
+
+    // find first (?<=<amll:meta key="artists" value=").*(?=" ?/>)
+    const auto artistsBegin = ui->TTMLTextEdit->toPlainText().indexOf(R"(<amll:meta key="artists" value=")");
+    const auto artistsEnd= ui->TTMLTextEdit->toPlainText().indexOf(R"(")", artistsBegin + 32);
+    QString artists = "";
+    if (artistsBegin != -1 && artistsEnd > artistsBegin)
+        artists = ui->TTMLTextEdit->toPlainText().mid(artistsBegin + 32, artistsEnd - artistsBegin - 32);
+
+    // find first (?<=<amll:meta key="album" value=").*(?=" ?/>)
+    const auto albumBegin = ui->TTMLTextEdit->toPlainText().indexOf(R"(<amll:meta key="album" value=")");
+    const auto albumEnd= ui->TTMLTextEdit->toPlainText().indexOf(R"(")", albumBegin + 30);
+    QString album = "";
+    if (albumBegin != -1 && albumEnd > albumBegin)
+        album = ui->TTMLTextEdit->toPlainText().mid(albumBegin + 30, albumEnd - albumBegin - 30);
+
+    if (not(musicName.isEmpty() or artists.isEmpty() or album.isEmpty()))
+        this->setWindowTitle(QString(R"(%1 - %2 - %3)").arg(musicName).arg(artists).arg(album));
 }
 
 void MainWindow::on_toLRC_triggered() {
