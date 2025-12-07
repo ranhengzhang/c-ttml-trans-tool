@@ -175,6 +175,7 @@
      <string>小工具</string>
     </property>
     <addaction name="getFilename"/>
+    <addaction name="formatTime"/>
    </widget>
    <addaction name="menu_input"/>
    <addaction name="menu_copy"/>
@@ -343,6 +344,21 @@
   <action name="getFilename">
    <property name="text">
     <string>生成文件名</string>
+   </property>
+  </action>
+  <action name="actiontoShort">
+   <property name="text">
+    <string>toShort</string>
+   </property>
+  </action>
+  <action name="actiontoLong">
+   <property name="text">
+    <string>toLong</string>
+   </property>
+  </action>
+  <action name="formatTime">
+   <property name="text">
+    <string>格式化时间戳</string>
    </property>
   </action>
  </widget>

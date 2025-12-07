@@ -16,6 +16,7 @@
 #include "./ui_mainwindow.h"
 #include "lyric.h"
 #include "lyricplus.h"
+#include "timeformatdialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -51,6 +52,35 @@ MainWindow::~MainWindow() {
     opencc_destroy(ot_s2t);
 }
 
+std::tuple<QString, bool> offsetWithKey(const QString &key, QString &text, const int64_t offset) {
+    auto beginPos = text.indexOf(QString(R"(%1=")").arg(key));
+    QList<std::tuple<int64_t, int64_t, QString>> timeList;
+
+    while (beginPos != -1) {
+        auto endPos = text.indexOf('\"', beginPos + key.length() + 2);
+        if (endPos > beginPos) {
+            auto timeStr = text.mid(beginPos + key.length() + 2, endPos - beginPos - key.length() - 2);
+            auto [time, success] = LyricTimePlus::parse(timeStr);
+            if (success) {
+                time.offset(offset);
+                timeList.append(std::make_tuple(beginPos + key.length() + 2, endPos - beginPos - key.length() - 2, time.toString(false, false, true)));
+                beginPos = text.indexOf(QString(R"(%1=")").arg(key), endPos);
+            } else {
+                return {text, false};
+            }
+        } else {
+            return {text, false};
+        }
+    }
+
+    std::ranges::reverse(timeList);
+    for (const auto &[beginIndex, length, str] : timeList) {
+        text.replace(beginIndex, length, str);
+    }
+
+    return {text, true};
+}
+
 void MainWindow::on_offsetButton_clicked() {
     ui->offsetButton->setEnabled(false); // 禁用按钮防止重复点击
 
@@ -60,62 +90,31 @@ void MainWindow::on_offsetButton_clicked() {
     ui->statusbar->showMessage(R"(开始偏移时间)");
     this->setEnabled(false);
 
-    // ReSharper disable once CppTooWideScopeInitStatement
-    int8_t sign = 1;
+    auto durOffset = offsetWithKey("dur", text, offset);
 
-    auto pos = text.indexOf(R"(dur=")");
-    auto is_dur = true;
-    if (pos == -1) {
-        ui->statusbar->showMessage(R"(无法查找 dur)");
+    if (!std::get<1>(durOffset)) {
+        ui->statusbar->showMessage(R"(偏移 dur 失败)");
         this->setEnabled(true);
         ui->offsetButton->setEnabled(true);
         return;
     }
 
-    while (pos != -1) {
-        const auto valueStart = pos + (sign & 1 ? 5 : 7);
-        // ReSharper disable once CppTooWideScopeInitStatement
-        auto valueEnd = text.indexOf('"', valueStart);
+    auto beginOffset = offsetWithKey("begin", text, offset);
 
-        if (valueEnd == -1) {
-            ui->statusbar->showMessage(QString(R"(无法查找时间于：%1)").arg(valueStart));
-            this->setEnabled(true);
-            ui->offsetButton->setEnabled(true);
-            return;
-        }
+    if (!std::get<1>(beginOffset)) {
+        ui->statusbar->showMessage(R"(偏移 begin 失败)");
+        this->setEnabled(true);
+        ui->offsetButton->setEnabled(true);
+        return;
+    }
 
-        auto time_str = text.mid(valueStart, valueEnd - valueStart);
-        ui->statusbar->showMessage(QString(R"(处理时间戳：%1)").arg(time_str));
-        // ReSharper disable once CppTooWideScopeInitStatement
-        // 时间处理逻辑
-        bool ok;
-        auto time = LyricTime::parse(time_str, &ok);
-        if (!ok) {
-            ui->statusbar->showMessage(QString(R"(时间戳格式错误：%1 [%2])").arg(time_str).arg(valueStart));
-            this->setEnabled(true);
-            ui->offsetButton->setEnabled(true);
-            return;
-        }
+    auto endOffset = offsetWithKey("end", text, offset);
 
-        time.offset(offset);
-        text.replace(valueStart,
-                     valueEnd - valueStart,
-                     time.toString(false, false, true));
-
-        if (is_dur) {
-            valueEnd = 0;
-            is_dur = false;
-        }
-        // ReSharper disable once CppCompileTimeConstantCanBeReplacedWithBooleanConstant
-        if (sign & 1) {
-            // ReSharper disable once CppDFAUnreachableCode
-            pos = text.indexOf(R"(begin=")", valueEnd);
-            // ReSharper disable once CppRedundantElseKeywordInsideCompoundStatement
-        } else {
-            pos = text.indexOf(R"(end=")", valueEnd);
-        }
-
-        sign ^= 1;
+    if (!std::get<1>(endOffset)) {
+        ui->statusbar->showMessage(R"(偏移 end 失败)");
+        this->setEnabled(true);
+        ui->offsetButton->setEnabled(true);
+        return;
     }
 
     ui->TTMLTextEdit->setPlainText(text);
@@ -153,6 +152,63 @@ long long timestamp_millis() {
 void MainWindow::on_getFilename_triggered() { // NOLINT(*-convert-member-functions-to-static)
     const auto unique_id = generate_unique_id(8);
     QApplication::clipboard()->setText(QString(R"(raw-lyrics/%1-68000793-%2.ttml)").arg(timestamp_millis()).arg(QString::fromStdString(unique_id)));
+}
+
+
+std::tuple<QString, bool> formatTime(const QString &key, QString &text, const bool to_long, const bool to_centi, const bool to_dot) {
+    auto beginPos = text.indexOf(QString(R"(%1=")").arg(key));
+    QList<std::tuple<int64_t, int64_t, QString>> timeList;
+
+    while (beginPos != -1) {
+        auto endPos = text.indexOf('\"', beginPos + key.length() + 2);
+        if (endPos > beginPos) {
+            auto timeStr = text.mid(beginPos + key.length() + 2, endPos - beginPos - key.length() - 2);
+            auto [time, success] = LyricTimePlus::parse(timeStr);
+            if (success) {
+                timeList.append(std::make_tuple(beginPos + key.length() + 2, endPos - beginPos - key.length() - 2, time.toString(to_long, to_centi, to_dot)));
+                beginPos = text.indexOf(QString(R"(%1=")").arg(key), endPos);
+            } else {
+                return {text, false};
+            }
+        } else {
+            return {text, false};
+        }
+    }
+
+    std::ranges::reverse(timeList);
+    for (const auto &[beginIndex, length, str] : timeList) {
+        text.replace(beginIndex, length, str);
+    }
+
+    return {text, true};
+}
+
+void MainWindow::on_formatTime_triggered() {
+    const auto dialog = new TimeFormatDialog(this);
+    dialog->setWindowTitle("设置时间格式");
+    if (dialog->exec() == QDialog::Accepted) {
+        auto text = ui->TTMLTextEdit->toPlainText();
+
+        const auto durFormat = formatTime("dur", text, dialog->to_long, dialog->to_centi, dialog->to_dot);
+        if (!std::get<1>(durFormat)) {
+            QMessageBox::critical(this, R"(错误)", R"(格式化 dur 失败)");
+            return;
+        }
+
+        const auto beginFormat = formatTime("begin", text, dialog->to_long, dialog->to_centi, dialog->to_dot);
+        if (!std::get<1>(beginFormat)) {
+            QMessageBox::critical(this, R"(错误)", R"(格式化 begin 失败)");
+            return;
+        }
+
+        const auto endFormat = formatTime("end", text, dialog->to_long, dialog->to_centi, dialog->to_dot);
+        if (!std::get<1>(endFormat)) {
+            QMessageBox::critical(this, R"(错误)", R"(格式化 end 失败)");
+            return;
+        }
+
+        ui->TTMLTextEdit->setPlainText(text);
+    }
 }
 
 void MainWindow::on_fromFile_triggered() {

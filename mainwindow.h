@@ -30,6 +30,8 @@ private slots:
 
     void on_getFilename_triggered();
 
+    void on_formatTime_triggered();
+
     void on_fromFile_triggered();
 
     void on_fromClipboard_triggered();

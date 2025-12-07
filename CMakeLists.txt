@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(ttml-tool VERSION 0.8 LANGUAGES CXX)
+project(ttml-tool VERSION 0.9 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -21,6 +21,10 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+
+        timeformatdialog.cpp
+        timeformatdialog.h
+        timeformatdialog.ui
 
         lyric.cpp
         lyric.h

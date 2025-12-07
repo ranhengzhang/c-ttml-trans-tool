@@ -66,7 +66,7 @@ QString LyricTimePlus::toString(bool to_long, bool to_centi, bool to_dot) const 
 
         time.push_front(QString::asprintf(to_long || count >= 60 ? "%02lld" : "%lld", count % 60));
 
-        if (count >= 60 || to_long) {
+        if (count >= 60) {
             time.push_front(":");
             time.push_front(QString::asprintf("%lld", count / 60));
         }
