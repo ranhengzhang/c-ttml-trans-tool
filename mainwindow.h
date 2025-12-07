@@ -28,6 +28,8 @@ private slots:
 
     void on_offsetButton_clicked();
 
+    void on_getFilename_triggered();
+
     void on_fromFile_triggered();
 
     void on_fromClipboard_triggered();
@@ -78,9 +80,11 @@ private slots:
 
     void on_actionExtra_triggered();
 
-    void on_compressButton_clicked();
+    void on_compressButton_clicked() const;
 
     void on_fromURL_triggered();
+
+    void on_copyButton_clicked();
 
 private:
     [[nodiscard]] QString t2s(QString val);

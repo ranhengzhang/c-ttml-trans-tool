@@ -20,7 +20,8 @@ QList<QPair<QString, QString> > Lyric::presetMetas{
     {"ncmMusicId", "歌曲关联网易云音乐 ID"},
     {"qqMusicId", "歌曲关联 QQ 音乐 ID"},
     {"spotifyId", "歌曲关联 Spotify 音乐 ID"},
-    {"appleMusicId", "歌曲关联 Apple Music 音乐 ID"}
+    {"appleMusicId", "歌曲关联 Apple Music 音乐 ID"},
+    {"isrc", "歌曲关联 ISRC"}
 };
 
 QRegularExpression Lyric::_header(R"(\[(ti|ar|al):(.+)\])");
@@ -134,7 +135,7 @@ QString Lyric::getTitle(const QString &postfix) {
 
 QMap<QString, QStringList> Lyric::getPresetMeta() {
     QMap<QString, QStringList> preset{};
-    QStringList presetKey{"musicName", "artists", "album", "ncmMusicId", "qqMusicId", "spotifyId", "appleMusicId"};
+    QStringList presetKey{"ttmlAuthorGithubLogin", "musicName", "artists", "album", "ncmMusicId", "qqMusicId", "spotifyId", "appleMusicId", "isrc"};
 
     for (const auto &[key, value]: _meta_s) {
         if (presetKey.contains(key))

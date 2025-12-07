@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(ttml-tool VERSION 0.6 LANGUAGES CXX)
+project(ttml-tool VERSION 0.7 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Xml Network)
@@ -33,6 +33,18 @@ set(PROJECT_SOURCES
 
         lyrictime.cpp
         lyrictime.h
+
+        lyricplus.h
+        lyricplus.cpp
+
+        lyriclineplus.h
+        lyriclineplus.cpp
+
+        lyricsylplus.h
+        lyricsylplus.cpp
+
+        lyrictimeplus.h
+        lyrictimeplus.cpp
 
         mplaintextedit.cpp
         mplaintextedit.h

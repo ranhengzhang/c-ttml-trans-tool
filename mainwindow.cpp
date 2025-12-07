@@ -10,8 +10,12 @@
 #include <QTimer>
 
 #include "mainwindow.h"
+
+#include <random>
+
 #include "./ui_mainwindow.h"
 #include "lyric.h"
+#include "lyricplus.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -120,6 +124,37 @@ void MainWindow::on_offsetButton_clicked() {
     ui->statusbar->showMessage(R"(时间偏移完成)");
 }
 
+std::string generate_unique_id(size_t len) {
+    // 对应 Rust 的 Alphanumeric 分布
+    static constexpr char charset[] =
+        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    // 对应 Rust 的 rand::rng()
+    // 使用 thread_local 保证线程安全且初始化一次，性能等同于 Rust 的 ThreadRng
+    thread_local std::mt19937 rng{std::random_device{}()};
+
+    // sizeof(charset) 包含末尾的 '\0'，所以最大索引是 sizeof - 2
+    thread_local std::uniform_int_distribution<size_t> dist(0, sizeof(charset) - 2);
+
+    std::string result(len, '\0');
+    for (size_t i = 0; i < len; ++i) {
+        result[i] = charset[dist(rng)];
+    }
+    return result;
+}
+
+long long timestamp_millis() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()
+    ).count();
+}
+
+// ReSharper disable once CppMemberFunctionMayBeStatic
+void MainWindow::on_getFilename_triggered() { // NOLINT(*-convert-member-functions-to-static)
+    const auto unique_id = generate_unique_id(8);
+    QApplication::clipboard()->setText(QString(R"(raw-lyrics/%1-68000793-%2.ttml)").arg(timestamp_millis()).arg(QString::fromStdString(unique_id)));
+}
+
 void MainWindow::on_fromFile_triggered() {
     const auto file_path = QFileDialog::getOpenFileName(this, R"(选择文件)", "", R"(Timed Text Markup Language Files (*.ttml))");
 
@@ -224,17 +259,7 @@ void MainWindow::on_toASS_triggered() {
     ui->statusbar->showMessage(R"(ASS 生成完成)");
 }
 
-QString compress_ttml(QString ttml) {
-    ttml = ttml.trimmed();
-
-    const QRegularExpression compress_reg(R"([\n\r]+\s*)");
-    ttml.replace(compress_reg, "");
-
-    if (ttml.contains("iTunesMetadata")) {
-        const QRegularExpression empty_span_reg(R"(([\s　])(</span><span[^>]*>)(</span>))");
-        ttml.replace(empty_span_reg, R"(\2\1\3)");
-    }
-
+QString compress_ttml_v1(QString ttml) {
     const QRegularExpression space_span_reg(R"(<span[^>]*>([\s　])</span>)");
     ttml.replace(space_span_reg, R"(\1)");
 
@@ -244,25 +269,36 @@ QString compress_ttml(QString ttml) {
     const QRegularExpression same_time_reg(R"#(<span[^>]+begin="([^"]+)"[^>]+end="\1"[^>]*>(.*?)</span>)#");
     ttml.replace(same_time_reg, R"(\2)");
 
-
-    if (ttml.contains("iTunesMetadata")) {
-        const QRegularExpression bg_index_reg(R"(<span[^>]+ttm:role="x-bg")");
-        QRegularExpressionMatchIterator ite = bg_index_reg.globalMatch(ttml);
-        QList<QRegularExpressionMatch> matches;
-
-        while (ite.hasNext())
-            matches.append(ite.next());
-
-        std::reverse(matches.begin(), matches.end());
-
-        for (const auto &match: matches) {
-            const int start_index = match.capturedStart();
-            if (start_index == 0 || ttml[start_index - 1] != ' ')
-                ttml.insert(start_index, ' ');
-        }
-    }
-
     return ttml;
+}
+
+QString compress_ttml_v2(QString ttml) {
+    // 解析为 xml
+    QDomDocument doc;
+    if (!doc.setContent(ttml, QDomDocument::ParseOption::PreserveSpacingOnlyNodes)) {
+        return ttml;
+    }
+    auto [lyric, success] = LyricPlus::parse(doc.documentElement());
+    if (!success)
+        return ttml;
+
+    return lyric.toTTML();
+}
+
+QString compress_ttml(QString ttml) {
+    ttml = ttml.trimmed()
+    .replace(R"(" />)", R"("/>)")
+    .replace(R"(" >)", R"(">)")
+    .replace(R"(< )", R"(<)");
+
+    const QRegularExpression compress_reg(R"([\n\r]+\s*)");
+    ttml.replace(compress_reg, "");
+
+    return (ttml.contains("iTunesMetadata") ? compress_ttml_v2(ttml) : compress_ttml_v1(ttml))
+    .trimmed()
+    .replace(R"(" />)", R"("/>)")
+    .replace(R"(" >)", R"(">)")
+    .replace(R"(< )", R"(<)");
 }
 
 bool MainWindow::parse() {
@@ -301,6 +337,7 @@ bool MainWindow::parse() {
 
 void MainWindow::on_TTMLTextEdit_textChanged() {
     this->_lyric.reset();
+    ui->countLabel->setText(QString::number(ui->TTMLTextEdit->toPlainText().length()));
 }
 
 void MainWindow::on_toLRC_triggered() {
@@ -948,6 +985,13 @@ void MainWindow::on_actionPreset_triggered()
 
     QStringList buffer{};
 
+    if (metas.contains("ttmlAuthorGithubLogin")) {
+        buffer.append("### 歌词作者");
+
+        for (const auto &autor : metas["ttmlAuthorGithubLogin"])
+            buffer.append("- @" + autor);
+    }
+
     for (const auto &[key, alt] : Lyric::presetMetas) {
         if (metas.contains(key)) {
             buffer.append("### " + alt);
@@ -980,8 +1024,7 @@ void MainWindow::on_actionExtra_triggered()
     ui->statusbar->showMessage("复制成功");
 }
 
-void MainWindow::on_compressButton_clicked()
-{
+void MainWindow::on_compressButton_clicked() const {
     ui->TTMLTextEdit->setPlainText(compress_ttml(ui->TTMLTextEdit->toPlainText()));
 }
 
@@ -1031,4 +1074,10 @@ void MainWindow::on_fromURL_triggered()
     reply->deleteLater();
 
     ui->TTMLTextEdit->setPlainText(content);
+}
+
+// ReSharper disable once CppMemberFunctionMayBeConst
+void MainWindow::on_copyButton_clicked()
+{
+    QApplication::clipboard()->setText(ui->TTMLTextEdit->toPlainText());
 }

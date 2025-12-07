@@ -80,14 +80,14 @@ QString LyricSyl::toTTML() const {
                : QString(R"(<span begin="%1" end="%2">%3</span>)")
                .arg(this->_begin.toString(false, false, true))
                .arg(this->_end.toString(false, false, true))
-               .arg(this->_text);
+               .arg(this->_text.toHtmlEscaped());
 }
 
 QString LyricSyl::toASS() const {
     auto text = this->_text;
 
     return QString(R"({\k%1}%2)")
-            .arg((this->_end - this->_begin) / 10)
+            .arg(std::max(this->_end - this->_begin, 0LL) / 10)
             .arg(this->_text);
 }
 
@@ -101,19 +101,19 @@ QString LyricSyl::toQRC() const {
     return QString(R"(%1(%2,%3))")
             .arg(this->_text)
             .arg(this->_begin.getCount())
-            .arg(this->_end - this->_begin);
+            .arg(std::max(this->_end - this->_begin, 0LL));
 }
 
 QString LyricSyl::toYRC() const {
     return QString(R"((%2,%3,0)%1)")
             .arg(this->_text)
             .arg(this->_begin.getCount())
-            .arg(this->_end - this->_begin);
+            .arg(std::max(this->_end - this->_begin, 0LL));
 }
 
 QString LyricSyl::toKRC(const LyricTime &begin) const {
     return QString(R"(<%1,%2,0>%3)")
             .arg(this->_begin - begin)
-            .arg(this->_end - this->_begin)
+            .arg(std::max(this->_end - this->_begin, 0LL))
             .arg(this->_text);
 }
