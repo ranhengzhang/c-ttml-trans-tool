@@ -6,52 +6,75 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Xml Network)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Xml Network)
 
 set(PROJECT_SOURCES
+        # main
         main.cpp
 
+        # resources
         res.qrc
         app_win32.rc
 
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
+        # frames
+        MainWindow.ui
+        MainWindow.h
+        MainWindow.cpp
 
-        timeformatdialog.cpp
-        timeformatdialog.h
-        timeformatdialog.ui
+        TimeFormatDialog.ui
+        TimeFormatDialog.h
+        TimeFormatDialog.cpp
 
-        lyric.cpp
-        lyric.h
+        LangSelectDialog.h
+        LangSelectDialog.cpp
+        LangSelectDialog.ui
 
-        lyricline.cpp
-        lyricline.h
+        # widgets
+        MPlainTextEdit.cpp
+        MPlainTextEdit.h
 
-        lyricsyl.cpp
-        lyricsyl.h
+        # class
+        LyricObject.h
+        LyricObjectCore.cpp
+        LyricObjectTTML.cpp
+        LyricObjectASS.cpp
+        LyricObjectLRC.cpp
+        LyricObjectSPL.cpp
+        LyricObjectQRC.cpp
+        LyricObjectLYS.cpp
+        LyricObjectYRC.cpp
+        LyricObjectKRC.cpp
 
-        lyrictime.cpp
-        lyrictime.h
+        LyricLine.h
+        LyricLineCore.cpp
+        LyricLineTTML.cpp
+        LyricLineASS.cpp
+        LyricLineLRC.cpp
+        LyricLineSPL.cpp
+        LyricLineQRC.cpp
+        LyricLineLYS.cpp
+        LyricLineYRC.cpp
+        LyricLineKRC.cpp
 
-        lyricplus.h
-        lyricplus.cpp
+        LyricSyl.h
+        LyricSylCore.cpp
+        LyricSylTTML.cpp
+        LyricSylASS.cpp
+        LyricSylSPL.cpp
+        LyricSylQRC.cpp
+        LyricSylYRC.cpp
+        LyricSylKRC.cpp
 
-        lyriclineplus.h
-        lyriclineplus.cpp
+        LyricTime.h
+        LyricTime.cpp
 
-        lyricsylplus.h
-        lyricsylplus.cpp
-
-        lyrictimeplus.h
-        lyrictimeplus.cpp
-
-        mplaintextedit.cpp
-        mplaintextedit.h
+        # others
+        utils.h
+        utils.cpp
 
         opencc.h
 )

@@ -1,4 +1,4 @@
-#include "timeformatdialog.h"
+#include "TimeFormatDialog.h"
 #include "ui_timeformatdialog.h"
 
 TimeFormatDialog::TimeFormatDialog(QWidget *parent) :

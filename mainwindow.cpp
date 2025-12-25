@@ -9,14 +9,25 @@
 #include <QNetworkReply>
 #include <QTimer>
 
-#include "mainwindow.h"
+#include "MainWindow.h"
 
 #include <random>
 
 #include "./ui_mainwindow.h"
-#include "lyric.h"
-#include "lyricplus.h"
-#include "timeformatdialog.h"
+#include "LangSelectDialog.h"
+#include "LyricObject.h"
+#include "TimeFormatDialog.h"
+
+QList<std::tuple<QString, QString, QString> > MainWindow::presetMetas{
+        {"musicName", "音乐名称", "`%1`"},
+        {"artists", "音乐作者", "`%1`"},
+        {"album", "音乐专辑名称", "`%1`"},
+        {"ncmMusicId", "歌曲关联网易云音乐 ID", "[`%1`](https://music.163.com/#/song?id=%1)"},
+        {"qqMusicId", "歌曲关联 QQ 音乐 ID", "[`%1`](https://y.qq.com/n/ryqq/songDetail/%1)"},
+        {"spotifyId", "歌曲关联 Spotify 音乐 ID", "[`%1`](https://open.spotify.com/track/%1)"},
+        {"appleMusicId", "歌曲关联 Apple Music 音乐 ID", "[`%1`](https://music.apple.com/song/%1)"},
+        {"isrc", "歌曲关联 ISRC", "`%1`"}
+};
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -60,7 +71,7 @@ std::tuple<QString, bool> offsetWithKey(const QString &key, QString &text, const
         auto endPos = text.indexOf('\"', beginPos + key.length() + 2);
         if (endPos > beginPos) {
             auto timeStr = text.mid(beginPos + key.length() + 2, endPos - beginPos - key.length() - 2);
-            auto [time, success] = LyricTimePlus::parse(timeStr);
+            auto [time, success] = LyricTime::parse(timeStr);
             if (success) {
                 time.offset(offset);
                 timeList.append(std::make_tuple(beginPos + key.length() + 2, endPos - beginPos - key.length() - 2, time.toString(false, false, true)));
@@ -163,7 +174,7 @@ std::tuple<QString, bool> formatTime(const QString &key, QString &text, const bo
         auto endPos = text.indexOf('\"', beginPos + key.length() + 2);
         if (endPos > beginPos) {
             auto timeStr = text.mid(beginPos + key.length() + 2, endPos - beginPos - key.length() - 2);
-            auto [time, success] = LyricTimePlus::parse(timeStr);
+            auto [time, success] = LyricTime::parse(timeStr);
             if (success) {
                 timeList.append(std::make_tuple(beginPos + key.length() + 2, endPos - beginPos - key.length() - 2, time.toString(to_long, to_centi, to_dot)));
                 beginPos = text.indexOf(QString(R"(%1=")").arg(key), endPos);
@@ -331,12 +342,10 @@ QString compress_ttml_v1(QString ttml) {
 QString compress_ttml_v2(QString ttml) {
     // 解析为 xml
     QDomDocument doc;
-    if (!doc.setContent(ttml, QDomDocument::ParseOption::PreserveSpacingOnlyNodes)) {
+    auto [lyric, status] = LyricObject::fromTTML(ttml);
+    if (status != LyricObject::Status::Success) {
         return ttml;
     }
-    auto [lyric, success] = LyricPlus::parse(doc.documentElement());
-    if (!success)
-        return ttml;
 
     return lyric.toTTML();
 }
@@ -363,31 +372,16 @@ bool MainWindow::parse() {
     }
 
     const auto text = compress_ttml(ui->TTMLTextEdit->toPlainText());
-    QDomDocument doc;
 
-    // ReSharper disable once CppTooWideScopeInitStatement
-    const auto res = doc.setContent(text, QDomDocument::ParseOption::PreserveSpacingOnlyNodes);
+    auto [lrc, status] = LyricObject::fromTTML(text);
 
-    if (!res) {
-        QMessageBox::critical(this, R"(错误)",
-                              QString("无法解析TTML于 (%1,%2)\n%3")
-                              .arg(res.errorLine)
-                              .arg(res.errorLine)
-                              .arg(res.errorMessage));
-        ui->statusbar->showMessage(R"(TTML 解析失败)");
-        return false;
-    }
-
-    bool ok;
-    auto lrc = Lyric::parse(doc.documentElement(), &ok);
-
-    if (!ok) {
+    if (status != LyricObject::Status::Success) {
         QMessageBox::critical(this, R"(错误)", R"(无法解析 TTML)");
         ui->statusbar->showMessage(R"(TTML 解析失败)");
         return false;
     }
 
-    this->_lyric = std::make_unique<Lyric>(std::move(lrc));
+    this->_lyric = std::make_unique<LyricObject>(std::move(lrc));
     return true;
 }
 
@@ -431,7 +425,7 @@ void MainWindow::on_toLRC_triggered() {
     if (!ok) return;
 
     const auto file_path = QFileDialog::getSaveFileName(this, R"(选择文件)", this->_lyric->getTitle(R"(lrc)"),
-                                                        R"(Lyric File (*.lrc))");
+                                                        R"(LyricObject File (*.lrc))");
 
     if (file_path.isEmpty()) {
         QMessageBox::warning(this, R"(警告)", R"(未选择文件)");
@@ -444,8 +438,8 @@ void MainWindow::on_toLRC_triggered() {
     if (this->_lyric->haveRoman()) {
         options.append(R"(x-roman - 罗马音)");
     }
-    if (!this->_lyric->getLangs().isEmpty()) {
-        for (const auto &lang: this->_lyric->getLangs()) {
+    if (!this->_lyric->getSubLangs().isEmpty()) {
+        for (const auto &lang: this->_lyric->getSubLangs()) {
             options.append(QString(R"(x-trans - 翻译 - lang:%1)").arg(lang));
         }
     }
@@ -499,7 +493,7 @@ select_lys:
     // ReSharper disable once CppTooWideScopeInitStatement
     const auto ts_file_path = dir.absoluteFilePath(QString(R"(%1_trans.lrc)").arg(basename));
 
-    if (!this->_lyric->getLangs().isEmpty() && QFileInfo::exists(ts_file_path)) {
+    if (!this->_lyric->getSubLangs().isEmpty() && QFileInfo::exists(ts_file_path)) {
         const QMessageBox::StandardButton reply = QMessageBox::question(
             this,
             R"(确认覆盖文件)",
@@ -513,15 +507,15 @@ select_lys:
 
     QString lang{};
 
-    if (this->_lyric->getLangs().size() > 1) {
-        lang = QInputDialog::getItem(this, R"(选择语言)", R"(翻译语言)", this->_lyric->getLangs(), 0, false, &ok);
+    if (this->_lyric->getTransLangs().size() > 1) {
+        lang = QInputDialog::getItem(this, R"(选择语言)", R"(翻译语言)", this->_lyric->getSubLangs(), 0, false, &ok);
 
         if (!ok) {
             QMessageBox::warning(this, R"(警告)", R"(取消选择语言)");
             return;
         }
-    } else if (this->_lyric->getLangs().size() == 1)
-        lang = this->_lyric->getLangs().first();
+    } elif (this->_lyric->getTransLangs().size() == 1)
+        lang = this->_lyric->getTransLangs().first();
 
     this->setEnabled(false);
     ui->statusbar->showMessage(R"(LYS 生成中)");
@@ -538,7 +532,7 @@ select_lys:
     orig_file->close();
     delete orig_file;
 
-    if (!this->_lyric->getLangs().isEmpty()) {
+    if (!this->_lyric->getSubLangs().isEmpty()) {
         const auto ts_file = new QFile(ts_file_path);
         if (!ts_file->open(QIODevice::WriteOnly | QIODevice::Text)) {
             QMessageBox::critical(this, R"(错误)", QString(R"(无法打开文件：%1)").arg(ts_file_path));
@@ -609,7 +603,7 @@ select_qrc:
     // ReSharper disable once CppTooWideScopeInitStatement
     const auto ts_file_path = dir.absoluteFilePath(QString(R"(%1.translrc)").arg(basename));
 
-    if (!this->_lyric->getLangs().isEmpty() && QFileInfo::exists(ts_file_path)) {
+    if (this->_lyric->haveTrans() && QFileInfo::exists(ts_file_path)) {
         const QMessageBox::StandardButton reply = QMessageBox::question(
             this,
             R"(确认覆盖文件)",
@@ -636,34 +630,38 @@ select_qrc:
             goto select_qrc;
     }
 
-    QString lang{};
+    QString trans_lang{};
+    QString roman_lang{};
 
-    if (this->_lyric->getLangs().size() > 1) {
-        lang = QInputDialog::getItem(this, R"(选择语言)", R"(翻译语言)", this->_lyric->getLangs(), 0, false, &ok);
-
-        if (!ok) {
-            QMessageBox::warning(this, R"(警告)", R"(取消选择语言)");
+    if (this->_lyric->getTransLangs().size() == 1 and this->_lyric->getSubLangs().size() == 1) {
+        trans_lang = this->_lyric->getTransLangs().first();
+        roman_lang = this->_lyric->getSubLangs().first();
+    } elif (this->_lyric->getTransLangs().size() > 1 or this->_lyric->getSubLangs().size() > 1) {
+        const auto lang_select_dialog = new LangSelectDialog(this, this->_lyric->getTransLangs(), this->_lyric->getRomaLangs());
+        if (lang_select_dialog->exec() != QDialog::Accepted) {
+            QMessageBox::warning(this, R"(警告)", R"(取消选择)");
             return;
         }
-    } else if (this->_lyric->getLangs().size() == 1)
-        lang = this->_lyric->getLangs().first();
+        trans_lang = lang_select_dialog->getTransLang();
+        roman_lang = lang_select_dialog->getRomanLang();
+    }
 
     this->setEnabled(false);
     ui->statusbar->showMessage(R"(QRC 生成中)");
 
-    const auto qrc = this->_lyric->toQRC(lang);
+    const auto [orig_text, trans_text, roma_text] = this->_lyric->toQRC(trans_lang, roman_lang);
+
     const auto orig_file = new QFile(orig_file_path);
     if (!orig_file->open(QIODevice::WriteOnly | QIODevice::Text)) {
         QMessageBox::critical(this, R"(错误)", QString(R"(无法打开文件：%1)").arg(orig_file_path));
         this->setEnabled(true);
         return;
     }
-
-    orig_file->write(qrc[R"(orig)"].toUtf8());
+    orig_file->write(orig_text.toUtf8());
     orig_file->close();
     delete orig_file;
 
-    if (!this->_lyric->getLangs().isEmpty()) {
+    if (not trans_text.isEmpty()) {
         const auto ts_file = new QFile(ts_file_path);
         if (!ts_file->open(QIODevice::WriteOnly | QIODevice::Text)) {
             QMessageBox::critical(this, R"(错误)", QString(R"(无法打开文件：%1)").arg(ts_file_path));
@@ -671,12 +669,12 @@ select_qrc:
             return;
         }
 
-        ts_file->write(qrc[R"(ts)"].toUtf8());
+        ts_file->write(trans_lang.toUtf8());
         ts_file->close();
         delete ts_file;
     }
 
-    if (this->_lyric->haveRoman()) {
+    if (not roma_text.isEmpty()) {
         const auto roman_file = new QFile(roman_file_path);
         if (!roman_file->open(QIODevice::WriteOnly | QIODevice::Text)) {
             QMessageBox::critical(this, R"(错误)", QString(R"(无法打开文件：%1)").arg(roman_file_path));
@@ -684,7 +682,7 @@ select_qrc:
             return;
         }
 
-        roman_file->write(qrc[R"(roman)"].toUtf8());
+        roman_file->write(roma_text.toUtf8());
         roman_file->close();
         delete roman_file;
     }
@@ -714,7 +712,7 @@ select_lys:
     // ReSharper disable once CppTooWideScopeInitStatement
     const auto ts_file_path = dir.absoluteFilePath(QString(R"(%1.lrc)").arg(basename));
 
-    if (!this->_lyric->getLangs().isEmpty() && QFileInfo::exists(ts_file_path)) {
+    if (this->_lyric->haveTrans() && QFileInfo::exists(ts_file_path)) {
         const QMessageBox::StandardButton reply = QMessageBox::question(
             this,
             R"(确认覆盖文件)",
@@ -728,15 +726,15 @@ select_lys:
 
     QString lang{};
 
-    if (this->_lyric->getLangs().size() > 1) {
-        lang = QInputDialog::getItem(this, R"(选择语言)", R"(翻译语言)", this->_lyric->getLangs(), 0, false, &ok);
+    if (this->_lyric->getTransLangs().size() > 1) {
+        lang = QInputDialog::getItem(this, R"(选择语言)", R"(翻译语言)", this->_lyric->getSubLangs(), 0, false, &ok);
 
         if (!ok) {
             QMessageBox::warning(this, R"(警告)", R"(取消选择语言)");
             return;
         }
-    } else if (this->_lyric->getLangs().size() == 1)
-        lang = this->_lyric->getLangs().first();
+    } elif (this->_lyric->getSubLangs().size() == 1)
+        lang = this->_lyric->getSubLangs().first();
 
     this->setEnabled(false);
     ui->statusbar->showMessage(R"(YRC 生成中)");
@@ -753,7 +751,7 @@ select_lys:
     orig_file->close();
     delete orig_file;
 
-    if (!this->_lyric->getLangs().isEmpty()) {
+    if (not ts.isEmpty()) {
         const auto ts_file = new QFile(ts_file_path);
         if (!ts_file->open(QIODevice::WriteOnly | QIODevice::Text)) {
             QMessageBox::critical(this, R"(错误)", QString(R"(无法打开文件：%1)").arg(ts_file_path));
@@ -768,6 +766,57 @@ select_lys:
 
     this->setEnabled(true);
     ui->statusbar->showMessage(R"(YRC 生成完成)");
+}
+
+void MainWindow::on_toKRC_triggered() {
+    // ReSharper disable once CppTooWideScopeInitStatement
+    auto ok = this->parse();
+
+    if (!ok) return;
+
+select_krc:
+    const auto orig_file_path = QFileDialog::getSaveFileName(this, R"(选择文件)", this->_lyric->getTitle(R"(krc)"),
+                                                             R"(KuGou Music Lyrics File (*.krc))");
+
+    if (orig_file_path.isEmpty()) {
+        QMessageBox::warning(this, R"(警告)", R"(未选择文件)");
+        return;
+    }
+
+    const auto file_info = QFileInfo(orig_file_path);
+    QString trans_lang{};
+    QString roman_lang{};
+
+    if (this->_lyric->getTransLangs().size() == 1 and this->_lyric->getSubLangs().size() == 1) {
+        trans_lang = this->_lyric->getTransLangs().first();
+        roman_lang = this->_lyric->getSubLangs().first();
+    } elif (this->_lyric->getTransLangs().size() > 1 or this->_lyric->getSubLangs().size() > 1) {
+        const auto lang_select_dialog = new LangSelectDialog(this, this->_lyric->getTransLangs(), this->_lyric->getRomaLangs());
+        if (lang_select_dialog->exec() != QDialog::Accepted) {
+            QMessageBox::warning(this, R"(警告)", R"(取消选择)");
+            return;
+        }
+        trans_lang = lang_select_dialog->getTransLang();
+        roman_lang = lang_select_dialog->getRomanLang();
+    }
+
+    this->setEnabled(false);
+    ui->statusbar->showMessage(R"(KRC 生成中)");
+
+    const auto orig_text = this->_lyric->toKRC(trans_lang, roman_lang);
+
+    const auto orig_file = new QFile(orig_file_path);
+    if (!orig_file->open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::critical(this, R"(错误)", QString(R"(无法打开文件：%1)").arg(orig_file_path));
+        this->setEnabled(true);
+        return;
+    }
+    orig_file->write(orig_text.toUtf8());
+    orig_file->close();
+    delete orig_file;
+
+    this->setEnabled(true);
+    ui->statusbar->showMessage(R"(KRC 生成完成)");
 }
 
 
@@ -890,8 +939,8 @@ void MainWindow::on_copyQRC_triggered()
 
     if (!ok) return;
 
-    const auto text = this->_lyric->toQRC("");
-    QApplication::clipboard()->setText(text[R"(orig)"]);
+    const auto text = this->_lyric->toQRC("", "");
+    QApplication::clipboard()->setText(std::get<0>(text));
     ui->statusbar->showMessage("导出成功");
 }
 
@@ -1076,12 +1125,12 @@ void MainWindow::on_actionPreset_triggered()
             buffer.append("- @" + autor);
     }
 
-    for (const auto &[key, alt] : Lyric::presetMetas) {
+    for (const auto &[key, alt, temp] : MainWindow::presetMetas) {
         if (metas.contains(key)) {
             buffer.append("### " + alt);
 
             for (const auto &meta : metas[key])
-                buffer.append("- " + ("`" + meta + "`"));
+                buffer.append("- " + temp.arg(meta));
         }
     }
 

@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 
-#include "lyric.h"
+#include "LyricObject.h"
 #include "opencc.h"
 
 QT_BEGIN_NAMESPACE
@@ -42,13 +42,15 @@ private slots:
 
     void on_toLRC_triggered();
 
-    void on_toLYS_triggered();
-
     void on_toSPL_triggered();
+
+    void on_toLYS_triggered();
 
     void on_toQRC_triggered();
 
     void on_toYRC_triggered();
+
+    void on_toKRC_triggered();
 
     void on_toTXT_triggered();
 
@@ -105,6 +107,8 @@ private:
 
     Ui::MainWindow *ui;
 
-    std::unique_ptr<Lyric> _lyric{};
+    std::unique_ptr<LyricObject> _lyric{};
+
+    static QList<std::tuple<QString, QString, QString>> presetMetas;
 };
 #endif // MAINWINDOW_H

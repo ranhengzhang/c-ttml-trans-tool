@@ -1,17 +1,23 @@
 //
-// Created by LEGION on 2025/11/21.
+// Created by LEGION on 2025/12/14.
 //
 
-#include "lyrictimeplus.h"
+
+#include "LyricTime.h"
 
 #include <QStringList>
 
-std::pair<LyricTimePlus, bool> LyricTimePlus::parse(const QString &str) {
+#include "utils.h"
+
+LyricTime::LyricTime(const int64_t count): _count(count) {
+}
+
+std::pair<LyricTime, bool> LyricTime::parse(const QString &str) {
     if (str.isEmpty()) {
         return {{}, false};
     }
 
-    LyricTimePlus time{};
+    LyricTime time{};
     QStringList matches{};
     QString match{};
 
@@ -20,7 +26,7 @@ std::pair<LyricTimePlus, bool> LyricTimePlus::parse(const QString &str) {
             matches.push_back(match);
             matches.push_back(str[i]);
             match.clear();
-        } else if (str[i].isDigit()) {
+        } elif (str[i].isDigit()) {
             match.push_front(str[i]);
         } else {
             return {{}, false};
@@ -43,28 +49,27 @@ std::pair<LyricTimePlus, bool> LyricTimePlus::parse(const QString &str) {
     return {time, true};
 }
 
-void LyricTimePlus::offset(const int64_t count) {
+void LyricTime::offset(const int64_t count) {
     this->_count += count;
 }
 
-QString LyricTimePlus::toString(bool to_long, bool to_centi, bool to_dot) const {
+QString LyricTime::toString(const bool to_long, const bool to_centi, const bool to_dot) const {
     auto count = this->_count;
     QStringList time{};
 
-    if (count >= 60 * 60 * 1000) to_long = true;
     if (to_centi) time.push_front(QString::asprintf("%02lld", count % 1000 / 10));
     else time.push_front(QString::asprintf("%03lld", count % 1000));
     count /= 1000;
 
     time.push_front(to_dot ? "." : ":");
 
-    time.push_front(QString::asprintf(to_long || count >= 60 ? "%02lld" : "%lld", count % 60));
+    time.push_front(QString::asprintf(to_long or count >= 60 ? "%02lld" : "%lld", count % 60));
     count /= 60;
 
-    if (count || to_long) {
+    if (count or to_long) {
         time.push_front(":");
 
-        time.push_front(QString::asprintf(to_long || count >= 60 ? "%02lld" : "%lld", count % 60));
+        time.push_front(QString::asprintf(to_long or count >= 60 ? "%02lld" : "%lld", count % 60));
 
         if (count >= 60) {
             time.push_front(":");
@@ -75,12 +80,12 @@ QString LyricTimePlus::toString(bool to_long, bool to_centi, bool to_dot) const 
     return time.join("");
 }
 
-LyricTimePlus::operator int64_t() const {
+LyricTime::operator int64_t() const {
     return this->_count;
 }
 
-LyricTimePlus LyricTimePlus::toShort() const {
-    LyricTimePlus time{};
+LyricTime LyricTime::toShort() const {
+    LyricTime time{};
     time._count = this->_count - this->_count % 10;
     return time;
 }

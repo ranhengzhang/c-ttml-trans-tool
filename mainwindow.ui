@@ -366,7 +366,7 @@
   <customwidget>
    <class>MPlainTextEdit</class>
    <extends>QPlainTextEdit</extends>
-   <header>mplaintextedit.h</header>
+   <header>MPlainTextEdit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

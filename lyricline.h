@@ -1,63 +1,129 @@
 //
-// Created by LEGION on 25-4-27.
+// Created by LEGION on 2025/12/14.
 //
 
-#ifndef LYRICLINE_H
-#define LYRICLINE_H
+#ifndef TTML_TOOL_LYRICLINE_H
+#define TTML_TOOL_LYRICLINE_H
 
-#include <QMap>
-#include <QSet>
+#include "LyricSyl.h"
+#include "LyricTime.h"
+#include "utils.h"
 
-#include "lyricsyl.h"
-#include "lyrictime.h"
+#include <utility>
+#include <map>
+
+#include <QDomElement>
+#include <QList>
+
+#include "LyricObject.h"
+
+class LyricObject;
 
 class LyricLine {
 public:
-    [[nodiscard]] static LyricLine parse(const QDomElement &p, const LyricLine *parent, bool *ok);
+    using Status = utils::Status;
 
-    [[nodiscard]] qsizetype getCount() const;
+    using SubType = utils::SubType;
 
-    [[nodiscard]] bool haveBg() const;
+    using LyricTrans = utils::LyricTrans;
 
-    [[nodiscard]] bool haveRoman() const;
+    friend LyricLine utils::normalizeBrackets(LyricLine &line);
+
+    [[nodiscard]] static std::pair<LyricLine, Status> fromTTML(const QDomElement &p, LyricLine *parent, LyricObject &obj);
+
+    [[nodiscard]] QString toTTML() const;
+
+    [[nodiscard]] QString toInnerTTML(bool xmlns = false) const;
+
+    [[nodiscard]] QString toTXT() const;
+
+    [[nodiscard]] QString toASS(const QString& role = "") const;
+
+    [[nodiscard]] std::pair<QString, QStringList> toLRC(const QString &extra);
+
+    [[nodiscard]] QString toLRC() const;
+
+    [[nodiscard]] QString toSPL();
+
+    [[nodiscard]] QString toQRC();
+
+    [[nodiscard]] QString toInnerQRC();
+
+    [[nodiscard]] QString toLYS(const QString &lang, bool have_bg, bool have_duet);
+
+    [[nodiscard]] QString toYRC();
+
+    [[nodiscard]] QString toInnerYRC();
+
+    [[nodiscard]] QString toKRC();
+
+    [[nodiscard]] QString getSubKRC(SubType role, const QString &lang);
+
+    /**
+     * @brief 接收 Object 下发的附加行
+     * @param role 类型
+     * @param lang 语言
+     * @param content 行内容
+     */
+    void appendSubLine(SubType role, const QString &lang, const std::shared_ptr<LyricTrans> &content);
+
+    /**
+     * @brief 将行内音节与主行的音节进行匹配
+     * @param orig 主行
+     */
+    void match(const LyricLine &orig);
 
     [[nodiscard]] LyricTime getBegin() const;
 
     [[nodiscard]] LyricTime getEnd() const;
 
-    [[nodiscard]] QSet<QString> getLang() const;
+    [[nodiscard]] LyricTime getDuration() const;
 
-    [[nodiscard]] QString toTTML();
+    [[nodiscard]] LyricTime getLineBegin() const;
 
-    [[nodiscard]] QString toASS();
+    [[nodiscard]] LyricTime getLineEnd() const;
 
-    [[nodiscard]] QString toTXT();
+    [[nodiscard]] LyricTime getLineDuration() const;
 
-    [[nodiscard]] QString toLRC(const QString &extra, LyricTime next);
+    [[nodiscard]] LyricTime getInnerBegin() const;
 
-    [[nodiscard]] QString toSPL();
+    [[nodiscard]] LyricTime getInnerEnd() const;
 
-    [[nodiscard]] QPair<QString, QString> toLYS(bool have_bg, bool have_duet, const QString &lang);
+    [[nodiscard]] LyricTime getInnerDuration() const;
 
-    [[nodiscard]] QMap<QString, QString> toQRC(const QString &lang);
+    [[nodiscard]] QString getKey() const;
 
-    [[nodiscard]] QPair<QString, QString> toYRC(const QString &lang);
+    [[nodiscard]] bool haveBgLine() const;
 
-    [[nodiscard]] QStringList toKRCLang(const QString &lang);
-
-    [[nodiscard]] QString toKRC();
+    [[nodiscard]] std::shared_ptr<LyricLine> getBgLine() const;
 
 private:
     std::shared_ptr<LyricLine> _bg_line{};
-    QMap<QString, QString> _trans{};
-    QString _roman{};
-    QList<LyricSyl> _syl_s{};
+
+    QList<std::shared_ptr<LyricSyl>> _syl_s{};
+
     LyricTime _begin{};
+
     LyricTime _end{};
-    uint8_t _num{};
+
+    QString _key{};
+
     bool _is_duet{false};
+
     bool _is_bg{false};
+
+    /**
+     * @brief 音译\n
+     * @code { lang:string, line:ref<LyricTrans> } @endcode
+     */
+    std::map<QString, std::shared_ptr<LyricTrans>> _transliteration{};
+
+    /**
+     * @brief 翻译\n
+     * @code { lang:string, line:ref<LyricTrans> } @endcode
+     */
+    std::map<QString, std::shared_ptr<LyricTrans>> _translation{};
 };
 
 
-#endif //LYRICLINE_H
+#endif //TTML_TOOL_LYRICLINE_H

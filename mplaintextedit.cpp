@@ -1,4 +1,4 @@
-#include "mplaintextedit.h"
+#include "MPlainTextEdit.h"
 
 #include <QFile>
 #include <QMimeData>
