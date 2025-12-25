@@ -196,7 +196,7 @@ QString LyricObject::toTTML() {
             // Sort keys by numeric value
             QStringList sorted_keys;
             for (const auto &target: translation_map | std::views::keys) {
-                sorted_keys.append(target);
+                sorted_keys.push_back(target);
             }
             std::ranges::sort(sorted_keys, compareKeysByNumber);
 
@@ -232,7 +232,7 @@ QString LyricObject::toTTML() {
             // Sort keys by numeric value
             QStringList sorted_keys;
             for (const auto &target: transliteration_map | std::views::keys) {
-                sorted_keys.append(target);
+                sorted_keys.push_back(target);
             }
             std::ranges::sort(sorted_keys, compareKeysByNumber);
 

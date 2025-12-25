@@ -7,7 +7,7 @@
 QString LyricObject::toSPL() {
     QStringList text{};
 
-    for (auto &line: this->_line_s) text.append(line.toSPL());
+    for (auto &line: this->_line_s) text.push_back(line.toSPL());
 
     return this->getLRCHead() + "\n\n" + text.join("\n");
 }

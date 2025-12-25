@@ -9,22 +9,22 @@ QString LyricObject::getLRCHead() {
 
     for (const auto &[key, value]: _meta_data_s) {
         if (key == R"(musicName)") {
-            meta[R"(ti)"].append(value);
+            meta[R"(ti)"].push_back(value);
         } else if (key == R"(artists)") {
-            meta[R"(ar)"].append(value);
+            meta[R"(ar)"].push_back(value);
         } else if (key == R"(album)") {
-            meta[R"(al)"].append(value);
+            meta[R"(al)"].push_back(value);
         }
     }
 
     QStringList text{};
 
     for (const auto &value: meta[R"(ti)"])
-        text.append(QString(R"([ti:%1])").arg(value));
+        text.push_back(QString(R"([ti:%1])").arg(value));
     for (const auto &value: meta[R"(ar)"])
-        text.append(QString(R"([ar:%1])").arg(value));
+        text.push_back(QString(R"([ar:%1])").arg(value));
     for (const auto &value: meta[R"(al)"])
-        text.append(QString(R"([al:%1])").arg(value));
+        text.push_back(QString(R"([al:%1])").arg(value));
 
     return text.join("\n");
 }
@@ -50,7 +50,7 @@ QString LyricObject::toLRC(const QString &extra) {
                 .arg(last_end.toString(false, true, true)));
         }
         auto [orig_line, sub_line] = line.toLRC(extra);
-        text.append(orig_line);
+        text.push_back(orig_line);
         if (not sub_line.isEmpty()) ext.append(sub_line);
         last_end = line.getLineEnd();
     }

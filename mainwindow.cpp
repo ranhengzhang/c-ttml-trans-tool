@@ -74,7 +74,7 @@ std::tuple<QString, bool> offsetWithKey(const QString &key, QString &text, const
             auto [time, success] = LyricTime::parse(timeStr);
             if (success) {
                 time.offset(offset);
-                timeList.append(std::make_tuple(beginPos + key.length() + 2, endPos - beginPos - key.length() - 2, time.toString(false, false, true)));
+                timeList.push_back(std::make_tuple(beginPos + key.length() + 2, endPos - beginPos - key.length() - 2, time.toString(false, false, true)));
                 beginPos = text.indexOf(QString(R"(%1=")").arg(key), endPos);
             } else {
                 return {text, false};
@@ -176,7 +176,7 @@ std::tuple<QString, bool> formatTime(const QString &key, QString &text, const bo
             auto timeStr = text.mid(beginPos + key.length() + 2, endPos - beginPos - key.length() - 2);
             auto [time, success] = LyricTime::parse(timeStr);
             if (success) {
-                timeList.append(std::make_tuple(beginPos + key.length() + 2, endPos - beginPos - key.length() - 2, time.toString(to_long, to_centi, to_dot)));
+                timeList.push_back(std::make_tuple(beginPos + key.length() + 2, endPos - beginPos - key.length() - 2, time.toString(to_long, to_centi, to_dot)));
                 beginPos = text.indexOf(QString(R"(%1=")").arg(key), endPos);
             } else {
                 return {text, false};
@@ -434,13 +434,13 @@ void MainWindow::on_toLRC_triggered() {
 
     QStringList options{};
 
-    options.append(R"(无)");
+    options.push_back(R"(无)");
     if (this->_lyric->haveRoman()) {
-        options.append(R"(x-roman - 罗马音)");
+        options.push_back(R"(x-roman - 罗马音)");
     }
     if (!this->_lyric->getSubLangs().isEmpty()) {
         for (const auto &lang: this->_lyric->getSubLangs()) {
-            options.append(QString(R"(x-trans - 翻译 - lang:%1)").arg(lang));
+            options.push_back(QString(R"(x-trans - 翻译 - lang:%1)").arg(lang));
         }
     }
 
@@ -1119,18 +1119,18 @@ void MainWindow::on_actionPreset_triggered()
     QStringList buffer{};
 
     if (metas.contains("ttmlAuthorGithubLogin")) {
-        buffer.append("### 歌词作者");
+        buffer.push_back("### 歌词作者");
 
         for (const auto &autor : metas["ttmlAuthorGithubLogin"])
-            buffer.append("- @" + autor);
+            buffer.push_back("- @" + autor);
     }
 
     for (const auto &[key, alt, temp] : MainWindow::presetMetas) {
         if (metas.contains(key)) {
-            buffer.append("### " + alt);
+            buffer.push_back("### " + alt);
 
             for (const auto &meta : metas[key])
-                buffer.append("- " + temp.arg(meta));
+                buffer.push_back("- " + temp.arg(meta));
         }
     }
 
@@ -1150,7 +1150,7 @@ void MainWindow::on_actionExtra_triggered()
     QStringList buffer{"扩展元数据：", "| *key* | *value* |", "| -: | :- |"};
 
     for (const auto &[key, value] : metas) {
-        buffer.append(QString("| **%1** | `%2` |").arg(key).arg(value));
+        buffer.push_back(QString("| **%1** | `%2` |").arg(key).arg(value));
     }
 
     QApplication::clipboard()->setText(buffer.join('\n'));

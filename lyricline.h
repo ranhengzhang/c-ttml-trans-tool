@@ -37,7 +37,7 @@ public:
 
     [[nodiscard]] QString toTXT() const;
 
-    [[nodiscard]] QString toASS(const QString& role = "") const;
+    [[nodiscard]] QString toASS(const QString& role = "orig") const;
 
     [[nodiscard]] std::pair<QString, QStringList> toLRC(const QString &extra);
 

@@ -23,7 +23,7 @@ QMap<QString, QStringList> LyricObject::getPresetMeta() {
 
     for (const auto &[key, value]: this->_meta_data_s) {
         if (presetKey.contains(key))
-            preset[key].append(value);
+            preset[key].push_back(value);
     }
 
     return preset;
@@ -35,7 +35,7 @@ QList<QPair<QString, QString>> LyricObject::getExtraMeta() {
 
     for (const auto &[key, value]: this->_meta_data_s) {
         if (!presetKey.contains(key))
-            extra.append({key, value});
+            extra.push_back({key, value});
     }
 
     return extra;
