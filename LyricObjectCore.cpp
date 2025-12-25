@@ -6,23 +6,12 @@
 
 #include "LyricObject.h"
 
-QList<std::tuple<QString, QString, QString>> presetMetas{
-        {"musicName", "音乐名称", "%1"},
-        {"artists", "音乐作者", "%1"},
-        {"album", "音乐专辑名称", "%1"},
-        {"ncmMusicId", "歌曲关联网易云音乐 ID", R"(https://music.163.com/#/song?id=%1)"},
-        {"qqMusicId", "歌曲关联 QQ 音乐 ID", R"(https://y.qq.com/n/ryqq_v2/songDetail/%1)"},
-        {"spotifyId", "歌曲关联 Spotify 音乐 ID", R"(https://open.spotify.com/track/%1)"},
-        {"appleMusicId", "歌曲关联 Apple Music 音乐 ID", R"(https://music.apple.com/cn/song/%1)"},
-        {"isrc", "歌曲关联 ISRC", "%1"}
-};
-
 QMap<QString, QStringList> LyricObject::getPresetMeta() {
     QMap<QString, QStringList> preset{};
-    QStringList presetKey{"ttmlAuthorGithubLogin", "musicName", "artists", "album", "ncmMusicId", "qqMusicId", "spotifyId", "appleMusicId", "isrc"};
+    const QStringList preset_key{"ttmlAuthorGithubLogin", "musicName", "artists", "album", "ncmMusicId", "qqMusicId", "spotifyId", "appleMusicId", "isrc"};
 
     for (const auto &[key, value]: this->_meta_data_s) {
-        if (presetKey.contains(key))
+        if (preset_key.contains(key))
             preset[key].push_back(value);
     }
 

@@ -18,15 +18,15 @@
 #include "LyricObject.h"
 #include "TimeFormatDialog.h"
 
-QList<std::tuple<QString, QString, QString> > MainWindow::presetMetas{
-        {"musicName", "音乐名称", "`%1`"},
-        {"artists", "音乐作者", "`%1`"},
-        {"album", "音乐专辑名称", "`%1`"},
-        {"ncmMusicId", "歌曲关联网易云音乐 ID", "[`%1`](https://music.163.com/#/song?id=%1)"},
-        {"qqMusicId", "歌曲关联 QQ 音乐 ID", "[`%1`](https://y.qq.com/n/ryqq/songDetail/%1)"},
-        {"spotifyId", "歌曲关联 Spotify 音乐 ID", "[`%1`](https://open.spotify.com/track/%1)"},
-        {"appleMusicId", "歌曲关联 Apple Music 音乐 ID", "[`%1`](https://music.apple.com/song/%1)"},
-        {"isrc", "歌曲关联 ISRC", "`%1`"}
+QList<std::pair<QString, QString>> preset_metas{
+            {"musicName", "音乐名称"},
+            {"artists", "音乐作者"},
+            {"album", "音乐专辑名称"},
+            {"ncmMusicId", "歌曲关联网易云音乐 ID"},
+            {"qqMusicId", "歌曲关联 QQ 音乐 ID"},
+            {"spotifyId", "歌曲关联 Spotify 音乐 ID"},
+            {"appleMusicId", "歌曲关联 Apple Music 音乐 ID"},
+            {"isrc", "歌曲关联 ISRC"}
 };
 
 MainWindow::MainWindow(QWidget *parent)
@@ -64,18 +64,18 @@ MainWindow::~MainWindow() {
 }
 
 std::tuple<QString, bool> offsetWithKey(const QString &key, QString &text, const int64_t offset) {
-    auto beginPos = text.indexOf(QString(R"(%1=")").arg(key));
-    QList<std::tuple<int64_t, int64_t, QString>> timeList;
+    auto begin_pos = text.indexOf(QString(R"(%1=")").arg(key));
+    QList<std::tuple<int64_t, int64_t, QString>> time_list;
 
-    while (beginPos != -1) {
-        auto endPos = text.indexOf('\"', beginPos + key.length() + 2);
-        if (endPos > beginPos) {
-            auto timeStr = text.mid(beginPos + key.length() + 2, endPos - beginPos - key.length() - 2);
-            auto [time, success] = LyricTime::parse(timeStr);
+    while (begin_pos != -1) {
+        auto end_pos = text.indexOf('\"', begin_pos + key.length() + 2);
+        if (end_pos > begin_pos) {
+            auto time_str = text.mid(begin_pos + key.length() + 2, end_pos - begin_pos - key.length() - 2);
+            auto [time, success] = LyricTime::parse(time_str);
             if (success) {
                 time.offset(offset);
-                timeList.push_back(std::make_tuple(beginPos + key.length() + 2, endPos - beginPos - key.length() - 2, time.toString(false, false, true)));
-                beginPos = text.indexOf(QString(R"(%1=")").arg(key), endPos);
+                time_list.push_back(std::make_tuple(begin_pos + key.length() + 2, end_pos - begin_pos - key.length() - 2, time.toString(false, false, true)));
+                begin_pos = text.indexOf(QString(R"(%1=")").arg(key), end_pos);
             } else {
                 return {text, false};
             }
@@ -84,8 +84,8 @@ std::tuple<QString, bool> offsetWithKey(const QString &key, QString &text, const
         }
     }
 
-    std::ranges::reverse(timeList);
-    for (const auto &[beginIndex, length, str] : timeList) {
+    std::ranges::reverse(time_list);
+    for (const auto &[beginIndex, length, str] : time_list) {
         text.replace(beginIndex, length, str);
     }
 
@@ -101,27 +101,27 @@ void MainWindow::on_offsetButton_clicked() {
     ui->statusbar->showMessage(R"(开始偏移时间)");
     this->setEnabled(false);
 
-    auto durOffset = offsetWithKey("dur", text, offset);
+    auto dur_offset = offsetWithKey("dur", text, offset);
 
-    if (!std::get<1>(durOffset)) {
+    if (!std::get<1>(dur_offset)) {
         ui->statusbar->showMessage(R"(偏移 dur 失败)");
         this->setEnabled(true);
         ui->offsetButton->setEnabled(true);
         return;
     }
 
-    auto beginOffset = offsetWithKey("begin", text, offset);
+    auto begin_offset = offsetWithKey("begin", text, offset);
 
-    if (!std::get<1>(beginOffset)) {
+    if (!std::get<1>(begin_offset)) {
         ui->statusbar->showMessage(R"(偏移 begin 失败)");
         this->setEnabled(true);
         ui->offsetButton->setEnabled(true);
         return;
     }
 
-    auto endOffset = offsetWithKey("end", text, offset);
+    auto end_offset = offsetWithKey("end", text, offset);
 
-    if (!std::get<1>(endOffset)) {
+    if (!std::get<1>(end_offset)) {
         ui->statusbar->showMessage(R"(偏移 end 失败)");
         this->setEnabled(true);
         ui->offsetButton->setEnabled(true);
@@ -134,7 +134,7 @@ void MainWindow::on_offsetButton_clicked() {
     ui->statusbar->showMessage(R"(时间偏移完成)");
 }
 
-std::string generate_unique_id(size_t len) {
+std::string generateUniqueId(const size_t len) {
     // 对应 Rust 的 Alphanumeric 分布
     static constexpr char charset[] =
         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -153,7 +153,7 @@ std::string generate_unique_id(size_t len) {
     return result;
 }
 
-long long timestamp_millis() {
+long long timestampMillis() {
     return std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::system_clock::now().time_since_epoch()
     ).count();
@@ -161,23 +161,23 @@ long long timestamp_millis() {
 
 // ReSharper disable once CppMemberFunctionMayBeStatic
 void MainWindow::on_getFilename_triggered() { // NOLINT(*-convert-member-functions-to-static)
-    const auto unique_id = generate_unique_id(8);
-    QApplication::clipboard()->setText(QString(R"(raw-lyrics/%1-68000793-%2.ttml)").arg(timestamp_millis()).arg(QString::fromStdString(unique_id)));
+    const auto unique_id = generateUniqueId(8);
+    QApplication::clipboard()->setText(QString(R"(raw-lyrics/%1-68000793-%2.ttml)").arg(timestampMillis()).arg(QString::fromStdString(unique_id)));
 }
 
 
 std::tuple<QString, bool> formatTime(const QString &key, QString &text, const bool to_long, const bool to_centi, const bool to_dot) {
-    auto beginPos = text.indexOf(QString(R"(%1=")").arg(key));
-    QList<std::tuple<int64_t, int64_t, QString>> timeList;
+    auto begin_pos = text.indexOf(QString(R"(%1=")").arg(key));
+    QList<std::tuple<int64_t, int64_t, QString>> time_list;
 
-    while (beginPos != -1) {
-        auto endPos = text.indexOf('\"', beginPos + key.length() + 2);
-        if (endPos > beginPos) {
-            auto timeStr = text.mid(beginPos + key.length() + 2, endPos - beginPos - key.length() - 2);
-            auto [time, success] = LyricTime::parse(timeStr);
+    while (begin_pos != -1) {
+        auto end_pos = text.indexOf('\"', begin_pos + key.length() + 2);
+        if (end_pos > begin_pos) {
+            auto time_str = text.mid(begin_pos + key.length() + 2, end_pos - begin_pos - key.length() - 2);
+            auto [time, success] = LyricTime::parse(time_str);
             if (success) {
-                timeList.push_back(std::make_tuple(beginPos + key.length() + 2, endPos - beginPos - key.length() - 2, time.toString(to_long, to_centi, to_dot)));
-                beginPos = text.indexOf(QString(R"(%1=")").arg(key), endPos);
+                time_list.push_back(std::make_tuple(begin_pos + key.length() + 2, end_pos - begin_pos - key.length() - 2, time.toString(to_long, to_centi, to_dot)));
+                begin_pos = text.indexOf(QString(R"(%1=")").arg(key), end_pos);
             } else {
                 return {text, false};
             }
@@ -186,8 +186,8 @@ std::tuple<QString, bool> formatTime(const QString &key, QString &text, const bo
         }
     }
 
-    std::ranges::reverse(timeList);
-    for (const auto &[beginIndex, length, str] : timeList) {
+    std::ranges::reverse(time_list);
+    for (const auto &[beginIndex, length, str] : time_list) {
         text.replace(beginIndex, length, str);
     }
 
@@ -200,20 +200,20 @@ void MainWindow::on_formatTime_triggered() {
     if (dialog->exec() == QDialog::Accepted) {
         auto text = ui->TTMLTextEdit->toPlainText();
 
-        const auto durFormat = formatTime("dur", text, dialog->to_long, dialog->to_centi, dialog->to_dot);
-        if (!std::get<1>(durFormat)) {
+        const auto dur_format = formatTime("dur", text, dialog->to_long, dialog->to_centi, dialog->to_dot);
+        if (!std::get<1>(dur_format)) {
             QMessageBox::critical(this, R"(错误)", R"(格式化 dur 失败)");
             return;
         }
 
-        const auto beginFormat = formatTime("begin", text, dialog->to_long, dialog->to_centi, dialog->to_dot);
-        if (!std::get<1>(beginFormat)) {
+        const auto begin_format = formatTime("begin", text, dialog->to_long, dialog->to_centi, dialog->to_dot);
+        if (!std::get<1>(begin_format)) {
             QMessageBox::critical(this, R"(错误)", R"(格式化 begin 失败)");
             return;
         }
 
-        const auto endFormat = formatTime("end", text, dialog->to_long, dialog->to_centi, dialog->to_dot);
-        if (!std::get<1>(endFormat)) {
+        const auto end_format = formatTime("end", text, dialog->to_long, dialog->to_centi, dialog->to_dot);
+        if (!std::get<1>(end_format)) {
             QMessageBox::critical(this, R"(错误)", R"(格式化 end 失败)");
             return;
         }
@@ -326,7 +326,7 @@ void MainWindow::on_toASS_triggered() {
     ui->statusbar->showMessage(R"(ASS 生成完成)");
 }
 
-QString compress_ttml_v1(QString ttml) {
+QString compressTtmlV1(QString ttml) {
     const QRegularExpression space_span_reg(R"(<span[^>]*>([\s　])</span>)");
     ttml.replace(space_span_reg, R"(\1)");
 
@@ -339,7 +339,7 @@ QString compress_ttml_v1(QString ttml) {
     return ttml;
 }
 
-QString compress_ttml_v2(QString ttml) {
+QString compressTtmlV2(QString ttml) {
     // 解析为 xml
     QDomDocument doc;
     auto [lyric, status] = LyricObject::fromTTML(ttml);
@@ -350,7 +350,7 @@ QString compress_ttml_v2(QString ttml) {
     return lyric.toTTML();
 }
 
-QString compress_ttml(QString ttml) {
+QString compressTtml(QString ttml) {
     ttml = ttml.trimmed()
     .replace(R"(" />)", R"("/>)")
     .replace(R"(" >)", R"(">)")
@@ -359,7 +359,7 @@ QString compress_ttml(QString ttml) {
     const QRegularExpression compress_reg(R"([\n\r]+\s*)");
     ttml.replace(compress_reg, "");
 
-    return (ttml.contains("iTunesMetadata") ? compress_ttml_v2(ttml) : compress_ttml_v1(ttml))
+    return (ttml.contains("iTunesMetadata") ? compressTtmlV2(ttml) : compressTtmlV1(ttml))
     .trimmed()
     .replace(R"(" />)", R"("/>)")
     .replace(R"(" >)", R"(">)")
@@ -371,7 +371,7 @@ bool MainWindow::parse() {
         return true;
     }
 
-    const auto text = compress_ttml(ui->TTMLTextEdit->toPlainText());
+    const auto text = compressTtml(ui->TTMLTextEdit->toPlainText());
 
     auto [lrc, status] = LyricObject::fromTTML(text);
 
@@ -394,18 +394,18 @@ void MainWindow::on_TTMLTextEdit_textChanged() {
     // 3. text.mid(begin,end)
 
     // find first (?<=<amll:meta key="musicName" value=").*(?=" ?/>)
-    const auto musicNameBegin = ui->TTMLTextEdit->toPlainText().indexOf(R"(<amll:meta key="musicName" value=")");
-    const auto musicNameEnd= ui->TTMLTextEdit->toPlainText().indexOf(R"(")", musicNameBegin + 34);
-    QString musicName = "";
-    if (musicNameBegin != -1 && musicNameEnd > musicNameBegin)
-        musicName = ui->TTMLTextEdit->toPlainText().mid(musicNameBegin + 34, musicNameEnd - musicNameBegin - 34);
+    const auto music_name_begin = ui->TTMLTextEdit->toPlainText().indexOf(R"(<amll:meta key="musicName" value=")");
+    const auto music_name_end= ui->TTMLTextEdit->toPlainText().indexOf(R"(")", music_name_begin + 34);
+    QString music_name = "";
+    if (music_name_begin != -1 && music_name_end > music_name_begin)
+        music_name = ui->TTMLTextEdit->toPlainText().mid(music_name_begin + 34, music_name_end - music_name_begin - 34);
 
     // find first (?<=<amll:meta key="artists" value=").*(?=" ?/>)
-    const auto artistsBegin = ui->TTMLTextEdit->toPlainText().indexOf(R"(<amll:meta key="artists" value=")");
-    const auto artistsEnd= ui->TTMLTextEdit->toPlainText().indexOf(R"(")", artistsBegin + 32);
+    const auto artists_begin = ui->TTMLTextEdit->toPlainText().indexOf(R"(<amll:meta key="artists" value=")");
+    const auto artists_end= ui->TTMLTextEdit->toPlainText().indexOf(R"(")", artists_begin + 32);
     QString artists = "";
-    if (artistsBegin != -1 && artistsEnd > artistsBegin)
-        artists = ui->TTMLTextEdit->toPlainText().mid(artistsBegin + 32, artistsEnd - artistsBegin - 32);
+    if (artists_begin != -1 && artists_end > artists_begin)
+        artists = ui->TTMLTextEdit->toPlainText().mid(artists_begin + 32, artists_end - artists_begin - 32);
 
     // find first (?<=<amll:meta key="album" value=").*(?=" ?/>)
     const auto albumBegin = ui->TTMLTextEdit->toPlainText().indexOf(R"(<amll:meta key="album" value=")");
@@ -414,8 +414,8 @@ void MainWindow::on_TTMLTextEdit_textChanged() {
     if (albumBegin != -1 && albumEnd > albumBegin)
         album = ui->TTMLTextEdit->toPlainText().mid(albumBegin + 30, albumEnd - albumBegin - 30);
 
-    if (not(musicName.isEmpty() or artists.isEmpty() or album.isEmpty()))
-        this->setWindowTitle(QString(R"(%1 - %2 - %3)").arg(musicName).arg(artists).arg(album));
+    if (not(music_name.isEmpty() or artists.isEmpty() or album.isEmpty()))
+        this->setWindowTitle(QString(R"(%1 - %2 - %3)").arg(music_name).arg(artists).arg(album));
 }
 
 void MainWindow::on_toLRC_triggered() {
@@ -774,7 +774,6 @@ void MainWindow::on_toKRC_triggered() {
 
     if (!ok) return;
 
-select_krc:
     const auto orig_file_path = QFileDialog::getSaveFileName(this, R"(选择文件)", this->_lyric->getTitle(R"(krc)"),
                                                              R"(KuGou Music Lyrics File (*.krc))");
 
@@ -970,13 +969,13 @@ void MainWindow::on_copyTXT_triggered()
     ui->statusbar->showMessage("导出成功");
 }
 
-QString MainWindow::s2t(QString val) {
+QString MainWindow::s2t(const QString& val) {
     auto str = val.toStdString();
     auto buffer = opencc_convert(ot_s2t, str.c_str());
     return QString::fromUtf8(buffer);
 }
 
-QString MainWindow::t2s(QString val) {
+QString MainWindow::t2s(const QString& val) {
     auto str = val.toStdString();
     auto buffer = opencc_convert(ot_t2s, str.c_str());
     return QString::fromUtf8(buffer);
@@ -1123,15 +1122,20 @@ void MainWindow::on_actionPreset_triggered()
 
         for (const auto &autor : metas["ttmlAuthorGithubLogin"])
             buffer.push_back("- @" + autor);
+
+
+        buffer.push_back("");
     }
 
-    for (const auto &[key, alt, temp] : MainWindow::presetMetas) {
+    for (const auto &[key, alt] : preset_metas) {
         if (metas.contains(key)) {
             buffer.push_back("### " + alt);
 
             for (const auto &meta : metas[key])
-                buffer.push_back("- " + temp.arg(meta));
+                buffer.push_back(QString(R"(- `%1`)").arg(meta));
         }
+
+        buffer.push_back("");
     }
 
     QApplication::clipboard()->setText(buffer.join('\n'));
@@ -1158,7 +1162,7 @@ void MainWindow::on_actionExtra_triggered()
 }
 
 void MainWindow::on_compressButton_clicked() const {
-    ui->TTMLTextEdit->setPlainText(compress_ttml(ui->TTMLTextEdit->toPlainText()));
+    ui->TTMLTextEdit->setPlainText(compressTtml(ui->TTMLTextEdit->toPlainText()));
 }
 
 void MainWindow::on_fromURL_triggered()
@@ -1188,8 +1192,8 @@ void MainWindow::on_fromURL_triggered()
     loop.exec();
 
     // 判断超时情况
-    const bool isTimeout = !timer.isActive();
-    if (isTimeout) {
+    const bool is_timeout = !timer.isActive();
+    if (is_timeout) {
         reply->deleteLater();
         ui->statusbar->showMessage("请求超时");
         return;

@@ -91,9 +91,9 @@ private slots:
     void on_copyButton_clicked();
 
 private:
-    [[nodiscard]] QString t2s(QString val);
+    [[nodiscard]] QString t2s(const QString &val);
 
-    [[nodiscard]] QString s2t(QString val);
+    [[nodiscard]] QString s2t(const QString &val);
 
     void node_t2s(QDomNode &node);
 
@@ -109,6 +109,6 @@ private:
 
     std::unique_ptr<LyricObject> _lyric{};
 
-    static QList<std::tuple<QString, QString, QString>> presetMetas;
+    static QList<std::tuple<QString, QString, QString>> _preset_metas;
 };
 #endif // MAINWINDOW_H
