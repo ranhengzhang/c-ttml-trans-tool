@@ -9,16 +9,16 @@ QString LyricLine::toSPL() {
     QStringList line{};
     auto last = this->_begin;
 
-    line.push_back(QString(R"([%1])").arg(this->_begin.toString(false, false, true)));
+    line.push_back(QString(R"([%1])").arg(this->_begin.toString(true, false, true)));
     for (const auto &syl: this->_syl_s) {
         if (syl->getBegin() > last) {
-            line.push_back(QString(R"(<%1>)").arg(last.toString(false, false, true)));
+            line.push_back(QString(R"(<%1>)").arg(last.toString(true, false, true)));
         }
         line.push_back(syl->toSPL());
         if (not syl->isText()) last = syl->getEnd();
     }
-    line.push_back(QString(R"(<%1>)").arg(last.toString(false, false, true)));
-    line.push_back(QString(R"([%1])").arg(this->_end.toString(false, false, true)));
+    line.push_back(QString(R"(<%1>)").arg(last.toString(true, false, true)));
+    line.push_back(QString(R"([%1])").arg(this->_end.toString(true, false, true)));
 
     QStringList text {};
 
