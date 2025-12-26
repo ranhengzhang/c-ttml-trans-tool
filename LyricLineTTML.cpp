@@ -65,6 +65,26 @@ std::pair<LyricLine, LyricLine::Status> LyricLine::fromTTML(const QDomElement &p
         line._syl_s.front()->setBegin(line._begin);
         line._syl_s.front()->setEnd(line._end);
         line._syl_s.front()->setIsText(false);
+    } elif (line._syl_s.length() > 1) {
+        // Process text-type syllables: set begin time to previous syllable's end time, end time to next syllable's begin time
+        for (int i = 0; i < line._syl_s.length(); ++i) {
+            auto& syl = line._syl_s[i];
+            if (syl->getIsText()) {
+                // Set begin time to previous syllable's end time (or line begin if first syllable)
+                if (i > 0) {
+                    syl->setBegin(line._syl_s[i-1]->getEnd());
+                } else {
+                    syl->setBegin(line._begin);
+                }
+
+                // Set end time to next syllable's begin time (or line end if last syllable)
+                if (i < line._syl_s.length() - 1) {
+                    syl->setEnd(line._syl_s[i+1]->getBegin());
+                } else {
+                    syl->setEnd(line._end);
+                }
+            }
+        }
     }
     if (line._is_bg) {
         utils::normalizeBrackets(line);
