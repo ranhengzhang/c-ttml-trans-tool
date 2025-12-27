@@ -41,26 +41,39 @@ QString utils::toHtmlEscaped(const QString &text) {
 
 QString utils::normalizeBrackets(QString &text) {
     // replace syls.front: _before_reg->'('
-    const auto frontMatch = before_reg.match(text);
-    if (frontMatch.hasMatch()) text = text.replace(frontMatch.capturedStart(), frontMatch.capturedLength(), "");
+    const auto front_match = before_reg.match(text);
+    if (front_match.hasMatch()) text = text.replace(front_match.capturedStart(), front_match.capturedLength(), "");
     // replace syls.back: _after_reg->')'
-    const auto backMatch = after_reg.match(text);
-    if (backMatch.hasMatch()) text = text.replace(backMatch.capturedStart(), backMatch.capturedLength(), "");
+    const auto back_match = after_reg.match(text);
+    if (back_match.hasMatch()) text = text.replace(back_match.capturedStart(), back_match.capturedLength(), "");
 
     return text;
 }
 
 LyricLine utils::normalizeBrackets(LyricLine &line) {
     // replace syls.front: _before_reg->'('
-    const auto frontMatch = before_reg.match(line._syl_s.first()->getText());
-    if (frontMatch.hasMatch()) {
-        line._syl_s.first()->setText(line._syl_s.first()->getText().replace(frontMatch.capturedStart(), frontMatch.capturedLength(), ""));
+    const auto front_match = before_reg.match(line._syl_s.first()->getText());
+    if (front_match.hasMatch()) {
+        line._syl_s.first()->setText(line._syl_s.first()->getText().replace(front_match.capturedStart(), front_match.capturedLength(), ""));
     }
     // replace syls.back: _after_reg->')'
-    const auto backMatch = after_reg.match(line._syl_s.last()->getText());
-    if (backMatch.hasMatch()) {
-        line._syl_s.last()->setText(line._syl_s.last()->getText().replace(backMatch.capturedStart(), backMatch.capturedLength(), ""));
+    const auto back_match = after_reg.match(line._syl_s.last()->getText());
+    if (back_match.hasMatch()) {
+        line._syl_s.last()->setText(line._syl_s.last()->getText().replace(back_match.capturedStart(), back_match.capturedLength(), ""));
     }
 
     return line;
+}
+
+void utils::trim(LyricLine &line) {
+    while (line._syl_s.count()) {
+        const auto syl = *line._syl_s.first();
+        if (syl.getText().trimmed().isEmpty()) line._syl_s.pop_front();
+        else break;
+    }
+    while (line._syl_s.count()) {
+        const auto syl = *line._syl_s.last();
+        if (syl.getText().trimmed().isEmpty()) line._syl_s.pop_back();
+        else break;
+    }
 }

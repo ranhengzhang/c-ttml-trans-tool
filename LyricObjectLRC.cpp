@@ -40,21 +40,21 @@ QString LyricObject::toLRC(const QString &extra) {
             auto time = line.getLineBegin() - last_end > 500 ? last_end : line.getLineBegin();
             for (auto &ext_line: ext) {
                 text.push_back(QString(R"([%1]%2)")
-                    .arg(time.toString(false, true, true))
+                    .arg(time.toString(true, true, true))
                     .arg(ext_line));
             }
             ext.clear();
         }
         if (line.getLineBegin() - last_end > 500) {
             text.push_back(QString(R"([%1])")
-                .arg(last_end.toString(false, true, true)));
+                .arg(last_end.toString(true, true, true)));
         }
         auto [orig_line, sub_line] = line.toLRC(extra);
         text.push_back(orig_line);
         if (not sub_line.isEmpty()) ext.append(sub_line);
         last_end = line.getLineEnd();
     }
-    text.push_back(QString(R"([%1])").arg(this->_line_s.back().getLineEnd().toString(false, true, true)));
+    text.push_back(QString(R"([%1])").arg(this->_line_s.back().getLineEnd().toString(true, true, true)));
 
     return text.join("\n");
 }
@@ -66,11 +66,11 @@ QString LyricObject::getSubLRC(std::map<QString, std::shared_ptr<LyricTrans>> &m
         if (const auto pair_ptr = std::get_if<std::pair<QString, std::shared_ptr<QString>>>(roma_ptr.get())) {
             auto orig_line = *std::ranges::find_if(this->_line_s, [&key](auto &line) { return line.getKey() == key; });
             text.push_back(QString(R"([%1]%2)")
-                .arg(orig_line.getInnerBegin().toString(false, false, true))
+                .arg(orig_line.getInnerBegin().toString(true, false, true))
                 .arg(pair_ptr->first));
             if (orig_line.haveBgLine() and pair_ptr->second) {
                 text.push_back(QString(R"([%1]%2)")
-                    .arg(orig_line.getBgLine()->getInnerBegin().toString(false, false, true))
+                    .arg(orig_line.getBgLine()->getInnerBegin().toString(true, false, true))
                     .arg(*pair_ptr->second));
             }
         } elif (const auto line_ptr = std::get_if<LyricLine>(roma_ptr.get())) {

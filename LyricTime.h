@@ -11,11 +11,11 @@
 class LyricTime {
 public:
     [[nodiscard]] static LyricTime max() {
-        return {std::numeric_limits<int64_t>::max()};
+        return {5999999};
     }
 
     [[nodiscard]] static LyricTime min() {
-        return {std::numeric_limits<int64_t>::min()};
+        return {0};
     }
 
     [[nodiscard]] static std::pair<LyricTime, bool> parse(const QString &str);
@@ -35,6 +35,22 @@ public:
     [[nodiscard]] LyricTime operator+(const T rhs) const {
         LyricTime time{};
         time._count = this->_count + static_cast<int64_t>(rhs);
+        return time;
+    }
+
+    template<typename T>
+    requires std::constructible_from<int64_t, T>
+    [[nodiscard]] LyricTime operator/(const T &rhs) const {
+        LyricTime time{};
+        time._count = this->_count / static_cast<int64_t>(rhs);
+        return time;
+    }
+
+    template<typename T>
+    requires std::constructible_from<int64_t, T>
+    [[nodiscard]] LyricTime operator*(const T rhs) const {
+        LyricTime time{};
+        time._count = this->_count * static_cast<int64_t>(rhs);
         return time;
     }
 

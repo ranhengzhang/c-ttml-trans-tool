@@ -9,6 +9,7 @@ QString LyricLine::toLYS(const QString &lang, bool have_bg, bool have_duet) {
     QStringList text{};
 
     text.push_back(QString(R"([%1])").arg(property));
+    for (auto &syl: this->_syl_s) text.push_back(syl->toQRC());
     if (this->_bg_line) {
         text.push_back("\n");
         text.push_back(this->_bg_line->toLYS(lang, have_bg, have_duet));

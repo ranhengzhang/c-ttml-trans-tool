@@ -20,8 +20,12 @@ QString LyricLine::toTXT() const {
 void LyricLine::appendSubLine(const SubType role, const QString &lang, const std::shared_ptr<LyricTrans> &content) {
     if (role == SubType::Translation) {
         this->_translation[lang] = content;
-        if (const auto sub_line = std::get_if<LyricLine>(content.get())) {
+        if (auto sub_line = std::get_if<LyricLine>(content.get())) {
+            sub_line->setBegin(this->_begin);
+            sub_line->setEnd(this->_end);
             if (this->_bg_line and sub_line->_bg_line) {
+                sub_line->_bg_line->setBegin(this->_bg_line->_begin);
+                sub_line->_bg_line->setEnd(this->_bg_line->_end);
                 this->_bg_line->_translation[lang] = std::make_shared<LyricTrans>(*sub_line->_bg_line);
             }
         } elif (const auto sub_pair = std::get_if<std::pair<QString, std::shared_ptr<QString>>>(content.get())) {
@@ -32,7 +36,11 @@ void LyricLine::appendSubLine(const SubType role, const QString &lang, const std
     } else {
         this->_transliteration[lang] = content;
         if (const auto sub_line = std::get_if<LyricLine>(content.get())) {
+            sub_line->setBegin(this->_begin);
+            sub_line->setEnd(this->_end);
             if (this->_bg_line and sub_line->_bg_line) {
+                sub_line->_bg_line->setBegin(this->_bg_line->_begin);
+                sub_line->_bg_line->setEnd(this->_bg_line->_end);
                 this->_bg_line->_transliteration[lang] = std::make_shared<LyricTrans>(*sub_line->_bg_line);
             }
         } elif (const auto sub_pair = std::get_if<std::pair<QString, std::shared_ptr<QString>>>(content.get())) {
@@ -79,8 +87,16 @@ LyricTime LyricLine::getBegin() const {
     return this->_begin;
 }
 
+void LyricLine::setBegin(const LyricTime &time) {
+    this->_begin = time;
+}
+
 LyricTime LyricLine::getEnd() const {
     return this->_end;
+}
+
+void LyricLine::setEnd(const LyricTime &time) {
+    this->_end = time;
 }
 
 LyricTime LyricLine::getDuration() const {

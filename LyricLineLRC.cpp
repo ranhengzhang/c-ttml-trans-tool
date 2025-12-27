@@ -9,7 +9,7 @@ std::pair<QString, QStringList> LyricLine::toLRC(const QString &extra) {
     QStringList sub_line{};
 
     orig_line = QString(R"([%1]%2)")
-    .arg(this->getLineBegin().toString(false, true, true))
+    .arg(this->getLineBegin().toString(true, true, true))
     .arg(this->toTXT());
     if (this->_bg_line) sub_line.push_back(QString("(%1)").arg(this->_bg_line->toTXT()));
 
@@ -34,6 +34,6 @@ std::pair<QString, QStringList> LyricLine::toLRC(const QString &extra) {
 
 QString LyricLine::toLRC() const {
     return QString(R"([%1]%2)")
-            .arg(this->getInnerBegin().toString(false, true, true))
+            .arg(this->getInnerBegin().toString(true, false, true))
             .arg(this->toTXT());
 }

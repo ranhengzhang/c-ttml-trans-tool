@@ -29,6 +29,8 @@ public:
 
     friend LyricLine utils::normalizeBrackets(LyricLine &line);
 
+    friend void utils::trim(LyricLine &line);
+
     [[nodiscard]] static std::pair<LyricLine, Status> fromTTML(const QDomElement &p, LyricLine *parent, LyricObject &obj);
 
     [[nodiscard]] QString toTTML() const;
@@ -37,7 +39,7 @@ public:
 
     [[nodiscard]] QString toTXT() const;
 
-    [[nodiscard]] QString toASS(const QString& role = "orig") const;
+    [[nodiscard]] QString toASS(const QString& role = "orig", LyricTime parent_begin = {-1}, LyricTime parent_end = {-1}) const;
 
     [[nodiscard]] std::pair<QString, QStringList> toLRC(const QString &extra);
 
@@ -75,7 +77,11 @@ public:
 
     [[nodiscard]] LyricTime getBegin() const;
 
+    void setBegin(const LyricTime &time);
+
     [[nodiscard]] LyricTime getEnd() const;
+
+    void setEnd(const LyricTime &time);
 
     [[nodiscard]] LyricTime getDuration() const;
 
@@ -102,9 +108,9 @@ private:
 
     QList<std::shared_ptr<LyricSyl>> _syl_s{};
 
-    LyricTime _begin{};
+    LyricTime _begin{LyricTime::min()};
 
-    LyricTime _end{};
+    LyricTime _end{LyricTime::max()};
 
     QString _key{};
 

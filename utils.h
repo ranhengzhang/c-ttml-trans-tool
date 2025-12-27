@@ -28,6 +28,8 @@ namespace utils {
 
     LyricLine normalizeBrackets(LyricLine &line);
 
+    void trim(LyricLine &line);
+
     enum class Status {
         Success, // 成功
         InvalidFormat, // 无法解析为 Dom
