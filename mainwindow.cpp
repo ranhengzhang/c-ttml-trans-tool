@@ -436,10 +436,12 @@ void MainWindow::on_toLRC_triggered() {
 
     options.push_back(R"(无)");
     if (this->_lyric->haveRoman()) {
-        options.push_back(R"(x-roman - 罗马音)");
+        for (const auto &lang: this->_lyric->getRomaLangs()) {
+            options.push_back(QString(R"(x-roman - 音译 - lang:%1)").arg(lang));
+        }
     }
-    if (!this->_lyric->getSubLangs().isEmpty()) {
-        for (const auto &lang: this->_lyric->getSubLangs()) {
+    if (this->_lyric->haveTrans()) {
+        for (const auto &lang: this->_lyric->getTransLangs()) {
             options.push_back(QString(R"(x-trans - 翻译 - lang:%1)").arg(lang));
         }
     }
@@ -990,7 +992,7 @@ void MainWindow::node_t2s(QDomNode &node) {
         const QDomElement el = node.toElement();
 
         // 跳过metadata标签
-        if (el.tagName() == "metadata") {
+        if (el.tagName() == "head") {
             return;
         }
 
@@ -1029,7 +1031,7 @@ void MainWindow::node_s2t(QDomNode &node) {
         const QDomElement el = node.toElement();
 
         // 跳过metadata标签
-        if (el.tagName() == "metadata") {
+        if (el.tagName() == "head") {
             return;
         }
 

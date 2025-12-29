@@ -99,6 +99,8 @@ public:
 
     [[nodiscard]] QString getKey() const;
 
+    [[nodiscard]] bool isDuet() const;
+
     [[nodiscard]] bool haveBgLine() const;
 
     [[nodiscard]] std::shared_ptr<LyricLine> getBgLine() const;

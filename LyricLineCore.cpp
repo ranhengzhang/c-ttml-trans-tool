@@ -149,6 +149,10 @@ QString LyricLine::getKey() const {
     return this->_key;
 }
 
+bool LyricLine::isDuet() const {
+    return this->_is_duet;
+}
+
 bool LyricLine::haveBgLine() const {
     return this->_bg_line != nullptr;
 }

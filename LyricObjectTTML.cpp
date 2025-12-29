@@ -86,6 +86,7 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
             if (status != Status::Success) return {{}, status};
             lyric._line_s.push_back(sub_line);
             lyric._have_bg |= sub_line.haveBgLine();
+            lyric._have_duet |= sub_line.isDuet();
         }
     }
 

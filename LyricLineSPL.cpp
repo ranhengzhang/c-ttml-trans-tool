@@ -12,12 +12,12 @@ QString LyricLine::toSPL() {
     line.push_back(QString(R"([%1])").arg(this->_begin.toString(true, false, true)));
     for (const auto &syl: this->_syl_s) {
         if (syl->getBegin() > last) {
-            line.push_back(QString(R"(<%1>)").arg(last.toString(true, false, true)));
+            line.push_back(QString("<%1>\u200D").arg(last.toString(true, false, true)));
         }
         line.push_back(syl->toSPL());
         if (not syl->isText()) last = syl->getEnd();
     }
-    line.push_back(QString(R"(<%1>)").arg(last.toString(true, false, true)));
+    line.push_back(QString("<%1>\u200D").arg(last.toString(true, false, true)));
     line.push_back(QString(R"([%1])").arg(this->_end.toString(true, false, true)));
 
     QStringList text {};
