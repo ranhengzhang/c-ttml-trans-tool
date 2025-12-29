@@ -31,6 +31,8 @@ public:
 
     friend void utils::trim(LyricLine &line);
 
+    void setKey(const QString &key);
+
     [[nodiscard]] static std::pair<LyricLine, Status> fromTTML(const QDomElement &p, LyricLine *parent, LyricObject &obj);
 
     [[nodiscard]] QString toTTML() const;

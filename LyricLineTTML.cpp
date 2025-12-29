@@ -7,6 +7,10 @@
 #include "LyricLine.h"
 #include "LyricObject.h"
 
+void LyricLine::setKey(const QString &key) {
+    _key = key;
+}
+
 std::pair<LyricLine, LyricLine::Status> LyricLine::fromTTML(const QDomElement &p, LyricLine *parent, LyricObject &obj) {
     LyricLine line;
 
@@ -61,10 +65,6 @@ std::pair<LyricLine, LyricLine::Status> LyricLine::fromTTML(const QDomElement &p
     }
     if (line._syl_s.isEmpty()) {
         line._syl_s.push_back(std::make_shared<LyricSyl>(LyricSyl::fromText("")));
-    } elif (line._syl_s.length() == 1 and line._syl_s.front()->isText() and line._end - line._begin > 5) {
-        line._syl_s.front()->setBegin(line._begin);
-        line._syl_s.front()->setEnd(line._end);
-        line._syl_s.front()->setIsText(false);
     } elif (line._syl_s.length() > 1) {
         // Process text-type syllables: set begin time to previous syllable's end time, end time to next syllable's begin time
         for (int i = 0; i < line._syl_s.length(); ++i) {

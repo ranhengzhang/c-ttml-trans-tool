@@ -341,7 +341,6 @@ QString compressTtmlV1(QString ttml) {
 
 QString compressTtmlV2(QString ttml) {
     // 解析为 xml
-    QDomDocument doc;
     auto [lyric, status] = LyricObject::fromTTML(ttml);
     if (status != LyricObject::Status::Success) {
         return ttml;

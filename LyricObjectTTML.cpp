@@ -81,12 +81,13 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
 
         for (int j = 0; j < p_s.length(); ++j) {
             const auto p = p_s.at(j).toElement();
-            auto [sub_line, status] = LyricLine::fromTTML(p, nullptr, lyric);
+            auto [line, status] = LyricLine::fromTTML(p, nullptr, lyric);
 
             if (status != Status::Success) return {{}, status};
-            lyric._line_s.push_back(sub_line);
-            lyric._have_bg |= sub_line.haveBgLine();
-            lyric._have_duet |= sub_line.isDuet();
+            if (line.getKey().isEmpty()) line.setKey(QString("L%1").arg(lyric._line_s.length() + 1));
+            lyric._line_s.push_back(line);
+            lyric._have_bg |= line.haveBgLine();
+            lyric._have_duet |= line.isDuet();
         }
     }
 
@@ -107,7 +108,9 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
                     ++count;
             }
 
-            auto &orig_line = *std::ranges::find_if(lyric._line_s, [&key](const auto &line){return line.getKey() == key;});
+            auto orig_ptr = std::ranges::find_if(lyric._line_s, [&key](const auto &line){return line.getKey() == key;});
+            if (orig_ptr == lyric._line_s.end()) continue;
+            auto &orig_line = *orig_ptr;
             if (count == 0) { // 逐行音译
                 std::pair<QString,std::shared_ptr<QString>> sub_line = {text.childNodes().at(0).nodeValue(),{}};
                 auto match = pairs_reg.match(sub_line.first);
@@ -144,7 +147,9 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
             for (int j = 0; j < text_s.length(); ++j) {
                 const auto text = text_s.at(j).toElement();
                 const auto key = text.attribute("for");
-                auto &orig_line = *std::ranges::find_if(lyric._line_s, [&key](const auto &line){return line.getKey() == key;});
+                auto orig_ptr = std::ranges::find_if(lyric._line_s, [&key](const auto &line){return line.getKey() == key;});;
+                if (orig_ptr == lyric._line_s.end()) continue;
+                auto &orig_line = *orig_ptr;
                 auto [sub_line, status] = LyricLine::fromTTML(text, nullptr, lyric);
                 if (status != Status::Success) return {{}, status};
                 sub_line.match(orig_line);
@@ -158,7 +163,9 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
             for (int j = 0; j < text_s.length(); ++j) {
                 const auto text = text_s.at(j).toElement();
                 const auto key = text.attribute("for");
-                auto &orig_line = *std::ranges::find_if(lyric._line_s, [&key](const auto &line){return line.getKey() == key;});
+                auto orig_ptr = std::ranges::find_if(lyric._line_s, [&key](const auto &line){return line.getKey() == key;});
+                if (orig_ptr == lyric._line_s.end()) continue;
+                auto &orig_line = *orig_ptr;
                 std::pair<QString, std::shared_ptr<QString>> sub_line = {text.childNodes().at(0).nodeValue(),{}};
                 auto match = pairs_reg.match(sub_line.first);
                 if (text.childNodes().length() > 1) {
@@ -263,7 +270,7 @@ QString LyricObject::toTTML() {
     if (this->_song_writer_s.isEmpty()) {
         song_writer_text = R"(<songwriters/>)";
     } else {
-        const auto song_writer_view = this->_song_writer_s | std::views::transform([](const auto &song_writer) {return QString(R"(<songwriter>%1</songwriter>)").arg(song_writer);});
+        const auto song_writer_view = this->_song_writer_s | std::views::transform([](const auto &song_writer) {return QString(R"(<songwriter>%1</songwriter>)").arg(utils::toHtmlEscaped(song_writer));});
         song_writer_text = QString(R"(<songwriters>%1</songwriters>)").arg(QStringList(song_writer_view.begin(), song_writer_view.end()).join(""));
     }
 
