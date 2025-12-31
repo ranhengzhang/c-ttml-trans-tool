@@ -1,4 +1,31 @@
-# CHANGELOG
+# CHANGELOG (created by TRAE)
+
+## 1.1
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `b237eb4` feat: integrate OpenCC library for Chinese conversion
+> - `8de2528` fix(TTML): prevent iterator dereference and improve parsing safety
+
+> [!NOTE]
+>
+> **功能增强 (Features)**
+>
+> - 集成 OpenCC 库用于中文转换
+> - 实现 OpenCCConverter 包装类，确保安全使用
+> - 为 opencc.h API 添加详细文档
+> - 重组 utils.h，将 Status 枚举移至顶部
+
+> [!CAUTION]
+>
+> **错误修复 (Bug Fixes)**
+>
+> - 修复 TTML 解析中的迭代器解引用问题
+> - 为缺失的行自动生成键，防止查找失败
+> - 转义 TTML 导出中的歌曲作者名称，防止 XML 注入
+> - 移除 compressTtmlV2 中未使用的 QDomDocument 变量
 
 ## 1.0
 
