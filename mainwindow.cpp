@@ -17,6 +17,7 @@
 #include "LangSelectDialog.h"
 #include "LyricObject.h"
 #include "TimeFormatDialog.h"
+#include "opencc.h"
 
 QList<std::pair<QString, QString>> preset_metas{
             {"musicName", "音乐名称"},
@@ -31,7 +32,10 @@ QList<std::pair<QString, QString>> preset_metas{
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-      , ui(new Ui::MainWindow) {
+    , ui(new Ui::MainWindow)
+    , _t2s_converter(BuiltinConfig::T2s) // 繁体到简体
+    , _s2t_converter(BuiltinConfig::S2t) // 简体到繁体
+{
     ui->setupUi(this);
 
     ui->TTMLTextEdit->setWordWrapMode(QTextOption::WrapAnywhere);
@@ -49,18 +53,12 @@ MainWindow::MainWindow(QWidget *parent)
         }
     }
 
-    opencc_create("s2t.json", &ot_s2t);
-    opencc_create("t2s.json", &ot_t2s);
-
     ui->offsetCount->setMinimum(INT32_MIN);
     ui->offsetCount->setMaximum(INT32_MAX);
 }
 
 MainWindow::~MainWindow() {
     delete ui;
-
-    opencc_destroy(ot_t2s);
-    opencc_destroy(ot_s2t);
 }
 
 std::tuple<QString, bool> offsetWithKey(const QString &key, QString &text, const int64_t offset) {
@@ -970,18 +968,6 @@ void MainWindow::on_copyTXT_triggered()
     ui->statusbar->showMessage("导出成功");
 }
 
-QString MainWindow::s2t(const QString& val) {
-    auto str = val.toStdString();
-    auto buffer = opencc_convert(ot_s2t, str.c_str());
-    return QString::fromUtf8(buffer);
-}
-
-QString MainWindow::t2s(const QString& val) {
-    auto str = val.toStdString();
-    auto buffer = opencc_convert(ot_t2s, str.c_str());
-    return QString::fromUtf8(buffer);
-}
-
 void MainWindow::node_t2s(QDomNode &node) {
     // 递归终止条件
     if (node.isNull()) return;
@@ -1008,7 +994,7 @@ void MainWindow::node_t2s(QDomNode &node) {
     if (node.isText()) {
         const QString content = node.nodeValue();
         if (!content.trimmed().isEmpty()) {
-            node.setNodeValue(t2s(content));
+            node.setNodeValue(_t2s_converter.convert(content));
         }
     }
 
@@ -1047,7 +1033,7 @@ void MainWindow::node_s2t(QDomNode &node) {
     if (node.isText()) {
         const QString content = node.nodeValue();
         if (!content.trimmed().isEmpty()) {
-            node.setNodeValue(s2t(content));
+            node.setNodeValue(_s2t_converter.convert(content));
         }
     }
 

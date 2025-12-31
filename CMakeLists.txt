@@ -106,7 +106,8 @@ target_link_libraries(ttml-tool PRIVATE
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Xml
         Qt${QT_VERSION_MAJOR}::Network
-        F:/Qt/ttml-tool/ferrous_opencc.dll.lib
+        F:/Qt/ttml-tool/ferrous_opencc.lib
+        ntdll.lib
 )
 
 set_target_properties(ttml-tool PROPERTIES

@@ -4,7 +4,6 @@
 #include <QMainWindow>
 
 #include "LyricObject.h"
-#include "opencc.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -91,17 +90,13 @@ private slots:
     void on_copyButton_clicked();
 
 private:
-    [[nodiscard]] QString t2s(const QString &val);
-
-    [[nodiscard]] QString s2t(const QString &val);
-
     void node_t2s(QDomNode &node);
 
     void node_s2t(QDomNode &node);
 
-    OpenCCHandle *ot_t2s{nullptr};
+    utils::OpenCCConverter _t2s_converter; // Traditional to Simplified
 
-    OpenCCHandle *ot_s2t{nullptr};
+    utils::OpenCCConverter _s2t_converter; // Simplified to Traditional
 
     bool parse();
 
