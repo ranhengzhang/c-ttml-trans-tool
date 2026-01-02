@@ -1,5 +1,21 @@
 # CHANGELOG (created by TRAE)
 
+## 1.2
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `f98a7d0` feat(TTML): support both songPart and song-part attributes for song sections
+
+> [!NOTE]
+>
+> **功能增强 (Features)**
+>
+> - 为 TTML 解析添加对 'itunes:songPart' 和 'itunes:song-part' 两种属性的支持
+> - 改进歌曲分段检测，先检查属性是否存在
+> - 保持与现有 TTML 文件的向后兼容性
+
 ## 1.1
 
 > [!IMPORTANT]
@@ -60,7 +76,7 @@
 > - 修复 ASS 导出问题：重复持续时间、音译/翻译混淆、缺少结束时间
 > - 修复 XML 翻译函数，跳过 `head` 标签而非 `metadata` 标签
 > - 修复多种导出格式的时间格式化问题
->
+
 
 > [!TIP]
 >
