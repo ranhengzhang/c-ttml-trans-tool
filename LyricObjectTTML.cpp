@@ -76,7 +76,8 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
         auto div = div_s.at(i).toElement();
         auto p_s = div.elementsByTagName("p");
 
-        lyric._song_part_s.back().song_part = div.attribute("itunes:songPart");
+        if (div.hasAttribute("itunes:songPart")) lyric._song_part_s.back().song_part = div.attribute("itunes:songPart");
+        elif (div.hasAttribute("itunes:song-part")) lyric._song_part_s.back().song_part = div.attribute("itunes:song-part");
         lyric._song_part_s.back().count = p_s.count();
 
         for (int j = 0; j < p_s.length(); ++j) {
