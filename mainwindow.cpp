@@ -373,7 +373,17 @@ bool MainWindow::parse() {
     auto [lrc, status] = LyricObject::fromTTML(text);
 
     if (status != LyricObject::Status::Success) {
-        QMessageBox::critical(this, R"(错误)", R"(无法解析 TTML)");
+        switch (status) {
+            case utils::Status::InvalidFormat:
+                QMessageBox::critical(this, R"(错误)", R"(无法解析 TTML)");
+                break;
+            case utils::Status::InvalidStructure:
+                QMessageBox::critical(this, R"(错误)", R"(TTML 结构错误)");
+                break;
+            case utils::Status::InvalidTimeFormat:
+                QMessageBox::critical(this, R"(错误)", R"(时间戳格式错误)");
+                break;
+        }
         ui->statusbar->showMessage(R"(TTML 解析失败)");
         return false;
     }

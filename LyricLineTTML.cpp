@@ -110,7 +110,7 @@ QString LyricLine::toTTML() const {
     .arg(this->toInnerTTML());
 }
 
-QString LyricLine::toInnerTTML(bool xmlns) const {
+QString LyricLine::toInnerTTML(const bool xmlns) const {
     QString ret;
     for (const auto &syl : this->_syl_s) ret += syl->toTTML(xmlns);
     if (this->_bg_line)

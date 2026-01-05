@@ -187,8 +187,17 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
     return {lyric, Status::Success};
 }
 
+std::optional<QString> selectLang(QList<QString> langs) {
+    if (langs.contains("zh-Hans")) return "zh-Hans";
+    if (langs.contains("zh-CN")) return "zh-CN";
+    if (langs.contains("zh-Hant")) return "zh-Hant";
+    auto zh_key = std::ranges::find_if(langs, [](const auto &key){return key.startsWith("zh");});
+    if (zh_key != langs.end()) return *zh_key;
+    return langs.isEmpty() ? std::nullopt : std::optional(*langs.begin());
+}
+
 QString LyricObject::toTTML() {
-    const auto meta_data_view = this->_meta_data_s | std::views::transform([](const auto &meta_data) {return QString(R"(<amll:meta key="%1" value="%2"/>)").arg(meta_data.key).arg(meta_data.value);});
+    const auto meta_data_view = this->_meta_data_s | std::views::transform([](const auto &meta_data) {return QString(R"(<amll:meta key="%1" value="%2"/>)").arg(utils::toHtmlEscaped(meta_data.key)).arg(utils::toHtmlEscaped(meta_data.value));});
     const auto meta_data_text = QStringList(meta_data_view.begin(), meta_data_view.end()).join("");
 
     auto translation_text = QString();
@@ -196,7 +205,14 @@ QString LyricObject::toTTML() {
         translation_text = "<translations/>";
     } else {
         translation_text = "<translations>";
-        for (const auto& lang : this->_translation_s.keys()) {
+        auto langs = this->_translation_s.keys();
+        auto lang_opt = selectLang(langs);
+        if (lang_opt) {
+            const auto& lang = *lang_opt;
+            langs.removeAll(lang);
+            langs.push_back(lang);
+        }
+        for (const auto& lang: langs) {
             const auto &[is_word, translation_map] = this->_translation_s[lang];
 
             translation_text += QString(R"(<translation type="%1" xml:lang="%2">)")
