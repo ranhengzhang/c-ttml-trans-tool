@@ -1,5 +1,33 @@
 # CHANGELOG (created by TRAE)
 
+## 最新更新
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `c7b8710` refactor: improve code quality and error handling
+
+> [!NOTE]
+>
+> **功能增强 (Features)**
+>
+> - 实现 selectLang 函数用于更好的语言选择逻辑
+> - 为元数据键和值添加 HTML 转义，提高安全性
+> - 增强翻译语言排序，优先处理中文
+
+> [!CAUTION]
+>
+> **错误修复 (Bug Fixes)**
+>
+> - 改进 mainwindow.cpp 中的错误消息处理，提供更详细的错误信息
+
+> [!TIP]
+>
+> **代码重构 (Refactoring)**
+>
+> - 在 LyricLineTTML.cpp 中为 xmlns 参数添加 const 限定符，提高代码质量
+
 ## 1.2
 
 > [!IMPORTANT]
