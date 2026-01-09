@@ -1,5 +1,30 @@
 # CHANGELOG (created by TRAE)
 
+## 1.5
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `a698c01` feat(LyricLineSPL): enhance SPL output generation and timing accuracy
+
+> [!NOTE]
+>
+> **功能增强 (Features)**
+>
+> - 使用 getInnerBegin() 和 getInnerEnd() 提高时间计算精度
+> - 将零宽连接符 (\u200D) 替换为零宽空格 (\u200B)
+> - 改进背景行格式化，使用适当的括号处理
+> - 增强翻译和音译处理，支持多种数据类型
+> - 重构行文本处理，提高可维护性
+> - 更新 SPL 结构以匹配改进的时间计算逻辑
+
+> [!TIP]
+>
+> **代码重构 (Refactoring)**
+>
+> - 重构 LyricLineSPL.cpp 中的 toSPL 方法实现
+
 ## 1.4
 
 > [!IMPORTANT]
