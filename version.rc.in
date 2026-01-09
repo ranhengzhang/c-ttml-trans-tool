@@ -1,0 +1,36 @@
+#include <windows.h>
+
+IDI_ICON1 ICON "@CMAKE_CURRENT_SOURCE_DIR@/favicon.ico"
+
+VS_VERSION_INFO VERSIONINFO
+    FILEVERSION @PROJECT_VERSION_MAJOR@,@PROJECT_VERSION_MINOR@,@PROJECT_VERSION_PATCH@,@PROJECT_VERSION_TWEAK@
+    PRODUCTVERSION @PROJECT_VERSION_MAJOR@,@PROJECT_VERSION_MINOR@,@PROJECT_VERSION_PATCH@,@PROJECT_VERSION_TWEAK@
+    FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+    FILEFLAGS VS_FF_DEBUG | VS_FF_DLL
+#else
+    FILEFLAGS 0x0L
+#endif
+    FILEOS VOS__WINDOWS32
+    FILETYPE VFT_APP
+    FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404b0"
+        BEGIN
+            VALUE "CompanyName", "ttml-tool Project"
+            VALUE "FileDescription", "TTML Tool - Lyric Converter"
+            VALUE "FileVersion", "@PROJECT_VERSION@"
+            VALUE "InternalName", "ttml-tool"
+            VALUE "LegalCopyright", "Copyright (C) @CURRENT_YEAR@ ttml-tool Project"
+            VALUE "OriginalFilename", "C_TTML_TRANS_TOOL.exe"
+            VALUE "ProductName", "TTML Tool"
+            VALUE "ProductVersion", "@PROJECT_VERSION@"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
+END

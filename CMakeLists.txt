@@ -9,6 +9,14 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+string(TIMESTAMP CURRENT_YEAR "%Y")
+
+if(NOT PROJECT_VERSION_TWEAK)
+    set(PROJECT_VERSION_TWEAK 0)
+endif()
+
+configure_file(version.rc.in version.rc @ONLY)
+
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Xml Network)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Xml Network)
 
@@ -18,7 +26,7 @@ set(PROJECT_SOURCES
 
         # resources
         res.qrc
-        app_win32.rc
+        "${CMAKE_CURRENT_BINARY_DIR}/version.rc"
 
         # frames
         MainWindow.ui
