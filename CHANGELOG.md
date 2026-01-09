@@ -1,6 +1,30 @@
 # CHANGELOG (created by TRAE)
 
-## 最新更新
+## 1.4
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `8123bb4` feat(lyricline): improve time calculation and TTML output for lyric lines
+
+> [!NOTE]
+>
+> **功能增强 (Features)**
+>
+> - 增强 getInnerBegin() 和 getInnerEnd() 方法以处理纯文本音节
+> - 修复 TTML 解析中背景行的翻译和音译分配
+> - 改进背景行的 TTML 输出格式，使用适当的括号处理
+> - 为 lyricline.h 中的方法功能添加中文注释
+> - 优化背景行的 TTML 输出结构
+
+> [!TIP]
+>
+> **代码重构 (Refactoring)**
+>
+> - 重构 getInnerBegin() 和 getInnerEnd() 方法的实现逻辑
+
+## 1.3
 
 > [!IMPORTANT]
 >
