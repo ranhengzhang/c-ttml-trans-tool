@@ -134,11 +134,14 @@ LyricTime LyricLine::getLineDuration() const {
 }
 
 LyricTime LyricLine::getInnerBegin() const {
-    return std::max(this->_begin, this->_syl_s.front()->getBegin());
+    const auto real_syl_s = std::ranges::find_if(this->_syl_s, [](const auto &syl) { return not syl->isText(); });
+    return real_syl_s == this->_syl_s.end() ? this->_begin : std::max(this->_begin, real_syl_s->get()->getBegin());
 }
 
 LyricTime LyricLine::getInnerEnd() const {
-    return std::min(this->_end, this->_syl_s.back()->getEnd());
+    auto reversed = std::views::reverse(this->_syl_s);
+    const auto real_syl_s = std::ranges::find_if(reversed, [](const auto &syl) { return not syl->isText(); });
+    return real_syl_s == reversed.end() ? this->_end : std::min(this->_end, real_syl_s->get()->getEnd());
 }
 
 LyricTime LyricLine::getInnerDuration() const {

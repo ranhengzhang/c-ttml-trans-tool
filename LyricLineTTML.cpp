@@ -45,6 +45,7 @@ std::pair<LyricLine, LyricLine::Status> LyricLine::fromTTML(const QDomElement &p
                     if (line._is_bg) {
                         utils::normalizeBrackets(text);
                         std::get<std::pair<QString,std::shared_ptr<QString>>>(*parent->_translation[lang]).second = std::make_shared<QString>(text);
+                        line._translation[lang] = std::make_shared<LyricTrans>(text);
                     } else {
                         line._translation[lang] = std::make_shared<LyricTrans>(std::pair<QString, std::shared_ptr<QString>>{text, {}});
                     }
@@ -52,6 +53,7 @@ std::pair<LyricLine, LyricLine::Status> LyricLine::fromTTML(const QDomElement &p
                     if (line._is_bg) {
                         utils::normalizeBrackets(text);
                         std::get<std::pair<QString,std::shared_ptr<QString>>>(*parent->_transliteration[lang]).second = std::make_shared<QString>(text);
+                        line._transliteration[lang] = std::make_shared<LyricTrans>(text);
                     } else {
                         line._transliteration[lang] = std::make_shared<LyricTrans>(std::pair<QString, std::shared_ptr<QString>>{text, {}});
                     }
@@ -111,10 +113,24 @@ QString LyricLine::toTTML() const {
 }
 
 QString LyricLine::toInnerTTML(const bool xmlns) const {
-    QString ret;
-    for (const auto &syl : this->_syl_s) ret += syl->toTTML(xmlns);
+    QStringList text;
+    for (const auto &syl : this->_syl_s) text.push_back(syl->toTTML(xmlns));
+    if (this->_is_bg) {
+        if (text.count()) {
+            if (text.first().contains('>'))
+                text.first().insert(text.first().indexOf('>') + 1, '(');
+            else
+                text.first().push_front('(');
+
+            if (text.last().contains('<'))
+                text.last().insert(text.last().lastIndexOf('<'), ')');
+            else
+                text.last().push_back(')');
+        }
+    }
+    auto ret = text.join("");
     if (this->_bg_line)
-        ret += QString(R"( <span ttm:role="x-bg"%1>(%2)</span>)")
+        ret += QString(R"( <span ttm:role="x-bg"%1>%2</span>)")
         .arg(xmlns ? R"( xmlns:ttm="http://www.w3.org/ns/ttml#metadata" xmlns="http://www.w3.org/ns/ttml")" : "")
         .arg(this->_bg_line->toInnerTTML());
     return ret;

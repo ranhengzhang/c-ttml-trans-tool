@@ -77,25 +77,25 @@ public:
      */
     void match(const LyricLine &orig);
 
-    [[nodiscard]] LyricTime getBegin() const;
+    [[nodiscard]] LyricTime getBegin() const; // 直接获取存储的 begin
 
     void setBegin(const LyricTime &time);
 
-    [[nodiscard]] LyricTime getEnd() const;
+    [[nodiscard]] LyricTime getEnd() const; // 直接获取存储的 end
 
     void setEnd(const LyricTime &time);
 
     [[nodiscard]] LyricTime getDuration() const;
 
-    [[nodiscard]] LyricTime getLineBegin() const;
+    [[nodiscard]] LyricTime getLineBegin() const; // 获取整行的 begin
 
-    [[nodiscard]] LyricTime getLineEnd() const;
+    [[nodiscard]] LyricTime getLineEnd() const; // 获取整行的 end
 
     [[nodiscard]] LyricTime getLineDuration() const;
 
-    [[nodiscard]] LyricTime getInnerBegin() const;
+    [[nodiscard]] LyricTime getInnerBegin() const; // 获取第一个有效音节的 begin
 
-    [[nodiscard]] LyricTime getInnerEnd() const;
+    [[nodiscard]] LyricTime getInnerEnd() const; // 获取最后一个有效音节的 end
 
     [[nodiscard]] LyricTime getInnerDuration() const;
 
