@@ -52,3 +52,7 @@ LyricTime LyricSyl::getEnd() const {
 void LyricSyl::setEnd(const LyricTime &end) {
     this->_end = end;
 }
+
+bool LyricSyl::getIsExplicit() const {
+    return this->_is_explicit;
+}

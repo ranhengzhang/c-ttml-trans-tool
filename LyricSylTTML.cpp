@@ -13,6 +13,7 @@ std::pair<LyricSyl, LyricSyl::Status> LyricSyl::fromTTML(const QDomNode &span) {
     const auto el = span.toElement();
 
     syl._is_text = false;
+    syl._is_explicit = el.hasAttribute("amll:obscene") and el.attribute("amll:obscene") == "true";
     const auto begin = LyricTime::parse(el.attribute("begin"));
     if (!begin.second) return {{}, Status::InvalidTimeFormat};
     syl._begin = begin.first;
@@ -25,9 +26,10 @@ std::pair<LyricSyl, LyricSyl::Status> LyricSyl::fromTTML(const QDomNode &span) {
 }
 
 QString LyricSyl::toTTML(bool xmlns) {
-    return this->isText() ? utils::toHtmlEscaped(this->_text) : QString(R"(<span begin="%1" end="%2"%3>%4</span>)")
+    return this->isText() ? utils::toHtmlEscaped(this->_text) : QString(R"(<span begin="%1" end="%2"%3%4>%5</span>)")
     .arg(this->_begin.toString(false,false,true))
     .arg(this->_end.toString(false,false,true))
+    .arg(this->_is_explicit ? R"( amll:obscene="true")" : "")
     .arg(xmlns ? R"( xmlns="http://www.w3.org/ns/ttml")" : "")
     .arg(utils::toHtmlEscaped(this->_text)) ;
 }
