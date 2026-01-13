@@ -109,16 +109,3 @@ LyricLine utils::normalizeBrackets(LyricLine &line) {
 
     return line;
 }
-
-void utils::trim(LyricLine &line) {
-    while (line._syl_s.count()) {
-        const auto syl = *line._syl_s.first();
-        if (syl.getText().trimmed().isEmpty()) line._syl_s.pop_front();
-        else break;
-    }
-    while (line._syl_s.count()) {
-        const auto syl = *line._syl_s.last();
-        if (syl.getText().trimmed().isEmpty()) line._syl_s.pop_back();
-        else break;
-    }
-}

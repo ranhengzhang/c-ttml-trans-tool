@@ -29,8 +29,6 @@ public:
 
     friend LyricLine utils::normalizeBrackets(LyricLine &line);
 
-    friend void utils::trim(LyricLine &line);
-
     void setKey(const QString &key);
 
     [[nodiscard]] static std::pair<LyricLine, Status> fromTTML(const QDomElement &p, LyricLine *parent, LyricObject &obj);
@@ -76,6 +74,8 @@ public:
      * @param orig 主行
      */
     void match(const LyricLine &orig);
+
+    void trim();
 
     [[nodiscard]] LyricTime getBegin() const; // 直接获取存储的 begin
 

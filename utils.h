@@ -61,8 +61,6 @@ namespace utils {
     QString normalizeBrackets(QString &text);
 
     LyricLine normalizeBrackets(LyricLine &line);
-
-    void trim(LyricLine &line);
 }
 
 #endif //TTML_TOOL_UTILS_H
