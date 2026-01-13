@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>asset/Sarasa.ttf</file>
-        <file>favicon.ico</file>
-        <file>winicon.ico</file>
-    </qresource>
-</RCC>
