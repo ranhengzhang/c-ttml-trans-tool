@@ -21,74 +21,32 @@ endif()
 
 configure_file(version.rc.in version.rc @ONLY)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Xml Network)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Xml Network)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
+
+add_subdirectory(src/lyric)
+add_subdirectory(src/widgets)
 
 set(PROJECT_SOURCES
         # main
         main.cpp
 
         # resources
-        res.qrc
+        resources/res.qrc
         "${CMAKE_CURRENT_BINARY_DIR}/version.rc"
 
-        # frames
-        MainWindow.ui
-        MainWindow.h
-        MainWindow.cpp
+        # dialogs
+        src/dialogs/MainWindow.ui
+        src/dialogs/MainWindow.hpp
+        src/dialogs/MainWindow.cpp
 
-        TimeFormatDialog.ui
-        TimeFormatDialog.h
-        TimeFormatDialog.cpp
+        src/dialogs/TimeFormatDialog.ui
+        src/dialogs/TimeFormatDialog.hpp
+        src/dialogs/TimeFormatDialog.cpp
 
-        LangSelectDialog.h
-        LangSelectDialog.cpp
-        LangSelectDialog.ui
-
-        # widgets
-        MPlainTextEdit.cpp
-        MPlainTextEdit.h
-
-        # class
-        LyricObject.h
-        LyricObjectCore.cpp
-        LyricObjectTTML.cpp
-        LyricObjectASS.cpp
-        LyricObjectLRC.cpp
-        LyricObjectSPL.cpp
-        LyricObjectQRC.cpp
-        LyricObjectLYS.cpp
-        LyricObjectYRC.cpp
-        LyricObjectKRC.cpp
-
-        LyricLine.h
-        LyricLineCore.cpp
-        LyricLineTTML.cpp
-        LyricLineASS.cpp
-        LyricLineLRC.cpp
-        LyricLineSPL.cpp
-        LyricLineQRC.cpp
-        LyricLineLYS.cpp
-        LyricLineYRC.cpp
-        LyricLineKRC.cpp
-
-        LyricSyl.h
-        LyricSylCore.cpp
-        LyricSylTTML.cpp
-        LyricSylASS.cpp
-        LyricSylSPL.cpp
-        LyricSylQRC.cpp
-        LyricSylYRC.cpp
-        LyricSylKRC.cpp
-
-        LyricTime.h
-        LyricTime.cpp
-
-        # others
-        utils.h
-        utils.cpp
-
-        opencc.h
+        src/dialogs/LangSelectDialog.hpp
+        src/dialogs/LangSelectDialog.cpp
+        src/dialogs/LangSelectDialog.ui
 )
 
 if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -115,11 +73,10 @@ else ()
 endif ()
 
 target_link_libraries(ttml-tool PRIVATE
+        lyric
+        widgets
         Qt${QT_VERSION_MAJOR}::Widgets
-        Qt${QT_VERSION_MAJOR}::Xml
         Qt${QT_VERSION_MAJOR}::Network
-        F:/Qt/ttml-tool/ferrous_opencc.lib
-        ntdll.lib
 )
 
 set_target_properties(ttml-tool PROPERTIES
