@@ -63,12 +63,15 @@ public:
 
     void setEnd(const LyricTime &end);
 
+    [[nodiscard]] bool getIsExplicit() const;
+
 private:
     QString _text{};
     LyricTime _begin{};
     LyricTime _end{};
     std::weak_ptr<LyricSyl> _orig{};
     bool _is_text{};
+    bool _is_explicit{};
 };
 
 
