@@ -69,7 +69,7 @@ void LyricLine::match(const LyricLine &orig) {
         if (!syl->getOrig()) syl->setIsText(true);
     }
 
-    for (int n = this->_syl_s.length() - 1; n >= 0; --n) {
+    for (qsizetype n = this->_syl_s.length() - 1; n >= 0; --n) {
         // ReSharper disable once CppTooWideScopeInitStatement
         const auto &syl = this->_syl_s.at(n);
         if (!syl->isText() && syl->getText().length() > 1 && syl->getText().endsWith(" ")) {
@@ -79,8 +79,22 @@ void LyricLine::match(const LyricLine &orig) {
             this->_syl_s.insert(n + 1, std::make_shared<LyricSyl>(LyricSyl::fromText(" ")));
         }
     }
+    this->trim();
 
     if (this->_bg_line && orig._bg_line) this->_bg_line->match(*orig._bg_line);
+}
+
+void LyricLine::trim() {
+    while (this->_syl_s.count()) {
+        const auto syl = *this->_syl_s.first();
+        if (not syl.getOrig() and syl.getText().trimmed().isEmpty()) this->_syl_s.pop_front();
+        else break;
+    }
+    while (this->_syl_s.count()) {
+        const auto syl = *this->_syl_s.last();
+        if (not syl.getOrig() and syl.getText().trimmed().isEmpty()) this->_syl_s.pop_back();
+        else break;
+    }
 }
 
 LyricTime LyricLine::getBegin() const {

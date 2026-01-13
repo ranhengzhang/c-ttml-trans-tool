@@ -98,7 +98,6 @@ std::pair<LyricLine, LyricLine::Status> LyricLine::fromTTML(const QDomElement &p
             obj.appendSubLine(SubType::Transliteration, line._transliteration, line._key);
         }
     }
-    utils::trim(line);
 
     return {line, Status::Success};
 }
