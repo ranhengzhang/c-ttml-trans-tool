@@ -44,6 +44,7 @@ std::pair<LyricLine, LyricLine::Status> LyricLine::fromTTML(const QDomElement &p
                 if (role == "x-translation") {
                     if (line._is_bg) {
                         utils::normalizeBrackets(text);
+                        if (parent->_translation[lang] == nullptr) parent->_translation[lang] = std::make_shared<LyricTrans>(std::pair<QString, std::shared_ptr<QString>>{{}, {}});
                         std::get<std::pair<QString,std::shared_ptr<QString>>>(*parent->_translation[lang]).second = std::make_shared<QString>(text);
                         line._translation[lang] = std::make_shared<LyricTrans>(text);
                     } else {
@@ -52,6 +53,7 @@ std::pair<LyricLine, LyricLine::Status> LyricLine::fromTTML(const QDomElement &p
                 } elif (role == "x-roman") {
                     if (line._is_bg) {
                         utils::normalizeBrackets(text);
+                        if (parent->_transliteration[lang] == nullptr) parent->_transliteration[lang] = std::make_shared<LyricTrans>(std::pair<QString, std::shared_ptr<QString>>{{}, {}});
                         std::get<std::pair<QString,std::shared_ptr<QString>>>(*parent->_transliteration[lang]).second = std::make_shared<QString>(text);
                         line._transliteration[lang] = std::make_shared<LyricTrans>(text);
                     } else {
