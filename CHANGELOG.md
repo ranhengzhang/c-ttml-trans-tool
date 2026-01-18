@@ -1,5 +1,30 @@
 # CHANGELOG (created by TRAE)
 
+### 1.4.2
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `2468d47` fix(build): Remove incorrect DLL flag from version resource
+> - `1bbbd80` fix(lyricline): Prevent null pointer dereference in TTML translation parsing
+
+> [!CAUTION]
+>
+> **错误修复 (Bug Fixes)**
+>
+> - 修复 TTML 翻译解析中的空指针解引用问题，添加空指针检查
+> - 初始化空的翻译/音译指针，防止解析背景行时崩溃
+> - 确保翻译结构的正确初始化
+
+> [!NOTE]
+>
+> **构建修复 (Build Fixes)**
+>
+> - 移除版本资源中调试构建的错误 DLL 标志(VS_FF_DLL)
+> - 修复应用程序构建类型的版本资源配置
+> - 确保正确的 Windows 文件属性生成
+
 ## 1.4
 
 > [!IMPORTANT]
