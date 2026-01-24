@@ -21,11 +21,10 @@ endif()
 
 configure_file(version.rc.in version.rc @ONLY)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
-add_subdirectory(src/lyric)
-add_subdirectory(src/widgets)
+add_subdirectory(src/dialogs)
 
 set(PROJECT_SOURCES
         # main
@@ -34,19 +33,6 @@ set(PROJECT_SOURCES
         # resources
         resources/res.qrc
         "${CMAKE_CURRENT_BINARY_DIR}/version.rc"
-
-        # dialogs
-        src/dialogs/MainWindow.ui
-        src/dialogs/MainWindow.hpp
-        src/dialogs/MainWindow.cpp
-
-        src/dialogs/TimeFormatDialog.ui
-        src/dialogs/TimeFormatDialog.hpp
-        src/dialogs/TimeFormatDialog.cpp
-
-        src/dialogs/LangSelectDialog.hpp
-        src/dialogs/LangSelectDialog.cpp
-        src/dialogs/LangSelectDialog.ui
 )
 
 if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -73,10 +59,8 @@ else ()
 endif ()
 
 target_link_libraries(ttml-tool PRIVATE
-        lyric
-        widgets
+        dialogs
         Qt${QT_VERSION_MAJOR}::Widgets
-        Qt${QT_VERSION_MAJOR}::Network
 )
 
 set_target_properties(ttml-tool PROPERTIES

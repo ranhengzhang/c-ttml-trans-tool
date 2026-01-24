@@ -5,11 +5,10 @@
 #ifndef TTML_TOOL_LYRICSYL_H
 #define TTML_TOOL_LYRICSYL_H
 
-#include "../lyric_time/LyricTime.hpp"
-#include "../utils/utils.hpp"
-
-#include <QString>
 #include <QDomDocument>
+
+#include "LyricTime.hpp"
+#include "utils.hpp"
 
 class LyricSyl {
     friend bool operator==(const LyricSyl &lhs, const LyricSyl &rhs) {

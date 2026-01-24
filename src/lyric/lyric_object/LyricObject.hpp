@@ -5,14 +5,15 @@
 #ifndef TTML_TOOL_LYRIC_H
 #define TTML_TOOL_LYRIC_H
 
-#include "../lyric_line/lyricline.hpp"
-#include "../utils/utils.hpp"
-
 #include <variant>
 
-#include <QString>
 #include <QMap>
 #include <QList>
+
+#include "utils.hpp"
+
+class LyricLine;
+class LyricTime;
 
 class LyricObject {
 public:

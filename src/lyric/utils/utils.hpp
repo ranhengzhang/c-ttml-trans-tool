@@ -42,7 +42,7 @@ namespace utils {
         ~OpenCCConverter();
 
         // 执行文本转换
-        [[nodiscard]] QString convert(const QString &inputText) const;
+        [[nodiscard]] QString convert(const QString &input_text) const;
 
         // 检查转换器实例是否成功创建
         [[nodiscard]] bool isValid() const;

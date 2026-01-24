@@ -1,8 +1,8 @@
-file(GLOB_RECURSE LYRIC_SOURCES
+file(GLOB_RECURSE WIDGET_SOURCES
         "*.cpp"
 )
 
-add_library(widgets STATIC ${LYRIC_SOURCES})
+add_library(widgets STATIC ${WIDGET_SOURCES})
 
 target_include_directories(widgets PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}"

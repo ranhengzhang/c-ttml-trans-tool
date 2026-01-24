@@ -2,8 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
-#include "../lyric/lyric_object/LyricObject.hpp"
+#include <QDomDocument>
 
 QT_BEGIN_NAMESPACE
 
@@ -12,6 +11,12 @@ namespace Ui {
 }
 
 QT_END_NAMESPACE
+
+namespace utils {
+    class OpenCCConverter;
+}
+
+class LyricObject;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -96,9 +101,9 @@ private:
 
     void node_s2t(QDomNode &node);
 
-    utils::OpenCCConverter _t2s_converter; // Traditional to Simplified
+    std::unique_ptr<utils::OpenCCConverter> _t2s_converter; // Traditional to Simplified
 
-    utils::OpenCCConverter _s2t_converter; // Simplified to Traditional
+    std::unique_ptr<utils::OpenCCConverter> _s2t_converter; // Simplified to Traditional
 
     bool parse();
 

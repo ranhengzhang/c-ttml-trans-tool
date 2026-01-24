@@ -29,14 +29,14 @@ utils::OpenCCConverter::~OpenCCConverter() {
     }
 }
 
-QString utils::OpenCCConverter::convert(const QString &inputText) const {
+QString utils::OpenCCConverter::convert(const QString &input_text) const {
     if (!_is_valid) {
         qWarning() << "OpenCCConverter is not valid, returning original text.";
-        return inputText;
+        return input_text;
     }
 
     // 将 QString 转换为 UTF-8 编码的 C 字符串
-    const QByteArray text_bytes = inputText.toUtf8();
+    const QByteArray text_bytes = input_text.toUtf8();
 
     // 2. 调用 FFI 函数进行转换
     // ReSharper disable once CppTooWideScope
@@ -50,7 +50,7 @@ QString utils::OpenCCConverter::convert(const QString &inputText) const {
         return result;
     } else {
         qWarning() << "OpenCC conversion failed, returning original text.";
-        return inputText; // 转换失败则返回原文
+        return input_text; // 转换失败则返回原文
     }
 }
 

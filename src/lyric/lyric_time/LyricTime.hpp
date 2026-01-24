@@ -5,8 +5,9 @@
 #ifndef TTML_TOOL_LYRICTIME_H
 #define TTML_TOOL_LYRICTIME_H
 
-#include <QString>
 #include <compare>
+
+#include <QString>
 
 class LyricTime {
 public:

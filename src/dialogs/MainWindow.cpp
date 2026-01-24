@@ -32,8 +32,8 @@ QList<std::pair<QString, QString>> preset_metas{
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , _t2s_converter(BuiltinConfig::T2s) // 繁体到简体
-    , _s2t_converter(BuiltinConfig::S2t) // 简体到繁体
+    , _t2s_converter(std::make_unique<utils::OpenCCConverter>(BuiltinConfig::T2s)) // 繁体到简体
+    , _s2t_converter(std::make_unique<utils::OpenCCConverter>(BuiltinConfig::S2t)) // 简体到繁体
 {
     ui->setupUi(this);
 
@@ -1003,7 +1003,7 @@ void MainWindow::node_t2s(QDomNode &node) {
     if (node.isText()) {
         const QString content = node.nodeValue();
         if (!content.trimmed().isEmpty()) {
-            node.setNodeValue(_t2s_converter.convert(content));
+            node.setNodeValue(_t2s_converter->convert(content));
         }
     }
 
@@ -1042,7 +1042,7 @@ void MainWindow::node_s2t(QDomNode &node) {
     if (node.isText()) {
         const QString content = node.nodeValue();
         if (!content.trimmed().isEmpty()) {
-            node.setNodeValue(_s2t_converter.convert(content));
+            node.setNodeValue(_s2t_converter->convert(content));
         }
     }
 
