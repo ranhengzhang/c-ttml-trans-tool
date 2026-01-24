@@ -30,6 +30,10 @@ QList<QPair<QString, QString>> LyricObject::getExtraMeta() {
     return extra;
 }
 
+QStringList LyricObject::getSongWriter() {
+    return this->_song_writer_s;
+}
+
 QString LyricObject::toTXT() {
     std::span spanLines = this->_line_s;
     auto resultView = spanLines

@@ -167,6 +167,7 @@
      </property>
      <addaction name="actionPreset"/>
      <addaction name="actionExtra"/>
+     <addaction name="actionSongwriter"/>
     </widget>
     <addaction name="menufromMeta"/>
    </widget>
@@ -359,6 +360,11 @@
   <action name="formatTime">
    <property name="text">
     <string>格式化时间戳</string>
+   </property>
+  </action>
+  <action name="actionSongwriter">
+   <property name="text">
+    <string>作词</string>
    </property>
   </action>
  </widget>

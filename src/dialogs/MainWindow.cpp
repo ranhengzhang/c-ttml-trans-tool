@@ -1157,6 +1157,21 @@ void MainWindow::on_actionExtra_triggered()
     ui->statusbar->showMessage("复制成功");
 }
 
+void MainWindow::on_actionSongwriter_triggered() {
+    auto ok = this->parse();
+
+    if (!ok) return;
+
+    auto song_writer = this->_lyric->getSongWriter();
+    QStringList buffer{"| **创作者** |", "| :-: |"};
+
+    for (const auto &writer : song_writer)
+        buffer.push_back(QString("| `%1` |").arg(writer));
+
+    QApplication::clipboard()->setText(buffer.join('\n'));
+    ui->statusbar->showMessage("复制成功");
+}
+
 void MainWindow::on_compressButton_clicked() const {
     ui->TTMLTextEdit->setPlainText(compressTtml(ui->TTMLTextEdit->toPlainText()));
 }

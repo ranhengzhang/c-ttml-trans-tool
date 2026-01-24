@@ -71,9 +71,11 @@ public:
 
     [[nodiscard]] QString toTXT();
 
-    QMap<QString, QStringList> getPresetMeta();
+    [[nodiscard]] QMap<QString, QStringList> getPresetMeta();
 
-    QList<QPair<QString, QString>> getExtraMeta();
+    [[nodiscard]] QList<QPair<QString, QString>> getExtraMeta();
+
+    [[nodiscard]] QStringList getSongWriter();
 
     /**
      * @brief 接收 Line 上报的附加行容器
