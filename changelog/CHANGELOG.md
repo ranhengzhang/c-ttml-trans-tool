@@ -1,5 +1,32 @@
 # CHANGELOG (created by TRAE)
 
+### 1.6.6
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `899bfec` fix(ui): Preserve scroll position when compressing TTML text
+> - `f25646a` feat(config): Add user configuration management for Github ID
+
+> [!NOTE]
+>
+> **功能增强 (Features)**
+>
+> - 添加用户配置管理功能，使用 QSettings 实现配置的持久化存储
+> - 添加 "配置" 菜单，包含 Github ID 配置选项
+> - 更新文件名和命令生成以使用用户配置的 ID，替换硬编码 ID
+> - 添加 settings.ini 到 .gitignore 以保护用户配置
+
+> [!CAUTION]
+>
+> **错误修复 (Bug Fixes)**
+>
+> - 修复压缩 TTML 文本时滚动位置重置的问题
+> - 在文本压缩前保存滚动位置百分比
+> - 在文本压缩完成后恢复滚动位置
+> - 改善用户体验，防止滚动位置意外重置
+
 ### 1.6.4
 
 > [!IMPORTANT]
