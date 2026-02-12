@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QDomDocument>
+#include <QSettings>
 
 QT_BEGIN_NAMESPACE
 
@@ -98,6 +99,8 @@ private slots:
 
     void on_copyButton_clicked();
 
+    bool on_configGithubId_triggered();
+
 private:
     void node_t2s(QDomNode &node);
 
@@ -114,5 +117,7 @@ private:
     std::unique_ptr<LyricObject> _lyric{};
 
     static QList<std::tuple<QString, QString, QString>> _preset_metas;
+
+    QSettings _config{"settings.ini", QSettings::IniFormat};
 };
 #endif // MAINWINDOW_H

@@ -179,6 +179,12 @@
     <addaction name="formatTime"/>
     <addaction name="parseCommand"/>
    </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>配置</string>
+    </property>
+    <addaction name="configGithubId"/>
+   </widget>
    <addaction name="menu_input"/>
    <addaction name="menu_copy"/>
    <addaction name="menu_output"/>
@@ -186,6 +192,7 @@
    <addaction name="menuKRC"/>
    <addaction name="menu_2"/>
    <addaction name="menu_tools"/>
+   <addaction name="menu_3"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="fromFile">
@@ -377,6 +384,11 @@
    </property>
    <property name="toolTip">
     <string>复制 powershell 命令用于写入到 db 对应文件中</string>
+   </property>
+  </action>
+  <action name="configGithubId">
+   <property name="text">
+    <string>Github ID</string>
    </property>
   </action>
  </widget>

@@ -184,14 +184,24 @@ long long timestampMillis() {
 
 // ReSharper disable once CppMemberFunctionMayBeStatic
 void MainWindow::on_getFilename_triggered() { // NOLINT(*-convert-member-functions-to-static)
+    if (not this->_config.contains("github_id")) {
+        const auto success = on_configGithubId_triggered();
+        if (not success) return;
+    }
+    const auto github_id = this->_config.value("github_id").toString();
     const auto unique_id = generateUniqueId(8);
-    QApplication::clipboard()->setText(QString(R"(raw-lyrics/%1-68000793-%2.ttml)").arg(timestampMillis()).arg(QString::fromStdString(unique_id)));
+    QApplication::clipboard()->setText(QString(R"(raw-lyrics/%1-%2-%3.ttml)").arg(timestampMillis()).arg(github_id).arg(QString::fromStdString(unique_id)));
 }
 
 // ReSharper disable once CppMemberFunctionMayBeStatic
 void MainWindow::on_parseCommand_triggered() { // NOLINT(*-convert-member-functions-to-static)
+    if (not this->_config.contains("github_id")) {
+        const auto success = on_configGithubId_triggered();
+        if (not success) return;
+    }
+    const auto github_id = this->_config.value("github_id").toString();
     const auto unique_id = generateUniqueId(8);
-    const auto file_path = QString(R"(raw-lyrics/%1-68000793-%2.ttml)").arg(timestampMillis()).arg(QString::fromStdString(unique_id)).replace("/", "\\");
+    const auto file_path = QString(R"(raw-lyrics/%1-%2-%3.ttml)").arg(timestampMillis()).arg(github_id).arg(QString::fromStdString(unique_id)).replace("/", "\\");
 
     // 构建 PowerShell 命令
     // 注意：路径中的反斜杠在 C++ 字符串中需要转义
@@ -1275,4 +1285,23 @@ void MainWindow::on_fromURL_triggered()
 void MainWindow::on_copyButton_clicked()
 {
     QApplication::clipboard()->setText(ui->TTMLTextEdit->toPlainText());
+}
+
+bool MainWindow::on_configGithubId_triggered() {
+    bool ok{};
+    QString github_id = QInputDialog::getText(this,
+        "输入Github ID",
+        "请输入Github ID：",
+        QLineEdit::EchoMode::Normal,
+        this->_config.contains("github_id") ? this->_config.value("github_id").toString() : "",
+        &ok);
+    if (ok and not github_id.isEmpty()) {
+        _config.setValue("github_id", github_id);
+        QMessageBox::information(this, "成功", "Github ID 设置成功");
+        return true;
+    } elif (ok) {
+        QMessageBox::warning(this, "失败", "Github ID 不能为空");
+    }
+
+    return false;
 }
