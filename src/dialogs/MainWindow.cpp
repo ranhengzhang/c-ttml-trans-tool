@@ -10,6 +10,7 @@
 #include <QTimer>
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QScrollBar>
 
 #include "MainWindow.hpp"
 
@@ -1230,7 +1231,18 @@ void MainWindow::on_actionSongwriter_triggered() {
 }
 
 void MainWindow::on_compressButton_clicked() const {
+    auto* scroll_bar = ui->TTMLTextEdit->verticalScrollBar();
+    double scroll_percent = 0.0;
+
+    if (scroll_bar->isVisible()) {
+        scroll_percent = static_cast<double>(scroll_bar->value()) / scroll_bar->maximum();
+    }
+
     ui->TTMLTextEdit->setPlainText(compressTtml(ui->TTMLTextEdit->toPlainText()));
+
+    if (scroll_bar->isVisible()) {
+        scroll_bar->setValue(static_cast<int>(scroll_percent * scroll_bar->maximum()));
+    }
 }
 
 void MainWindow::on_fromURL_triggered()
