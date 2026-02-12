@@ -1,5 +1,49 @@
 # CHANGELOG (created by TRAE)
 
+### 1.6.4
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `daa3c2e` feat(app): Add single instance detection and IPC functionality
+> - `a07f1e3` refactor(project): Massive project restructuring and build system improvements
+> - `2dc6f2c` refactor(project): Comprehensive codebase restructuring and modernization
+> - `9d495ab` feat(lyric): Add songwriter extraction and display functionality
+
+> [!NOTE]
+>
+> **功能增强 (Features)**
+>
+> - 添加 "作词" 菜单项到主窗口，支持复制词曲作者为 Markdown 表格
+> - 为 LyricObject 类添加 getSongWriter() 方法
+> - 实现单实例检测功能，防止重复启动程序
+> - 添加 IPC 通信功能，通过 QLocalServer 实现进程间数据传输
+> - 添加 "复制生成命令" 菜单项，生成 PowerShell 命令用于写入到 db 文件
+> - 为菜单项添加工具提示，提高用户体验
+> - 改进 UI 枚举使用，使用显式的 Qt::ScrollBarPolicy 命名空间
+
+> [!TIP]
+>
+> **代码重构 (Refactoring)**
+>
+> - 全面重构项目结构，优化模块边界和代码组织
+> - 将 OpenCCConverter 改为使用 std::unique_ptr 进行内存管理
+> - 修复头文件包含路径和前向声明
+> - 改进代码风格，使用一致的参数命名
+> - 更正 widgets 模块中的 CMake 文件变量名称
+> - 现代化项目结构，使用更清晰的模块边界
+> - 移除未使用的 Network 组件依赖
+
+> [!CAUTION]
+>
+> **构建修复 (Build Fixes)**
+>
+> - 添加 src/dialogs/CMakeLists.txt 用于模块化对话框构建
+> - 更新 CMakeLists.txt 使用 dialogs 子模块代替直接源文件
+> - 修复版本资源中调试构建的错误 DLL 标志
+> - 确保正确的 Windows 文件属性生成
+
 ### 1.4.2
 
 > [!IMPORTANT]
