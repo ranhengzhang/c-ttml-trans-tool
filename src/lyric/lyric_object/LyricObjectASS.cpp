@@ -8,6 +8,8 @@
 
 #include <QScreen>
 
+#include "LyricLine.hpp"
+
 QString LyricObject::toASS() {
     const auto header = this->getAssHeader();
     std::span spanLyrics = this->_line_s;

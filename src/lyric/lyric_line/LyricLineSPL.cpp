@@ -4,6 +4,7 @@
 #include <ranges>
 
 #include "lyricline.hpp"
+#include "lyricsyl.hpp"
 
 QString LyricLine::toSPL() {
     QStringList line{};

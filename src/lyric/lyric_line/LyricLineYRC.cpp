@@ -3,6 +3,7 @@
 //
 
 #include "lyricline.hpp"
+#include "lyricsyl.hpp"
 
 QString LyricLine::toYRC() {
     QStringList text{};
@@ -23,8 +24,7 @@ QString LyricLine::toInnerYRC() {
     QStringList text{};
     auto last = this->getInnerBegin();
 
-    for (int i = 0; i < this->_syl_s.size(); i++) {
-        const auto &syl = this->_syl_s[i];
+    for (const auto &syl : this->_syl_s) {
         if (syl->isText()) {
             text.push_back(QString(R"(<%1,0,0>%2)")
                 .arg(static_cast<int64_t>(last))

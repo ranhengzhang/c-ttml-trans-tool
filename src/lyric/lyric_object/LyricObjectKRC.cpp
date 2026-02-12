@@ -4,15 +4,16 @@
 
 #include "LyricObject.hpp"
 
-#include <QJsonObject>
 #include <QJsonArray>
-#include <QJsonDocument>
+
+#include "LyricLine.hpp"
 
 QString LyricObject::toKRC(const QString &ts_lang, const QString &roma_lang) {
     QStringList text{};
     QStringList sub_text = {};
 
-    if (this->_translation_s.contains(ts_lang)) sub_text += this->getSubKRC(SubType::Translation, ts_lang);
+    if (this->_translation_s.contains({ts_lang, false})) sub_text += this->getSubKRC(SubType::Translation, ts_lang);
+    elif (this->_translation_s.contains({ts_lang, true})) sub_text += this->getSubKRC(SubType::Translation, ts_lang);
     if (this->_transliteration_s.contains(roma_lang)) sub_text += this->getSubKRC(SubType::Transliteration, roma_lang);
 
     sub_text += R"(],"version":1})";

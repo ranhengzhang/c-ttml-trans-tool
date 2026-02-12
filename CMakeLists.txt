@@ -9,6 +9,10 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(MSVC)
+    add_compile_options(/Zc:preprocessor)
+endif()
+
 string(TIMESTAMP CURRENT_YEAR "%Y")
 
 if(NOT PROJECT_VERSION_PATCH)
@@ -33,6 +37,13 @@ set(PROJECT_SOURCES
         # resources
         resources/res.qrc
         "${CMAKE_CURRENT_BINARY_DIR}/version.rc"
+
+        # utils
+        src/utils/utils.cpp
+        src/utils/utils.hpp
+
+        # lib
+        src/utils/ferrous_opencc/opencc.h
 )
 
 if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -61,6 +72,8 @@ endif ()
 target_link_libraries(ttml-tool PRIVATE
         dialogs
         Qt${QT_VERSION_MAJOR}::Widgets
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/ferrous_opencc/ferrous_opencc.lib"
+        ntdll.lib
 )
 
 set_target_properties(ttml-tool PROPERTIES

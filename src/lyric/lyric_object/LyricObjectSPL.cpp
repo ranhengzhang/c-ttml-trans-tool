@@ -2,6 +2,7 @@
 // Created by LEGION on 2025/12/21.
 //
 
+#include "LyricLine.hpp"
 #include "LyricObject.hpp"
 
 QString LyricObject::toSPL() {

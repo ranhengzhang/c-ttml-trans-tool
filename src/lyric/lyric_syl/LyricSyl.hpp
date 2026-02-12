@@ -2,8 +2,8 @@
 // Created by LEGION on 2025/12/14.
 //
 
-#ifndef TTML_TOOL_LYRICSYL_H
-#define TTML_TOOL_LYRICSYL_H
+#ifndef LYRIC_PARSER_LYRICSYL_H
+#define LYRIC_PARSER_LYRICSYL_H
 
 #include <QDomDocument>
 
@@ -20,7 +20,7 @@ class LyricSyl {
     }
 
 public:
-    using Status = utils::Status;
+    using Status = lyric::utils::Status;
 
     [[nodiscard]] static std::pair<LyricSyl, Status> fromTTML(const QDomNode &span);
 
@@ -74,4 +74,4 @@ private:
 };
 
 
-#endif //TTML_TOOL_LYRICSYL_H
+#endif //LYRIC_PARSER_LYRICSYL_H

@@ -2,6 +2,7 @@
 // Created by LEGION on 2025/12/21.
 //
 
+#include "LyricLine.hpp"
 #include "LyricObject.hpp"
 
 std::tuple<QString, QString, QString> LyricObject::toQRC(const QString &ts_lang, const QString &roma_lang) {
@@ -10,9 +11,13 @@ std::tuple<QString, QString, QString> LyricObject::toQRC(const QString &ts_lang,
     QString roma_text{};
 
     for (auto &orig_line: this->_line_s) orig_text.push_back(orig_line.toQRC());
-    if (this->_translation_s.contains(ts_lang)) {
-        auto &[is_word, ts_map] = this->_translation_s[ts_lang];
+    if (this->_translation_s.contains({ts_lang, false})) {
+        auto &ts_map = this->_translation_s[{ts_lang, false}];
         ts_text = this->getSubLRC(ts_map);
+    }
+    elif (this->_translation_s.contains({ts_lang, true})) {
+        auto &ts_map = this->_translation_s[{ts_lang, true}];
+        ts_text = this->getSubQRC(ts_map);
     }
     if (this->_transliteration_s.contains(roma_lang)) {
         roma_text = this->getSubLRC(this->_transliteration_s[roma_lang]);

@@ -3,6 +3,7 @@
 //
 
 #include "lyricline.hpp"
+#include "lyricsyl.hpp"
 
 QString LyricLine::toLYS(const QString &lang, bool have_bg, bool have_duet) {
     int property = ((int)have_bg + (int)this->_is_bg) * 3 + static_cast<int>(have_duet) + static_cast<int>(this->_is_duet);

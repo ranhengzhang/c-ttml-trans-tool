@@ -2,8 +2,8 @@
 // Created by LEGION on 2025/12/14.
 //
 
-#ifndef TTML_TOOL_LYRIC_H
-#define TTML_TOOL_LYRIC_H
+#ifndef LYRIC_PARSER_LYRIC_H
+#define LYRIC_PARSER_LYRIC_H
 
 #include <variant>
 
@@ -12,16 +12,17 @@
 
 #include "utils.hpp"
 
-class LyricLine;
+#include "LyricLine.hpp"
+
 class LyricTime;
 
 class LyricObject {
 public:
-    using Status = utils::Status;
+    using Status = lyric::utils::Status;
 
-    using SubType = utils::SubType;
+    using SubType = lyric::utils::SubType;
 
-    using LyricTrans = utils::LyricTrans;
+    using LyricTrans = lyric::utils::LyricTrans;
 
     [[nodiscard]] static std::pair<LyricObject, Status> fromTTML(const QString &ttml);
 
@@ -132,9 +133,9 @@ private:
 
     /**
      * @brief 翻译\n
-     * @code { lang:string, trans: [ is_word:boolean, list: { key:string, line:ref<LyricTrans> } ] } @endcode
+     * @code { { lang:string, is_word:boolean }, list: { key:string, line:ref<LyricTrans> } } @endcode
      */
-    QMap<QString, std::pair<bool, std::map<QString, std::shared_ptr<LyricTrans>>>> _translation_s{};
+    QMap<std::pair<QString, bool>, std::map<QString, std::shared_ptr<LyricTrans>>> _translation_s{};
 
     /**
      * @brief 音译\n
@@ -147,4 +148,4 @@ private:
     bool _have_bg{};
 };
 
-#endif //TTML_TOOL_LYRIC_H
+#endif //LYRIC_PARSER_LYRIC_H

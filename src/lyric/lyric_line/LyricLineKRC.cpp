@@ -3,6 +3,7 @@
 //
 
 #include "lyricline.hpp"
+#include "lyricsyl.hpp"
 
 QString LyricLine::toKRC() {
     QStringList text{};

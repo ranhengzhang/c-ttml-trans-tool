@@ -2,8 +2,8 @@
 // Created by LEGION on 2025/12/14.
 //
 
-#ifndef TTML_TOOL_LYRICLINE_H
-#define TTML_TOOL_LYRICLINE_H
+#ifndef LYRIC_PARSER_LYRICLINE_H
+#define LYRIC_PARSER_LYRICLINE_H
 
 #include <utility>
 #include <map>
@@ -19,13 +19,13 @@ class LyricSyl;
 
 class LyricLine {
 public:
-    using Status = utils::Status;
+    using Status = lyric::utils::Status;
 
-    using SubType = utils::SubType;
+    using SubType = lyric::utils::SubType;
 
-    using LyricTrans = utils::LyricTrans;
+    using LyricTrans = lyric::utils::LyricTrans;
 
-    friend LyricLine utils::normalizeBrackets(LyricLine &line);
+    friend LyricLine lyric::utils::normalizeBrackets(LyricLine &line);
 
     void setKey(const QString &key);
 
@@ -134,4 +134,4 @@ private:
 };
 
 
-#endif //TTML_TOOL_LYRICLINE_H
+#endif //LYRIC_PARSER_LYRICLINE_H

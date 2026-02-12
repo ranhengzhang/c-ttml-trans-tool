@@ -14,9 +14,12 @@
 #include <random>
 
 #include "./ui_mainwindow.h"
-#include "../dialogs/LangSelectDialog.hpp"
-#include "../lyric/lyric_object/LyricObject.hpp"
-#include "../dialogs/TimeFormatDialog.hpp"
+#include "LyricTime.hpp"
+#include "LangSelectDialog.hpp"
+#include "LyricObject.hpp"
+#include "TimeFormatDialog.hpp"
+#include "../utils/utils.hpp"
+#include "../lyric/utils/utils.hpp"
 
 QList<std::pair<QString, QString>> preset_metas{
             {"musicName", "音乐名称"},
@@ -32,8 +35,8 @@ QList<std::pair<QString, QString>> preset_metas{
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , _t2s_converter(std::make_unique<utils::OpenCCConverter>(BuiltinConfig::T2s)) // 繁体到简体
-    , _s2t_converter(std::make_unique<utils::OpenCCConverter>(BuiltinConfig::S2t)) // 简体到繁体
+    , _t2s_converter(std::make_unique<tool::utils::OpenCCConverter>(BuiltinConfig::T2s)) // 繁体到简体
+    , _s2t_converter(std::make_unique<tool::utils::OpenCCConverter>(BuiltinConfig::S2t)) // 简体到繁体
 {
     ui->setupUi(this);
 
@@ -373,13 +376,13 @@ bool MainWindow::parse() {
 
     if (status != LyricObject::Status::Success) {
         switch (status) {
-            case utils::Status::InvalidFormat:
+            case lyric::utils::Status::InvalidFormat:
                 QMessageBox::critical(this, R"(错误)", R"(无法解析 TTML)");
                 break;
-            case utils::Status::InvalidStructure:
+            case lyric::utils::Status::InvalidStructure:
                 QMessageBox::critical(this, R"(错误)", R"(TTML 结构错误)");
                 break;
-            case utils::Status::InvalidTimeFormat:
+            case lyric::utils::Status::InvalidTimeFormat:
                 QMessageBox::critical(this, R"(错误)", R"(时间戳格式错误)");
                 break;
         }

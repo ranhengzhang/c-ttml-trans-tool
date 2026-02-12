@@ -12,7 +12,7 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-namespace utils {
+namespace tool::utils {
     class OpenCCConverter;
 }
 
@@ -101,9 +101,9 @@ private:
 
     void node_s2t(QDomNode &node);
 
-    std::unique_ptr<utils::OpenCCConverter> _t2s_converter; // Traditional to Simplified
+    std::unique_ptr<tool::utils::OpenCCConverter> _t2s_converter; // Traditional to Simplified
 
-    std::unique_ptr<utils::OpenCCConverter> _s2t_converter; // Simplified to Traditional
+    std::unique_ptr<tool::utils::OpenCCConverter> _s2t_converter; // Simplified to Traditional
 
     bool parse();
 

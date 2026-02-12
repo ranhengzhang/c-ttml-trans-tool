@@ -8,13 +8,15 @@
 
 #include <QList>
 
+#include "lyricsyl.hpp"
+
 QString LyricLine::toTXT() const {
-    std::span spanSyls = this->_syl_s;
-    auto resultView = spanSyls
+    std::span span_syls = this->_syl_s;
+    auto result_view = span_syls
                     | std::views::transform([](const std::shared_ptr<LyricSyl>& syl){
                         return syl->getText();
                     });
-    return QStringList(resultView.begin(), resultView.end()).join("");
+    return QStringList(result_view.begin(), result_view.end()).join("");
 }
 
 void LyricLine::appendSubLine(const SubType role, const QString &lang, const std::shared_ptr<LyricTrans> &content) {

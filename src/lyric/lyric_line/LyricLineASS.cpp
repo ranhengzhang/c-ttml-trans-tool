@@ -3,6 +3,7 @@
 //
 
 #include "lyricline.hpp"
+#include "lyricsyl.hpp"
 
 QString LyricLine::toASS(const QString& role, LyricTime parent_begin, LyricTime parent_end) const {
     QStringList line{};

@@ -3,12 +3,14 @@
 //
 
 #include "LyricObject.hpp"
+#include "LyricLine.hpp"
 
 #include <ranges>
 
 #include <QString>
 #include <QDomDocument>
 #include <QRegularExpression>
+#include <QSet>
 
 QRegularExpression pairs_reg(R"([(（]+(.*?)[）)]+)");
 
@@ -93,6 +95,7 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
         }
     }
 
+    // region 音译
     const auto transliteration_s = tt.elementsByTagName("transliteration");
     for (int i = 0; i < transliteration_s.length(); ++i) {
         const auto transliteration = transliteration_s.at(i).toElement();
@@ -118,7 +121,7 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
                 auto match = pairs_reg.match(sub_line.first);
                 if (text.childNodes().length() > 1) {
                     sub_line.second = std::make_shared<QString>(text.childNodes().at(1).childNodes().at(0).nodeValue());
-                    utils::normalizeBrackets(*sub_line.second);
+                    lyric::utils::normalizeBrackets(*sub_line.second);
                 } elif (match.hasMatch()) {
                     sub_line.second = std::make_shared<QString>(match.captured(1));
                     sub_line.first.replace(match.capturedStart(0), match.capturedLength(0), "");
@@ -136,7 +139,9 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
             }
         }
     }
+    // endregion
 
+    // region 翻译
     const auto translation_s = tt.elementsByTagName("translation");
     for (int i = 0; i < translation_s.length(); ++i) {
         const auto translation = translation_s.at(i).toElement();
@@ -145,7 +150,7 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
         const auto type = translation.attribute("type");
 
         if (type == "replacement") { // 逐字翻译
-            lyric._translation_s[lang].first = true;
+            auto &lang_translations = lyric._translation_s[{lang, true}];
             for (int j = 0; j < text_s.length(); ++j) {
                 const auto text = text_s.at(j).toElement();
                 const auto key = text.attribute("for");
@@ -156,12 +161,11 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
                 if (status != Status::Success) return {{}, status};
                 sub_line.match(orig_line);
                 auto ptr = std::make_shared<LyricTrans>(sub_line);
-                if (not lyric._translation_s.contains(lang)) lyric._translation_s[lang] = {true, {}};
-                lyric._translation_s[lang].second[key] = ptr;
+                lang_translations[key] = ptr;
                 orig_line.appendSubLine(SubType::Translation, lang, ptr);
             }
         } else { // 逐行翻译
-            lyric._translation_s[lang].first = false;
+            auto &lang_translations = lyric._translation_s[{lang, false}];
             for (int j = 0; j < text_s.length(); ++j) {
                 const auto text = text_s.at(j).toElement();
                 const auto key = text.attribute("for");
@@ -172,18 +176,18 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
                 auto match = pairs_reg.match(sub_line.first);
                 if (text.childNodes().length() > 1) {
                     sub_line.second = std::make_shared<QString>(text.childNodes().at(1).childNodes().at(0).nodeValue());
-                    utils::normalizeBrackets(*sub_line.second);
+                    lyric::utils::normalizeBrackets(*sub_line.second);
                 } elif (match.hasMatch()) {
                     sub_line.second = std::make_shared<QString>(match.captured(1));
                     sub_line.first.replace(match.capturedStart(0), match.capturedLength(0), "");
                 }
                 auto ptr = std::make_shared<LyricTrans>(sub_line);
-                if (not lyric._translation_s.contains(lang)) lyric._translation_s[lang] = {false, {}};
-                lyric._translation_s[lang].second[key] = ptr;
+                lang_translations[key] = ptr;
                 orig_line.appendSubLine(SubType::Translation, lang, ptr);
             }
         }
     }
+    // endregion
 
     return {lyric, Status::Success};
 }
@@ -197,10 +201,22 @@ std::optional<QString> selectLang(QList<QString> langs) {
     return langs.isEmpty() ? std::nullopt : std::optional(*langs.begin());
 }
 
+std::optional<QString> selectLang(QList<std::pair<QString, bool>> langs) {
+    auto filted_langs = langs
+    | std::views::transform([](const auto& p) { return p.first; }) // 提取 .first
+    | std::views::common;
+
+    // 转为 QSet 进行去重
+    QSet distinct_keys(filted_langs.begin(), filted_langs.end());
+
+    return selectLang(distinct_keys.values());
+}
+
 QString LyricObject::toTTML() {
-    const auto meta_data_view = this->_meta_data_s | std::views::transform([](const auto &meta_data) {return QString(R"(<amll:meta key="%1" value="%2"/>)").arg(utils::toHtmlEscaped(meta_data.key)).arg(utils::toHtmlEscaped(meta_data.value));});
+    const auto meta_data_view = this->_meta_data_s | std::views::transform([](const auto &meta_data) {return QString(R"(<amll:meta key="%1" value="%2"/>)").arg(lyric::utils::toHtmlEscaped(meta_data.key)).arg(lyric::utils::toHtmlEscaped(meta_data.value));});
     const auto meta_data_text = QStringList(meta_data_view.begin(), meta_data_view.end()).join("");
 
+    // region 翻译
     auto translation_text = QString();
     if (this->_translation_s.isEmpty()) {
         translation_text = "<translations/>";
@@ -210,11 +226,17 @@ QString LyricObject::toTTML() {
         auto lang_opt = selectLang(langs);
         if (lang_opt) {
             const auto& lang = *lang_opt;
-            langs.removeAll(lang);
-            langs.push_back(lang);
+            if (langs.contains({lang, false})) {
+                langs.removeAll({lang, false});
+                langs.push_back({lang, false});
+            }
+            if (langs.contains({lang, true})) {
+                langs.removeAll({lang, true});
+                langs.push_back({lang, true});
+            }
         }
-        for (const auto& lang: langs) {
-            const auto &[is_word, translation_map] = this->_translation_s[lang];
+        for (const auto& [lang, is_word]: langs) {
+            const auto &translation_map = this->_translation_s[{lang, is_word}];
 
             translation_text += QString(R"(<translation type="%1" xml:lang="%2">)")
             .arg(is_word ? "replacement" : "subtitle")
@@ -245,7 +267,9 @@ QString LyricObject::toTTML() {
         }
         translation_text += "</translations>";
     }
+    // endregion
 
+    // region 音译
     auto transliteration_text = QString();
     if (this->_transliteration_s.isEmpty()) {
         transliteration_text = "<transliterations/>";
@@ -283,12 +307,13 @@ QString LyricObject::toTTML() {
         }
         transliteration_text += "</transliterations>";
     }
+    // endregion
 
     auto song_writer_text = QString();
     if (this->_song_writer_s.isEmpty()) {
         song_writer_text = R"(<songwriters/>)";
     } else {
-        const auto song_writer_view = this->_song_writer_s | std::views::transform([](const auto &song_writer) {return QString(R"(<songwriter>%1</songwriter>)").arg(utils::toHtmlEscaped(song_writer));});
+        const auto song_writer_view = this->_song_writer_s | std::views::transform([](const auto &song_writer) {return QString(R"(<songwriter>%1</songwriter>)").arg(lyric::utils::toHtmlEscaped(song_writer));});
         song_writer_text = QString(R"(<songwriters>%1</songwriters>)").arg(QStringList(song_writer_view.begin(), song_writer_view.end()).join(""));
     }
 

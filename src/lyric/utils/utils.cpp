@@ -2,63 +2,18 @@
 // Created by LEGION on 2025/12/10.
 //
 
-#include "utils.hpp"
-#include <QLatin1StringView>
 #include <QRegularExpression>
 
-#include "../lyric_line/lyricline.hpp"
+#include "utils.hpp"
+#include "lyricsyl.hpp"
+#include "lyricline.hpp"
 
 using Qt::Literals::StringLiterals::operator""_L1;
 
 QRegularExpression before_reg(R"(^[\(（]?)");
 QRegularExpression after_reg(R"([）\)]?$)");
 
-utils::OpenCCConverter::OpenCCConverter(const BuiltinConfig config): _handle(nullptr), _is_valid(false) {
-    // 1. 创建 OpenCC 实例
-    const OpenCCResult result = opencc_create(config, &_handle);
-    if (result == OpenCCResult::Success && _handle != nullptr) {
-        _is_valid = true;
-    } else {
-        qWarning() << "Failed to create OpenCC instance. Error code:" << static_cast<int>(result);
-    }
-}
-
-utils::OpenCCConverter::~OpenCCConverter() {
-    if (_handle != nullptr) {
-        opencc_destroy(_handle);
-    }
-}
-
-QString utils::OpenCCConverter::convert(const QString &input_text) const {
-    if (!_is_valid) {
-        qWarning() << "OpenCCConverter is not valid, returning original text.";
-        return input_text;
-    }
-
-    // 将 QString 转换为 UTF-8 编码的 C 字符串
-    const QByteArray text_bytes = input_text.toUtf8();
-
-    // 2. 调用 FFI 函数进行转换
-    // ReSharper disable once CppTooWideScope
-    char *converted_text = opencc_convert(_handle, text_bytes.constData());
-
-    if (converted_text) {
-        // 从返回的 C 字符串创建 QString
-        const QString result = QString::fromUtf8(converted_text);
-        // 3. 释放 FFI 函数分配的字符串内存
-        opencc_free_string(converted_text);
-        return result;
-    } else {
-        qWarning() << "OpenCC conversion failed, returning original text.";
-        return input_text; // 转换失败则返回原文
-    }
-}
-
-bool utils::OpenCCConverter::isValid() const {
-    return _is_valid;
-}
-
-QString utils::toHtmlEscaped(const QString &text) {
+QString lyric::utils::toHtmlEscaped(const QString &text) {
     const auto pos = std::u16string_view(text).find_first_of(u"<>&\"'");
     if (pos == std::u16string_view::npos)
         return text;
@@ -84,7 +39,7 @@ QString utils::toHtmlEscaped(const QString &text) {
     return rich;
 }
 
-QString utils::normalizeBrackets(QString &text) {
+QString lyric::utils::normalizeBrackets(QString &text) {
     // replace syls.front: _before_reg->'('
     const auto front_match = before_reg.match(text);
     if (front_match.hasMatch()) text = text.replace(front_match.capturedStart(), front_match.capturedLength(), "");
@@ -95,7 +50,7 @@ QString utils::normalizeBrackets(QString &text) {
     return text;
 }
 
-LyricLine utils::normalizeBrackets(LyricLine &line) {
+LyricLine lyric::utils::normalizeBrackets(LyricLine &line) {
     // replace syls.front: _before_reg->'('
     const auto front_match = before_reg.match(line._syl_s.first()->getText());
     if (front_match.hasMatch()) {
@@ -108,4 +63,22 @@ LyricLine utils::normalizeBrackets(LyricLine &line) {
     }
 
     return line;
+}
+
+QString lyric::utils::getDeepInnerText(const QDomNode &node) {
+    QString result;
+    const QDomNodeList children = node.childNodes();
+
+    for (int i = 0; i < children.count(); ++i) {
+        QDomNode child = children.at(i);
+
+        if (child.isText() || child.isCDATASection()) {
+            // 如果是文本节点，直接取值
+            result += child.toText().data();
+        } else if (child.isElement()) {
+            // 如果是元素节点，递归获取其内部文本
+            result += getDeepInnerText(child);
+        }
+    }
+    return result;
 }

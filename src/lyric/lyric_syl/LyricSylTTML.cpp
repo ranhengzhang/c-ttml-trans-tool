@@ -26,12 +26,12 @@ std::pair<LyricSyl, LyricSyl::Status> LyricSyl::fromTTML(const QDomNode &span) {
 }
 
 QString LyricSyl::toTTML(bool xmlns) {
-    return this->isText() ? utils::toHtmlEscaped(this->_text) : QString(R"(<span begin="%1" end="%2"%3%4>%5</span>)")
+    return this->isText() ? lyric::utils::toHtmlEscaped(this->_text) : QString(R"(<span begin="%1" end="%2"%3%4>%5</span>)")
     .arg(this->_begin.toString(false,false,true))
     .arg(this->_end.toString(false,false,true))
     .arg(this->_is_explicit ? R"( amll:obscene="true")" : "")
     .arg(xmlns ? R"( xmlns="http://www.w3.org/ns/ttml")" : "")
-    .arg(utils::toHtmlEscaped(this->_text)) ;
+    .arg(lyric::utils::toHtmlEscaped(this->_text)) ;
 }
 
 void LyricSyl::setOrig(const std::shared_ptr<LyricSyl> &orig_shared) {

@@ -2,8 +2,8 @@
 // Created by LEGION on 2025/12/14.
 //
 
-#ifndef TTML_TOOL_LYRICTIME_H
-#define TTML_TOOL_LYRICTIME_H
+#ifndef LYRIC_PARSER_LYRICTIME_H
+#define LYRIC_PARSER_LYRICTIME_H
 
 #include <compare>
 
@@ -89,4 +89,4 @@ private:
 };
 
 
-#endif //TTML_TOOL_LYRICTIME_H
+#endif //LYRIC_PARSER_LYRICTIME_H
