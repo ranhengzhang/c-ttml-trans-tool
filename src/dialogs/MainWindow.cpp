@@ -8,6 +8,8 @@
 #include <QStack>
 #include <QNetworkReply>
 #include <QTimer>
+#include <QLocalServer>
+#include <QLocalSocket>
 
 #include "MainWindow.hpp"
 
@@ -31,6 +33,7 @@ QList<std::pair<QString, QString>> preset_metas{
             {"appleMusicId", "歌曲关联 Apple Music 音乐 ID"},
             {"isrc", "歌曲关联 ISRC"}
 };
+QString pipe_name = "C_TTML_TOOL"; // 管道名称
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -57,6 +60,26 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->offsetCount->setMinimum(INT32_MIN);
     ui->offsetCount->setMaximum(INT32_MAX);
+
+    // region IPC
+    auto* server = new QLocalServer(this);
+
+    // 如果之前有残留，先移除
+    QLocalServer::removeServer(pipe_name);
+
+    if (server->listen(pipe_name)) {
+        connect(server, &QLocalServer::newConnection, [server, this]() {
+            QLocalSocket* clientSocket = server->nextPendingConnection();
+
+            // 准备你要传递的信息
+            QString data = ui->TTMLTextEdit->toPlainText();
+
+            clientSocket->write(data.toUtf8());
+            clientSocket->flush();
+            clientSocket->disconnectFromServer(); // 发送完关闭，防止阻塞
+        });
+    }
+    // endregion
 }
 
 MainWindow::~MainWindow() {
@@ -163,6 +186,27 @@ long long timestampMillis() {
 void MainWindow::on_getFilename_triggered() { // NOLINT(*-convert-member-functions-to-static)
     const auto unique_id = generateUniqueId(8);
     QApplication::clipboard()->setText(QString(R"(raw-lyrics/%1-68000793-%2.ttml)").arg(timestampMillis()).arg(QString::fromStdString(unique_id)));
+}
+
+// ReSharper disable once CppMemberFunctionMayBeStatic
+void MainWindow::on_parseCommand_triggered() { // NOLINT(*-convert-member-functions-to-static)
+    const auto unique_id = generateUniqueId(8);
+    const auto file_path = QString(R"(raw-lyrics/%1-68000793-%2.ttml)").arg(timestampMillis()).arg(QString::fromStdString(unique_id)).replace("/", "\\");
+
+    // 构建 PowerShell 命令
+    // 注意：路径中的反斜杠在 C++ 字符串中需要转义
+    QString ps_command = QString(
+        "$c=New-Object System.IO.Pipes.NamedPipeClientStream('.', '%1', [System.IO.Pipes.PipeDirection]::In); "
+        "$c.Connect(2000); "
+        "$r=New-Object System.IO.StreamReader($c); "
+        "$d=$r.ReadToEnd().Trim(); "
+        "$r.Close(); $c.Close(); "
+        "if($d){ $d | Set-Content -Path '%2' -Encoding UTF8 }"
+    ).arg(pipe_name)
+     .arg(file_path);
+
+    // 将 psCommand 写入剪贴板供用户粘贴
+    QGuiApplication::clipboard()->setText(ps_command);
 }
 
 
