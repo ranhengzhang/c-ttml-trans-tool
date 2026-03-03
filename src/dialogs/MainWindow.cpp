@@ -1192,7 +1192,7 @@ void MainWindow::on_actionPreset_triggered()
         buffer.push_back("");
     }
 
-    QApplication::clipboard()->setText(buffer.join('\n'));
+    QApplication::clipboard()->setText(buffer.join('\n').trimmed() + "\n\n");
     ui->statusbar->showMessage("复制成功");
 }
 
