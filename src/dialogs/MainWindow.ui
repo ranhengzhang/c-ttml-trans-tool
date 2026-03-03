@@ -37,7 +37,7 @@
     <item row="1" column="2">
      <spacer name="horizontalSpacer">
       <property name="orientation">
-       <enum>Qt::Orientation::Horizontal</enum>
+       <enum>Qt::Horizontal</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
@@ -76,10 +76,10 @@
        </font>
       </property>
       <property name="verticalScrollBarPolicy">
-       <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+       <enum>Qt::ScrollBarAsNeeded</enum>
       </property>
       <property name="horizontalScrollBarPolicy">
-       <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+       <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
       <property name="placeholderText">
        <string>粘贴文本或拖动文件到此处</string>
@@ -178,6 +178,8 @@
     <addaction name="getFilename"/>
     <addaction name="formatTime"/>
     <addaction name="parseCommand"/>
+    <addaction name="toLineTrans"/>
+    <addaction name="preview"/>
    </widget>
    <widget class="QMenu" name="menu_3">
     <property name="title">
@@ -389,6 +391,16 @@
   <action name="configGithubId">
    <property name="text">
     <string>Github ID</string>
+   </property>
+  </action>
+  <action name="toLineTrans">
+   <property name="text">
+    <string>翻译/音译转逐行</string>
+   </property>
+  </action>
+  <action name="preview">
+   <property name="text">
+    <string>预览页面</string>
    </property>
   </action>
  </widget>
