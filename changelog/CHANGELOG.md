@@ -1,6 +1,41 @@
 # CHANGELOG (created by TRAE)
 
-### 1.6.6
+## 1.6.9
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `06d50a7` feat(ui): Add new menu actions and improve scroll bar behavior
+> - `81eb473` refactor(lyrictime): Improve time formatting with configurable precision
+> - `6959343` fix(ui): Improve preset metadata clipboard output formatting
+> - `13d3ad2` fix(lrc): Increase time gap threshold for empty timestamp insertion
+
+> [!NOTE]
+>
+> **功能增强 (Features)**
+>
+> - 添加 "翻译/音译转逐行" 菜单操作
+> - 添加 "预览页面" 菜单操作
+> - 将垂直滚动条策略从 ScrollBarAlwaysOn 改为 ScrollBarAsNeeded
+
+> [!TIP]
+>
+> **代码重构 (Refactoring)**
+>
+> - 改进时间格式化，支持可配置精度
+> - 将 toString 方法的 to_long 参数改为 pre_length 参数
+> - 恢复 Qt::Orientation 命名空间用法以提高兼容性
+
+> [!CAUTION]
+>
+> **错误修复 (Bug Fixes)**
+>
+> - 将 LRC 输出的时间间隔阈值从 500ms 增加到 5000ms (5秒)
+> - 减少不必要的空时间戳插入，改善长器乐间歌曲的兼容性
+> - 优化预设元数据剪贴板输出格式，去除尾部空白并添加双换行
+
+## 1.6.6
 
 > [!IMPORTANT]
 >
@@ -27,7 +62,7 @@
 > - 在文本压缩完成后恢复滚动位置
 > - 改善用户体验，防止滚动位置意外重置
 
-### 1.6.4
+## 1.6.4
 
 > [!IMPORTANT]
 >
@@ -71,7 +106,7 @@
 > - 修复版本资源中调试构建的错误 DLL 标志
 > - 确保正确的 Windows 文件属性生成
 
-### 1.4.2
+## 1.4.2
 
 > [!IMPORTANT]
 >
