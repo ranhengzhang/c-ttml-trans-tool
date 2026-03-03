@@ -73,12 +73,12 @@ public:
 
     /**
      * @brief 格式化输出
-     * @param to_long 前置补零到分钟
+     * @param pre_length 前置补零长度
      * @param to_centi 末尾输出为厘秒
      * @param to_dot 使用 <code>.</code> 分隔，否则使用 <code>:</code> 分隔
      * @return 格式化后的时间戳
      */
-    [[nodiscard]] QString toString(bool to_long = false, bool to_centi = false, bool to_dot = true) const;
+    [[nodiscard]] QString toString(uint8_t pre_length = 0, bool to_centi = false, bool to_dot = true) const;
 
     explicit operator int64_t() const;
 

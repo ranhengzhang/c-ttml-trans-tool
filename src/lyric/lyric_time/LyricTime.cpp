@@ -53,7 +53,7 @@ void LyricTime::offset(const int64_t count) {
     this->_count += count;
 }
 
-QString LyricTime::toString(const bool to_long, const bool to_centi, const bool to_dot) const {
+QString LyricTime::toString(const uint8_t pre_length, const bool to_centi, const bool to_dot) const {
     auto count = this->_count;
     QStringList time{};
 
@@ -63,15 +63,15 @@ QString LyricTime::toString(const bool to_long, const bool to_centi, const bool 
 
     time.push_front(to_dot ? "." : ":");
 
-    time.push_front(QString::asprintf(to_long or count >= 60 ? "%02lld" : "%lld", count % 60));
+    time.push_front(QString::asprintf(pre_length or count >= 60 ? "%02lld" : "%lld", count % 60));
     count /= 60;
 
-    if (count or to_long) {
+    if (count or pre_length) {
         time.push_front(":");
 
-        time.push_front(QString::asprintf(to_long or count >= 60 ? "%02lld" : "%lld", count % 60));
+        time.push_front(QString::asprintf(pre_length or count >= 60 ? "%02lld" : "%lld", count % 60));
 
-        if (count >= 60) {
+        if (count >= 60 or pre_length > 1) {
             time.push_front(":");
             time.push_front(QString::asprintf("%lld", count / 60));
         }
