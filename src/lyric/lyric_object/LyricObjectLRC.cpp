@@ -46,7 +46,7 @@ QString LyricObject::toLRC(const QString &extra) {
             }
             ext.clear();
         }
-        if (line.getLineBegin() - last_end > 500) {
+        if (line.getLineBegin() - last_end > 5000) {
             text.push_back(QString(R"([%1])")
                 .arg(last_end.toString(true, true, true)));
         }
