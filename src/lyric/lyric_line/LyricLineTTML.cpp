@@ -49,7 +49,14 @@ std::pair<LyricLine, LyricLine::Status> LyricLine::fromTTML(const QDomElement &p
                         std::get<std::pair<QString,std::shared_ptr<QString>>>(*parent->_translation[lang]).second = std::make_shared<QString>(text);
                         line._translation[lang] = std::make_shared<LyricTrans>(text);
                     } else {
-                        line._translation[lang] = std::make_shared<LyricTrans>(std::pair<QString, std::shared_ptr<QString>>{text, {}});
+                        if (line._translation[lang]) {
+                            if (auto l = std::get_if<std::pair<QString,std::shared_ptr<QString>>>(line._translation[lang].get())) {
+                                l->first = text;
+                            }
+                        }
+                        else {
+                            line._translation[lang] = std::make_shared<LyricTrans>(std::pair<QString, std::shared_ptr<QString>>{text, {}});
+                        }
                     }
                 } elif (role == "x-roman") {
                     if (line._is_bg) {
@@ -58,7 +65,14 @@ std::pair<LyricLine, LyricLine::Status> LyricLine::fromTTML(const QDomElement &p
                         std::get<std::pair<QString,std::shared_ptr<QString>>>(*parent->_transliteration[lang]).second = std::make_shared<QString>(text);
                         line._transliteration[lang] = std::make_shared<LyricTrans>(text);
                     } else {
-                        line._transliteration[lang] = std::make_shared<LyricTrans>(std::pair<QString, std::shared_ptr<QString>>{text, {}});
+                        if (line._transliteration[lang]) {
+                            if (auto l = std::get_if<std::pair<QString,std::shared_ptr<QString>>>(line._transliteration[lang].get())) {
+                                l->first = text;
+                            }
+                        }
+                        else {
+                            line._transliteration[lang] = std::make_shared<LyricTrans>(std::pair<QString, std::shared_ptr<QString>>{text, {}});
+                        }
                     }
                 }
             }

@@ -332,7 +332,7 @@ QString LyricObject::toTTML() {
 
     const auto reg = QRegularExpression(R"(\s{2,})");
 
-    return QString(R"(<tt xmlns="http://www.w3.org/ns/ttml" xmlns:amll="http://www.example.com/ns/amll" xmlns:itunes="http://music.apple.com/lyric-ttml-internal" xmlns:ttm="http://www.w3.org/ns/ttml#metadata" itunes:timing="Word" xml:lang="%1"><head><metadata><ttm:agent type="person" xml:id="v1"/>%2%3%4</metadata></head><body dur="%5">%6</body></tt>)")
+    return QString(R"(<tt xmlns="http://www.w3.org/ns/ttml" xmlns:amll="http://www.example.com/ns/amll" xmlns:itunes="http://music.apple.com/lyric-ttml-internal" xmlns:ttm="http://www.w3.org/ns/ttml#metadata" xmlns:tts="http://www.w3.org/ns/ttml#styling" itunes:timing="Word" xml:lang="%1"><head><metadata><ttm:agent type="person" xml:id="v1"/>%2%3%4</metadata></head><body dur="%5">%6</body></tt>)")
     .arg(this->_lang)
     .arg(this->_have_duet ? R"(<ttm:agent type="other" xml:id="v2"/>)" : "")
     .arg(meta_data_text)

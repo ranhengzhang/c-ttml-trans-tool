@@ -71,6 +71,8 @@ private:
     std::weak_ptr<LyricSyl> _orig{};
     bool _is_text{};
     bool _is_explicit{};
+    std::vector<std::shared_ptr<LyricSyl>> _ruby_s{};
+    bool _is_phrase_start{false};
 };
 
 
