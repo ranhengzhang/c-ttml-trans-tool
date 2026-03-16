@@ -107,6 +107,8 @@ public:
 
     [[nodiscard]] bool haveTrans() const;
 
+    void removeRuby();
+
 private:
     QString getAssHeader();
 

@@ -64,6 +64,8 @@ public:
 
     [[nodiscard]] bool getIsExplicit() const;
 
+    void removeRuby();
+
 private:
     QString _text{};
     LyricTime _begin{};

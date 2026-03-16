@@ -82,7 +82,7 @@ QString toRuby(const std::vector<std::shared_ptr<LyricSyl>> &ruby_s) {
         ret.push_back(QString(R"(<span tts:ruby="text" begin="%1" end="%2">%3</span>)")
         .arg(syl->getBegin().toString(false, false, true))
         .arg(syl->getEnd().toString(false, false, true))
-        .arg(syl->getText()));
+        .arg(lyric::utils::toHtmlEscaped(syl->getText())));
 
     return ret.join("");
 }
@@ -97,7 +97,7 @@ QString LyricSyl::toTTML(bool xmlns) {
     .arg(lyric::utils::toHtmlEscaped(this->_text))
     : QString(R"(<span tts:ruby="container"%1>%2%3</span>)")
     .arg(this->_is_phrase_start ? R"( amll:rubyPhraseStart="true")" : "")
-    .arg(QString(R"(<span tts:ruby="base">%1</span>)").arg(this->_text))
+    .arg(QString(R"(<span tts:ruby="base">%1</span>)").arg(lyric::utils::toHtmlEscaped(this->_text)))
     .arg(QString(R"(<span tts:ruby="textContainer">%1</span>)").arg(toRuby(this->_ruby_s)));
 }
 

@@ -179,3 +179,9 @@ bool LyricLine::haveBgLine() const {
 std::shared_ptr<LyricLine> LyricLine::getBgLine() const {
     return this->_bg_line;
 }
+
+void LyricLine::removeRuby() {
+    for (auto &syl:this->_syl_s) {
+        syl->removeRuby();
+    }
+}

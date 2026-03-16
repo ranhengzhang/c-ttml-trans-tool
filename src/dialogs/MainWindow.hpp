@@ -43,6 +43,8 @@ private slots:
 
     void on_fromClipboard_triggered();
 
+    void on_removeRuby_triggered();
+
     void on_toTTML_triggered();
 
     void on_toASS_triggered();

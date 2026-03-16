@@ -314,6 +314,15 @@ void MainWindow::on_fromClipboard_triggered() {
     ui->TTMLTextEdit->setPlainText(text);
 }
 
+void MainWindow::on_removeRuby_triggered() {
+    const auto ok = this->parse();
+
+    if (!ok) return;
+
+    this->_lyric->removeRuby();
+    ui->TTMLTextEdit->setPlainText(this->_lyric->toTTML());
+}
+
 void MainWindow::on_toTTML_triggered() {
     // ReSharper disable once CppTooWideScopeInitStatement
     const auto ok = this->parse();

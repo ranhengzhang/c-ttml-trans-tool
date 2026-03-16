@@ -124,3 +124,9 @@ bool LyricObject::haveRoman() const {
 bool LyricObject::haveTrans() const {
     return this->_translation_s.count() > 0;
 }
+
+void LyricObject::removeRuby() {
+    for (auto& line: this->_line_s) {
+        line.removeRuby();
+    }
+}

@@ -105,6 +105,8 @@ public:
 
     [[nodiscard]] std::shared_ptr<LyricLine> getBgLine() const;
 
+    void removeRuby();
+
 private:
     std::shared_ptr<LyricLine> _bg_line{};
 
