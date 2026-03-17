@@ -212,7 +212,7 @@ void MainWindow::on_parseCommand_triggered() { // NOLINT(*-convert-member-functi
         "$r=New-Object System.IO.StreamReader($c); "
         "$d=$r.ReadToEnd().Trim(); "
         "$r.Close(); $c.Close(); "
-        "if($d){ $d | Set-Content -Path '%2' -Encoding UTF8 }"
+        "if($d){ $d | Set-Content -Path '%2' -Encoding UTF8 -NoNewline }"
     ).arg(pipe_name)
      .arg(file_path);
 
