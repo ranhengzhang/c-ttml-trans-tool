@@ -1,5 +1,21 @@
 # CHANGELOG (created by TRAE)
 
+## 1.10.11
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `26b610d` fix(ipc): Add -NoNewline flag to PowerShell Set-Content command
+
+> [!CAUTION]
+>
+> **错误修复 (Bug Fixes)**
+>
+> - 在生成的 PowerShell 命令中添加 -NoNewline 参数
+> - 防止在写入 TTML 数据时文件末尾出现不必要的换行符
+> - 确保数据库文件的干净输出格式
+
 ## 1.10.10
 
 > [!IMPORTANT]
