@@ -64,7 +64,9 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
         } else {
             if (not lyric._meta_data_s.contains({key, value})) {
                 lyric._meta_data_s.push_back({key, value});
-                if ((key.toUpper() == "LYRIC" or key.toUpper() == "LYRICS" or key == "作词") and not lyric._song_writer_s.contains(value)) {
+                QStringList en_key{"LYRIC", "LYRICS"};
+                QStringList cn_key = {"作词", "填词", "歌词"};
+                if ((en_key.contains(key.toUpper()) or cn_key.contains(key)) and not lyric._song_writer_s.contains(value)) {
                     lyric._song_writer_s.push_back(value);
                 }
             }
@@ -299,7 +301,7 @@ QString LyricObject::toTTML() {
                     }
                 }
                 // 尝试获取 LyricLine
-                elif (auto* line = std::get_if<LyricLine>(content.get())) {
+                elif (auto line = std::get_if<LyricLine>(content.get())) {
                     transliteration_text += QString(R"(<text for="%1">%2</text>)").arg(target).arg(line->toInnerTTML(true));
                 }
             }

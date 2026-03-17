@@ -45,6 +45,8 @@ private slots:
 
     void on_removeRuby_triggered();
 
+    void on_toLineTrans_triggered();
+
     void on_toTTML_triggered();
 
     void on_toASS_triggered();

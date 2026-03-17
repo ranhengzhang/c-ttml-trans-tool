@@ -30,6 +30,8 @@ namespace lyric::utils {
         InvalidTimeFormat // 时间格式错误
     };
 
+    QString &easyCompress(QString &text);
+
     QString toHtmlEscaped(const QString &text);
 
     QString normalizeBrackets(QString &text);
@@ -37,6 +39,8 @@ namespace lyric::utils {
     LyricLine normalizeBrackets(LyricLine &line);
 
     QString getDeepInnerText(const QDomNode &node);
+
+    QString toLineTrans(QString &dom_text, const SubType line_type);
 }
 
 #endif //LYRIC_PARSER_UTILS_H

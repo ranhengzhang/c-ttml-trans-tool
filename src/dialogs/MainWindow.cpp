@@ -323,6 +323,40 @@ void MainWindow::on_removeRuby_triggered() {
     ui->TTMLTextEdit->setPlainText(this->_lyric->toTTML());
 }
 
+void MainWindow::on_toLineTrans_triggered() {
+    auto text = ui->TTMLTextEdit->toPlainText();
+    {
+        QRegularExpression re(R"(<translation(?!s)[^>]*>.*?</translation>)",
+                              QRegularExpression::DotMatchesEverythingOption |
+                              QRegularExpression::CaseInsensitiveOption);
+        QRegularExpressionMatchIterator ite = re.globalMatch(text);
+        std::list<QRegularExpressionMatch> matches;
+
+        while (ite.hasNext()) matches.push_back(ite.next());
+        matches.reverse();
+        for (const auto &match : matches) {
+            auto xml_text = match.captured();
+            auto trans = lyric::utils::toLineTrans(xml_text, lyric::utils::SubType::Translation);
+            text.replace(match.capturedStart(), match.capturedLength(), trans);
+        }
+    }
+    {
+        QRegularExpression re(R"(<transliteration(?!s)[^>]*>.*?</transliteration>)",
+                              QRegularExpression::DotMatchesEverythingOption |
+                              QRegularExpression::CaseInsensitiveOption);
+        QRegularExpressionMatchIterator ite = re.globalMatch(text);
+        std::list<QRegularExpressionMatch> matches;
+        while (ite.hasNext()) matches.push_back(ite.next());
+        matches.reverse();
+        for (const auto &match : matches) {
+            auto xml_text = match.captured();
+            auto trans = lyric::utils::toLineTrans(xml_text, lyric::utils::SubType::Transliteration);
+            text.replace(match.capturedStart(), match.capturedLength(), trans);
+        }
+    }
+    ui->TTMLTextEdit->setPlainText(text);
+}
+
 void MainWindow::on_toTTML_triggered() {
     // ReSharper disable once CppTooWideScopeInitStatement
     const auto ok = this->parse();
@@ -414,13 +448,7 @@ QString compressTtmlV2(QString ttml) {
 }
 
 QString compressTtml(QString ttml) {
-    ttml = ttml.trimmed()
-    .replace(R"(" />)", R"("/>)")
-    .replace(R"(" >)", R"(">)")
-    .replace(R"(< )", R"(<)");
-
-    const QRegularExpression compress_reg(R"([\n\r]+\s*)");
-    ttml.replace(compress_reg, "");
+    lyric::utils::easyCompress(ttml);
 
     return (ttml.contains("iTunesMetadata") ? compressTtmlV2(ttml) : compressTtmlV1(ttml))
     .trimmed()

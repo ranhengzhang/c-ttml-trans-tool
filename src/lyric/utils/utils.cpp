@@ -3,6 +3,7 @@
 //
 
 #include <QRegularExpression>
+#include <QXmlStreamReader>
 
 #include "utils.hpp"
 #include "lyricsyl.hpp"
@@ -12,6 +13,18 @@ using Qt::Literals::StringLiterals::operator""_L1;
 
 QRegularExpression before_reg(R"(^[\(（]?)");
 QRegularExpression after_reg(R"([）\)]?$)");
+
+QString &lyric::utils::easyCompress(QString &text) {
+    text = text.trimmed()
+    .replace(R"(" />)", R"("/>)")
+    .replace(R"(" >)", R"(">)")
+    .replace(R"(< )", R"(<)");
+
+    const QRegularExpression compress_reg(R"([\n\r]+\s*)");
+    text.replace(compress_reg, "");
+
+    return text;
+}
 
 QString lyric::utils::toHtmlEscaped(const QString &text) {
     const auto pos = std::u16string_view(text).find_first_of(u"<>&\"'");
@@ -81,4 +94,63 @@ QString lyric::utils::getDeepInnerText(const QDomNode &node) {
         }
     }
     return result;
+}
+
+QString lyric::utils::toLineTrans(QString &dom_text, const SubType line_type) {
+    easyCompress(dom_text);
+
+    QXmlStreamReader reader(dom_text);
+    int depth = 0;
+    int bg_depth = -1;
+    int text_depth = -1;
+    QString lang;
+    QString key;
+    std::pair<QString, QString> line{};
+    QString *target = &line.first;
+    QStringList buffer{};
+    QRegularExpression re(R"(^[(（]*(.*?)[）)]*$)");
+
+    while (not reader.atEnd() and not reader.hasError()) {
+        if (reader.isStartElement()) {
+            ++depth;
+            if (reader.name() == u"translation" or reader.name() == u"transliteration") {
+                lang = reader.attributes().value(u"xml:lang").toString();
+            } elif (reader.name() == u"text") {
+                text_depth = depth;
+                line = {};
+                key = reader.attributes().value(u"for").toString();
+            } elif (reader.name() == u"span") {
+                if (reader.attributes().value(u"ttm:role").toString() == u"x-bg") {
+                    bg_depth = depth;
+                    target = &line.second;
+                }
+            }
+        } elif (reader.isEndElement()) {
+            if (depth == bg_depth) {
+                bg_depth = -1;
+                target = &line.first;
+            } elif (depth == text_depth) {
+                if (not line.second.isEmpty()) {
+                    if (re.match(line.second.trimmed()).hasMatch()) {
+                        line.second = re.match(line.second.trimmed()).captured(1);
+                    }
+                }
+
+                text_depth = -1;
+                buffer.append(QString(R"(<text for="%1">%2%3</text>)")
+                    .arg(key)
+                    .arg(line.first.trimmed())
+                    .arg(line.second.isEmpty() ? "" : QString(R"( <span xmlns:ttm="http://www.w3.org/ns/ttml#metadata" ttm:role="x-bg" xmlns="http://www.w3.org/ns/ttml">(%1)</span>)").arg(line.second.trimmed())));
+            }
+            --depth;
+        } elif (reader.isCharacters()) {
+            if (depth >= text_depth) target->append(reader.text().toString());
+        }
+        reader.readNext();
+    }
+
+    return QString(R"(<%1 %2>%3</%1>)")
+        .arg(line_type == SubType::Transliteration ? "transliteration" : "translation")
+        .arg((line_type == SubType::Transliteration ? QString(R"(xml:lang="%1")") : QString(R"(type="subtitle" xml:lang="%1")")).arg(lang))
+        .arg(buffer.join(""));
 }

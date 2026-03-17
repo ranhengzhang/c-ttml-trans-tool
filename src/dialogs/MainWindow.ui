@@ -179,7 +179,6 @@
     <addaction name="formatTime"/>
     <addaction name="parseCommand"/>
     <addaction name="toLineTrans"/>
-    <addaction name="preview"/>
     <addaction name="removeRuby"/>
    </widget>
    <widget class="QMenu" name="menu_3">
