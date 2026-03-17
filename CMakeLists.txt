@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(ttml-tool VERSION 1.6.9 LANGUAGES CXX)
+project(ttml-tool VERSION 1.10.10 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)

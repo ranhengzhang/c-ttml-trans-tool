@@ -1,5 +1,52 @@
 # CHANGELOG (created by TRAE)
 
+## 1.10.10
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `e34a007` feat(ttml): Add iTunes metadata support for leading silence and lyric offset
+> - `16ab9dd` feat(utils): Add translation/transliteration line conversion functionality
+> - `cd7e302` feat(ruby): Add ruby text removal functionality and fix HTML escaping
+> - `c747785` feat(ttml): Add comprehensive Ruby text support for TTML format
+
+> [!NOTE]
+>
+> **功能增强 (Features)**
+>
+> - 添加 TTML 格式的全面 Ruby 文本支持
+> - 实现 fromRuby 方法用于解析 ruby 文本元素
+> - 添加 toRuby 函数用于生成 ruby 文本 HTML
+> - 支持 tts:ruby="container" 和 tts:ruby="text" 属性
+> - 为 LyricSyl 类添加 _is_phrase_start 和 _ruby_s 成员
+> - 增强 TTML 解析以处理 ruby 短语结构
+> - 更新 toTTML 方法以生成适当的 ruby 文本标记
+> - 改进 ruby 文本与基础文本的时间同步
+> - 添加 removeRuby() 方法到 LyricSyl、LyricLine 和 LyricObject 类
+> - 在 MainWindow 中实现 "移除标注" 菜单操作
+> - 添加翻译/音译转逐行功能
+> - 实现 toLineTrans 函数用于转换翻译/音译为行格式
+> - 添加 easyCompress 实用函数用于 XML 文本压缩
+> - 增强词曲作者检测，支持英文和中文键匹配
+> - 添加 iTunes 元数据支持，包括 leadingSilence 和 lyricOffset
+
+> [!TIP]
+>
+> **代码重构 (Refactoring)**
+>
+> - 修复 toRuby 函数中的 HTML 转义
+> - 修复 toTTML 中 ruby 基础文本的 HTML 转义
+> - 改进 XML 处理，添加适当的深度跟踪和背景行支持
+> - 添加 QXmlStreamReader 依赖用于 XML 解析
+
+> [!CAUTION]
+>
+> **错误修复 (Bug Fixes)**
+>
+> - 修复 TTML 翻译解析中的空指针解引用问题
+> - 确保在移除 ruby 标注时的正确文本处理
+
 ## 1.6.9
 
 > [!IMPORTANT]
