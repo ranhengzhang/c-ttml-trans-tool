@@ -148,6 +148,10 @@ private:
     bool _have_duet{};
 
     bool _have_bg{};
+
+    QString _leading_silence{};
+
+    QString _lyric_offset{};
 };
 
 #endif //LYRIC_PARSER_LYRIC_H

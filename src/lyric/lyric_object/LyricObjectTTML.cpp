@@ -47,6 +47,16 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
     else lyric._lang = "zh-Hans";
     lyric._have_duet = tt.elementsByTagName("ttm:agent").length() > 1;
 
+    const auto iTunesMetadata = tt.elementsByTagName("iTunesMetadata");
+    if (iTunesMetadata.length() > 0) {
+        lyric._leading_silence = iTunesMetadata.at(0).toElement().attribute("leadingSilence");
+    }
+
+    const auto audio = tt.elementsByTagName("audio");
+    if (audio.length() > 0) {
+        lyric._lyric_offset = audio.at(0).toElement().attribute("lyricOffset");
+    }
+
     const auto song_writer_s = tt.elementsByTagName("songwriter");
     for (int i = 0; i < song_writer_s.length(); ++i) {
         auto song_writer = song_writer_s.at(i).toElement();
@@ -335,12 +345,23 @@ QString LyricObject::toTTML() {
     const auto reg = QRegularExpression(R"(\s{2,})");
 
     return QString(R"(<tt xmlns="http://www.w3.org/ns/ttml" xmlns:amll="http://www.example.com/ns/amll" xmlns:itunes="http://music.apple.com/lyric-ttml-internal" xmlns:ttm="http://www.w3.org/ns/ttml#metadata" xmlns:tts="http://www.w3.org/ns/ttml#styling" itunes:timing="Word" xml:lang="%1"><head><metadata><ttm:agent type="person" xml:id="v1"/>%2%3%4</metadata></head><body dur="%5">%6</body></tt>)")
-    .arg(this->_lang)
-    .arg(this->_have_duet ? R"(<ttm:agent type="other" xml:id="v2"/>)" : "")
-    .arg(meta_data_text)
-    .arg(!this->_translation_s.isEmpty() || !this->_transliteration_s.isEmpty() || !this->_song_writer_s.isEmpty() ? QString(R"(<iTunesMetadata xmlns="http://music.apple.com/lyric-ttml-internal">%1</iTunesMetadata>)").arg(translation_text + song_writer_text + transliteration_text) : "")
-    .arg(this->getDur().toString(false, false, true))
-    .arg(line_text)
-    .replace(reg, " ")
-    .trimmed();
+        .arg(this->_lang)
+        .arg(this->_have_duet ? R"(<ttm:agent type="other" xml:id="v2"/>)" : "")
+        .arg(meta_data_text)
+        .arg(!this->_translation_s.isEmpty() || !this->_transliteration_s.isEmpty() || !this->_song_writer_s.isEmpty() ?
+            QString(R"(<iTunesMetadata xmlns="http://music.apple.com/lyric-ttml-internal"%1>%2%3</iTunesMetadata>)")
+                .arg(this->_leading_silence.isEmpty() ?
+                    "" :
+                    QString(R"( leadingSilence="%1")")
+                        .arg(this->_leading_silence))
+                .arg(translation_text + song_writer_text + transliteration_text)
+                .arg(this->_lyric_offset.isEmpty() ?
+                    "" :
+                    QString(R"(<audio lyricOffset="%1" role="spatial"/>)")
+                        .arg(this->_leading_silence)) :
+            "")
+        .arg(this->getDur().toString(false, false, true))
+        .arg(line_text)
+        .replace(reg, " ")
+        .trimmed();
 }
