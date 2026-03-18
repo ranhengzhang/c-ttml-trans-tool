@@ -103,6 +103,8 @@ QString LyricSyl::toTTML(bool xmlns) {
 
 void LyricSyl::setOrig(const std::shared_ptr<LyricSyl> &orig_shared) {
     this->_orig = orig_shared;
+    this->setBegin(orig_shared->getBegin());
+    this->setEnd(orig_shared->getEnd());
 }
 
 std::shared_ptr<LyricSyl> LyricSyl::getOrig() const {

@@ -3,6 +3,13 @@
 //
 
 #include <QDebug>
+#include <QEventLoop>
+#include <QTimer>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QRegularExpression>
+#include <QString>
 
 #include "utils.hpp"
 
@@ -49,4 +56,188 @@ QString tool::utils::OpenCCConverter::convert(const QString &input_text) const {
 
 bool tool::utils::OpenCCConverter::isValid() const {
     return _is_valid;
+}
+
+QStringList tool::utils::getQids(const QString &vid) {
+    QStringList result;
+
+    //region 构建请求 JSON
+    QJsonObject commObj;
+    commObj["ct"] = "26";
+    commObj["cv"] = "2010101";
+    commObj["v"] = "2010101";
+
+    QJsonObject paramObj;
+    paramObj["types"] = QJsonArray{1};
+    paramObj["ctx"] = 0;
+    if (vid.startsWith("00")) {
+        paramObj["mids"] = QJsonArray{vid};
+    } else {
+        paramObj["ids"] = QJsonArray{vid.toLongLong()};
+    }
+
+    QJsonObject reqObj;
+    reqObj["module"] = "music.trackInfo.UniformRuleCtrl";
+    reqObj["method"] = "CgiGetTrackInfo";
+    reqObj["param"] = paramObj;
+
+    QJsonObject rootObj;
+    rootObj["comm"] = commObj;
+    rootObj["req"] = reqObj;
+
+    const QJsonDocument jsonDoc(rootObj);
+    const QByteArray postData = jsonDoc.toJson();
+    //endregion
+
+    // 使用封装的 httpPost 发送请求
+    auto response = httpPost(
+        QUrl("https://u.y.qq.com/cgi-bin/musicu.fcg"),
+        postData,
+        "application/json",
+        10000
+    );
+
+    if (!response.success || response.content.isEmpty()) {
+        return result;
+    }
+
+    // 处理响应：将 `: undefined` 替换为 `: null`
+    const QRegularExpression re(R"((:\s*)undefined\b)");
+    const QString content = response.content.replace(re, "\\1null");
+
+    // 解析 JSON 响应
+    const auto json = QJsonDocument::fromJson(content.toUtf8());
+    if (!json.isObject()) {
+        return result;
+    }
+
+    const auto json_obj = json.object();
+    const auto req_val = json_obj["req"];
+    if (!req_val.isObject()) {
+        return result;
+    }
+
+    const auto res_obj = req_val.toObject();
+    const auto data_val = res_obj["data"];
+    if (!data_val.isObject()) {
+        return result;
+    }
+
+    const auto data_obj = data_val.toObject();
+    const auto tracks_val = data_obj["tracks"];
+    if (!tracks_val.isArray() || tracks_val.toArray().isEmpty()) {
+        return result;
+    }
+
+    const auto song = tracks_val.toArray()[0].toObject();
+
+    const auto mid = song["mid"].toString();
+    if (!mid.isEmpty() and mid != vid) {
+        result.push_back(mid);
+    }
+    const auto id = QString::number(song["vid"].toInteger(-1));
+    if (id != "-1" and id != vid) {
+        result.push_back(id);
+    }
+
+    return result;
+}
+
+tool::utils::NetworkResponse tool::utils::httpGet(const QUrl &url, const int timeoutMs) {
+    NetworkResponse response;
+    response.success = false;
+    response.statusCode = 0;
+
+    if (!url.isValid()) {
+        response.errorString = "Invalid URL";
+        return response;
+    }
+
+    QNetworkAccessManager manager;
+    const QNetworkRequest request(url);
+    QNetworkReply *reply = manager.get(request);
+
+    QEventLoop loop;
+    QTimer timer;
+    timer.setSingleShot(true);
+
+    QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    QObject::connect(&timer, &QTimer::timeout, [&]() {
+        loop.quit();
+        reply->abort();
+    });
+
+    timer.start(timeoutMs);
+    loop.exec();
+
+    const bool isTimeout = !timer.isActive();
+    if (isTimeout) {
+        response.errorString = "Request timeout";
+        reply->deleteLater();
+        return response;
+    }
+
+    if (reply->error() != QNetworkReply::NoError) {
+        response.errorString = reply->errorString();
+        reply->deleteLater();
+        return response;
+    }
+
+    response.success = true;
+    response.statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    response.content = QString::fromUtf8(reply->readAll());
+    reply->deleteLater();
+
+    return response;
+}
+
+tool::utils::NetworkResponse tool::utils::httpPost(const QUrl &url, const QByteArray &data,
+                                                   const QString &contentType, const int timeoutMs) {
+    NetworkResponse response;
+    response.success = false;
+    response.statusCode = 0;
+
+    if (!url.isValid()) {
+        response.errorString = "Invalid URL";
+        return response;
+    }
+
+    QNetworkAccessManager manager;
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, contentType);
+
+    QNetworkReply *reply = manager.post(request, data);
+
+    QEventLoop loop;
+    QTimer timer;
+    timer.setSingleShot(true);
+
+    QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    QObject::connect(&timer, &QTimer::timeout, [&]() {
+        loop.quit();
+        reply->abort();
+    });
+
+    timer.start(timeoutMs);
+    loop.exec();
+
+    const bool isTimeout = !timer.isActive();
+    if (isTimeout) {
+        response.errorString = "Request timeout";
+        reply->deleteLater();
+        return response;
+    }
+
+    if (reply->error() != QNetworkReply::NoError) {
+        response.errorString = reply->errorString();
+        reply->deleteLater();
+        return response;
+    }
+
+    response.success = true;
+    response.statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    response.content = QString::fromUtf8(reply->readAll());
+    reply->deleteLater();
+
+    return response;
 }

@@ -1267,6 +1267,42 @@ void MainWindow::on_actionSongwriter_triggered() {
     ui->statusbar->showMessage("复制成功");
 }
 
+void MainWindow::on_anotherQid_triggered() {
+    bool ok{};
+    const QString id = QInputDialog::getText(
+        this,
+        "输入 QQ 音乐 ID",
+        "输入 QQ 音乐 ID",
+        QLineEdit::EchoMode::Normal,
+        "",
+        &ok
+    );
+
+    if (!ok || id.isEmpty()) {
+        return;
+    }
+
+    ui->statusbar->showMessage("正在查询...");
+
+    const auto result = tool::utils::getQids(id);
+
+    if (result.isEmpty()) {
+        QMessageBox::warning(this, "查询失败", "无法获取该 ID 的歌曲信息，请检查 ID 是否正确。");
+        ui->statusbar->showMessage("查询失败");
+        return;
+    }
+
+    QInputDialog::getText(
+        this,
+        "查询结果",
+        "查询结果",
+        QLineEdit::EchoMode::Normal,
+        result.join(", "),
+        &ok
+    );
+    ui->statusbar->showMessage("查询完成");
+}
+
 void MainWindow::on_compressButton_clicked() const {
     auto* scroll_bar = ui->TTMLTextEdit->verticalScrollBar();
     double scroll_percent = 0.0;

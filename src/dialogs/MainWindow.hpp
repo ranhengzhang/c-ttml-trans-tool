@@ -97,6 +97,8 @@ private slots:
 
     void on_actionSongwriter_triggered();
 
+    void on_anotherQid_triggered();
+
     void on_compressButton_clicked() const;
 
     void on_fromURL_triggered();

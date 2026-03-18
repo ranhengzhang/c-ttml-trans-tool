@@ -270,8 +270,8 @@ QString LyricObject::toTTML() {
                     if (not text.first.isEmpty() or not text.second) {
                         translation_text += QString(R"(<text for="%1">%2%3</text>)")
                         .arg(target)
-                        .arg(text.first)
-                        .arg(text.second ? QString(R"( <span xmlns:ttm="http://www.w3.org/ns/ttml#metadata" ttm:role="x-bg" xmlns="http://www.w3.org/ns/ttml">(%1)</span>)").arg(*text.second) : "");
+                        .arg(lyric::utils::toHtmlEscaped(text.first))
+                        .arg(text.second ? QString(R"( <span xmlns:ttm="http://www.w3.org/ns/ttml#metadata" ttm:role="x-bg" xmlns="http://www.w3.org/ns/ttml">(%1)</span>)").arg(lyric::utils::toHtmlEscaped(*text.second)) : "");
                     }
                 }
             }
@@ -306,8 +306,8 @@ QString LyricObject::toTTML() {
                     if (not text->first.isEmpty() or not text->second) {
                         transliteration_text += QString(R"(<text for="%1">%2</text>%3)")
                         .arg(target)
-                        .arg(text->first)
-                        .arg(text->second ? QString(R"( <span xmlns:ttm="http://www.w3.org/ns/ttml#metadata" ttm:role="x-bg" xmlns="http://www.w3.org/ns/ttml">(%1)</span>)").arg(*text->second) : "");
+                        .arg(lyric::utils::toHtmlEscaped(text->first))
+                        .arg(text->second ? QString(R"( <span xmlns:ttm="http://www.w3.org/ns/ttml#metadata" ttm:role="x-bg" xmlns="http://www.w3.org/ns/ttml">(%1)</span>)").arg(lyric::utils::toHtmlEscaped(*text->second)) : "");
                     }
                 }
                 // 尝试获取 LyricLine

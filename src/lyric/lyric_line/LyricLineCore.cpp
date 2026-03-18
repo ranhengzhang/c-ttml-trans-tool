@@ -58,15 +58,15 @@ void LyricLine::match(const LyricLine &orig) {
     int j = 0;
 
     do {
-        while (i < this->_syl_s.size() && this->_syl_s.at(i)->getIsText()) ++i;
-        while (j < orig._syl_s.size() && orig._syl_s.at(j)->getIsText()) ++j;
+        while (i < this->_syl_s.size() and (this->_syl_s.at(i)->getIsText() or this->_syl_s.at(i)->getText().trimmed().isEmpty())) ++i;
+        while (j < orig._syl_s.size() and (orig._syl_s.at(j)->getIsText() or orig._syl_s.at(j)->getText().trimmed().isEmpty())) ++j;
 
-        if (i < this->_syl_s.size() && j < orig._syl_s.size())
+        if (i < this->_syl_s.size() and j < orig._syl_s.size())
             this->_syl_s.at(i)->setOrig(orig._syl_s.at(j));
 
         ++i;
         ++j;
-    } while (i < this->_syl_s.size() && j < orig._syl_s.size());
+    } while (i < this->_syl_s.size() and j < orig._syl_s.size());
     for (const auto &syl:this->_syl_s) {
         if (!syl->getOrig()) syl->setIsText(true);
     }
@@ -74,7 +74,7 @@ void LyricLine::match(const LyricLine &orig) {
     for (qsizetype n = this->_syl_s.length() - 1; n >= 0; --n) {
         // ReSharper disable once CppTooWideScopeInitStatement
         const auto &syl = this->_syl_s.at(n);
-        if (!syl->isText() && syl->getText().length() > 1 && syl->getText().endsWith(" ")) {
+        if (!syl->isText() && syl->getText().length() > 1 and syl->getText().endsWith(" ")) {
             auto text = syl->getText();
             text.chop(1);
             syl->setText(text);

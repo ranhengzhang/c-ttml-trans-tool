@@ -170,6 +170,7 @@
      <addaction name="actionSongwriter"/>
     </widget>
     <addaction name="menufromMeta"/>
+    <addaction name="anotherQid"/>
    </widget>
    <widget class="QMenu" name="menu_tools">
     <property name="title">
@@ -406,6 +407,11 @@
   <action name="removeRuby">
    <property name="text">
     <string>移除标注</string>
+   </property>
+  </action>
+  <action name="anotherQid">
+   <property name="text">
+    <string>查询另一 Qmid</string>
    </property>
   </action>
  </widget>
