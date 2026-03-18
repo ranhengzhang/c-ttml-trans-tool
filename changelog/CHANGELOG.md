@@ -1,5 +1,31 @@
 # CHANGELOG (created by TRAE)
 
+## 1.11.14
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `8042ff2` feat(utils): Add network utilities and QQ Music ID query functionality
+
+> [!NOTE]
+>
+> **功能增强 (Features)**
+>
+> - 添加网络工具类和 QQ 音乐 ID 查询功能
+> - 实现 getQids 函数，根据 QQ 音乐 ID 查询歌曲信息（mid, vid, title, subtitle）
+> - 添加同步 HTTP GET/POST 请求功能（httpGet/httpPost）
+> - 实现 NetworkResponse 结构体用于封装网络请求结果
+> - 支持请求超时控制和错误处理
+> - 添加 QNetworkAccessManager 依赖用于网络通信
+
+> [!TIP]
+>
+> **代码重构 (Refactoring)**
+>
+> - 添加网络请求相关的头文件依赖（QNetworkReply, QStringList）
+> - 实现同步网络请求模式，使用 QEventLoop 阻塞等待响应
+
 ## 1.10.11
 
 > [!IMPORTANT]
