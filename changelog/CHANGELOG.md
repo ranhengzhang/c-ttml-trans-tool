@@ -1,5 +1,44 @@
 # CHANGELOG (created by TRAE)
 
+## 1.13.14
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `96c4f97` feat(spl): Refactor SPL output generation with offset support
+> - `3802c01` feat(LyricLineSPL): enhance SPL output generation and timing accuracy
+> - `a586c1a` feat(utils): Add symbol detection and improve lyric matching logic
+
+> [!NOTE]
+>
+> **功能增强 (Features)**
+>
+> - 重构 SPL 输出生成，添加时间偏移支持
+> - 添加 toSingleSPL 方法用于生成单个 SPL 行
+> - 添加静态 _spl_offset 成员用于顺序时间偏移
+> - 分离词级和行级翻译在 SPL 输出中的顺序
+> - 改进 SPL 格式顺序：主行、词翻译、行翻译
+> - 使用 getInnerBegin() 和 getInnerEnd() 实现更准确的时间计算
+> - 将零宽连接符 (\u200D) 替换为零宽空格 (\u200B)
+> - 改进背景行格式，添加适当的括号处理
+> - 增强翻译和音译处理，支持多种数据类型
+> - 添加 isSymbol 函数用于检测纯标点符号文本
+> - 改进 LyricLine::match 方法，在对齐时跳过符号
+> - 增强匹配算法以更好地处理特殊字符
+> - 防止纯符号音节干扰歌词对齐
+
+> [!TIP]
+>
+> **代码重构 (Refactoring)**
+>
+> - 重构 toSPL 方法使用 toSingleSPL 以提高模块化
+> - 在 toSPL 开始时重置偏移量以确保一致的时间
+> - 重构行文本处理以提高可维护性
+> - 更新 SPL 结构以匹配改进的时间计算逻辑
+> - 改进匹配循环条件以提高可读性
+> - 添加 QRegularExpression 用于标点符号模式匹配
+
 ## 1.11.14
 
 > [!IMPORTANT]
