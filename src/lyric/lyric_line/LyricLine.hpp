@@ -43,6 +43,8 @@ public:
 
     [[nodiscard]] QString toLRC() const;
 
+    [[nodiscard]] QString toSingleSPL();
+
     [[nodiscard]] QString toSPL();
 
     [[nodiscard]] QString toQRC();
@@ -133,6 +135,8 @@ private:
      * @code { lang:string, line:ref<LyricTrans> } @endcode
      */
     std::map<QString, std::shared_ptr<LyricTrans>> _translation{};
+
+    static int _spl_offset;
 };
 
 
