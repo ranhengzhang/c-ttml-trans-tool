@@ -154,3 +154,12 @@ QString lyric::utils::toLineTrans(QString &dom_text, const SubType line_type) {
         .arg((line_type == SubType::Transliteration ? QString(R"(xml:lang="%1")") : QString(R"(type="subtitle" xml:lang="%1")")).arg(lang))
         .arg(buffer.join(""));
 }
+
+static const QRegularExpression punct_regex(R"(^\p{P}+$)");
+
+bool lyric::utils::isSymbol(const QString &text) {
+    const auto trimmed = text.trimmed();
+
+    if (trimmed.isEmpty()) return false;
+    return punct_regex.match(trimmed).hasMatch();
+}

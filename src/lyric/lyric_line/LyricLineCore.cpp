@@ -58,8 +58,18 @@ void LyricLine::match(const LyricLine &orig) {
     int j = 0;
 
     do {
-        while (i < this->_syl_s.size() and (this->_syl_s.at(i)->getIsText() or this->_syl_s.at(i)->getText().trimmed().isEmpty())) ++i;
-        while (j < orig._syl_s.size() and (orig._syl_s.at(j)->getIsText() or orig._syl_s.at(j)->getText().trimmed().isEmpty())) ++j;
+        while (i < this->_syl_s.size()
+            and (this->_syl_s.at(i)->getIsText()
+                or this->_syl_s.at(i)->getText().trimmed().isEmpty()
+                or lyric::utils::isSymbol(this->_syl_s.at(i)->getText())
+                )
+            ) ++i;
+        while (j < orig._syl_s.size()
+            and (orig._syl_s.at(j)->getIsText()
+                or orig._syl_s.at(j)->getText().trimmed().isEmpty()
+                or lyric::utils::isSymbol(orig._syl_s.at(j)->getText())
+                )
+            ) ++j;
 
         if (i < this->_syl_s.size() and j < orig._syl_s.size())
             this->_syl_s.at(i)->setOrig(orig._syl_s.at(j));

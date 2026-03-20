@@ -41,6 +41,8 @@ namespace lyric::utils {
     QString getDeepInnerText(const QDomNode &node);
 
     QString toLineTrans(QString &dom_text, const SubType line_type);
+
+    bool isSymbol(const QString &text);
 }
 
 #endif //LYRIC_PARSER_UTILS_H
