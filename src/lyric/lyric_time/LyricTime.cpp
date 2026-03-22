@@ -89,3 +89,7 @@ LyricTime LyricTime::toShort() const {
     time._count = this->_count - this->_count % 10;
     return time;
 }
+
+int64_t LyricTime::abs() const {
+    return std::abs(this->_count);
+}

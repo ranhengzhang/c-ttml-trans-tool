@@ -58,16 +58,19 @@ void LyricLine::match(const LyricLine &orig) {
     int j = 0;
 
     do {
+        // 首先定位音译（音译可能留空所以要先定位）
         while (i < this->_syl_s.size()
-            and (this->_syl_s.at(i)->getIsText()
-                or this->_syl_s.at(i)->getText().trimmed().isEmpty()
-                or lyric::utils::isSymbol(this->_syl_s.at(i)->getText())
+            and (this->_syl_s.at(i)->getIsText() // 过滤纯文本
+                or this->_syl_s.at(i)->getText().trimmed().isEmpty() // 过滤空格
+                or lyric::utils::isSymbol(this->_syl_s.at(i)->getText()) // 过滤符号
                 )
             ) ++i;
+        // 接着定位原文
         while (j < orig._syl_s.size()
-            and (orig._syl_s.at(j)->getIsText()
-                or orig._syl_s.at(j)->getText().trimmed().isEmpty()
-                or lyric::utils::isSymbol(orig._syl_s.at(j)->getText())
+            and (orig._syl_s.at(j)->getIsText() // 过滤纯文本
+                or orig._syl_s.at(j)->getText().trimmed().isEmpty() // 过滤空格
+                or lyric::utils::isSymbol(orig._syl_s.at(j)->getText()) // 过滤符号
+                or (orig._syl_s.at(j)->getBegin() - this->_syl_s.at(i)->getBegin()).abs() > 100 or (orig._syl_s.at(j)->getEnd() - this->_syl_s.at(i)->getEnd()).abs() > 100 // 过滤时间差
                 )
             ) ++j;
 

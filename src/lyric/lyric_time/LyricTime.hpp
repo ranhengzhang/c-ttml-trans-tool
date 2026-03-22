@@ -84,6 +84,8 @@ public:
 
     [[nodiscard]] LyricTime toShort() const;
 
+    [[nodiscard]] int64_t abs() const;
+
 private:
     int64_t _count{};
 };
