@@ -33,12 +33,10 @@ QString LyricLine::toSingleSPL() {
 }
 
 QString LyricLine::toSPL() {
-    QStringList text{};
     QStringList line{};
     QStringList word{};
 
     _spl_offset = 0;
-    text.push_back(this->toSingleSPL());
     for (const auto &ptr: this->_transliteration | std::views::values) {
         if (const auto roma_pair = std::get_if<std::pair<QString, std::shared_ptr<QString>>>(ptr.get())) {
             if (not roma_pair->first.isEmpty()) line.push_back(roma_pair->first);
@@ -48,6 +46,10 @@ QString LyricLine::toSPL() {
             line.push_back(*roma_str);
         }
     }
+
+    auto text = this->toSingleSPL();
+    if (this->_bg_line) text.append(this->_bg_line->toSPL());
+    word.push_back(text);
 
     for (const auto &ptr: this->_translation | std::views::values) {
         if (const auto trans_pair = std::get_if<std::pair<QString, std::shared_ptr<QString>>>(ptr.get())) {
@@ -59,10 +61,5 @@ QString LyricLine::toSPL() {
         }
     }
 
-    text.append(word);
-    text.append(line);
-
-    if (this->_bg_line) text.append(this->_bg_line->toSPL());
-
-    return text.join("\n");
+    return (word + line).join("\n");
 }
