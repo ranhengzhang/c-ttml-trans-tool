@@ -1,5 +1,37 @@
 # CHANGELOG (created by TRAE)
 
+## 1.13.16
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `b0f2daa` feat(lyric): Add time difference filtering in lyric matching
+> - `f98e38c` refactor(spl): Optimize SPL output structure and ordering
+
+> [!NOTE]
+>
+> **功能增强 (Features)**
+>
+> - 添加歌词匹配中的时间差过滤功能
+> - 添加 LyricTime::abs() 方法用于绝对值计算
+> - 增强 match() 方法，按时间差阈值 (>100ms) 过滤音节
+> - 添加中文注释解释匹配函数中的过滤逻辑
+> - 通过基于时间的约束提高歌词对齐精度
+> - 过滤掉开始/结束时间差异显著的音节
+
+> [!TIP]
+>
+> **代码重构 (Refactoring)**
+>
+> - 优化 SPL 输出结构和顺序
+> - 调整 SPL 输出顺序：主行（含背景行）、词翻译、行翻译
+> - 将背景行追加移到词翻译之前以确保正确的层次结构
+> - 使用 QStringList 连接简化文本收集
+> - 移除冗余的文本列表，简化输出生成
+> - 改进代码清晰度，使用更合理的变量命名
+> - 使用直接列表连接优化返回语句
+
 ## 1.13.14
 
 > [!IMPORTANT]
