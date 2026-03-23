@@ -1,5 +1,27 @@
 # CHANGELOG (created by TRAE)
 
+## 1.13.17
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `dd8cf1c` fix(ttml): Correct element access and refactor metadata processing
+
+> [!CAUTION]
+>
+> **错误修复 (Bug Fixes)**
+>
+> - 修复 fromTTML 中错误的元素访问：将 text_s 更正为 el_s
+> - 确保元数据键和值的一致 HTML 转义
+
+> [!TIP]
+>
+> **代码重构 (Refactoring)**
+>
+> - 重构 toTTML 元数据生成，从 ranges 改为显式循环
+> - 使用传统 for 循环提高元数据处理的代码清晰度
+
 ## 1.13.16
 
 > [!IMPORTANT]
