@@ -121,7 +121,7 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
             int count = 0;
 
             for (int k = 0; k < el_s.length(); ++k) {
-                if (!text_s.at(k).isText() && text_s.at(k).toElement().attribute("ttm:role") != "bg")
+                if (!el_s.at(k).isText() && el_s.at(k).toElement().attribute("ttm:role") != "bg")
                     ++count;
             }
 
@@ -225,8 +225,15 @@ std::optional<QString> selectLang(QList<std::pair<QString, bool>> langs) {
 }
 
 QString LyricObject::toTTML() {
-    const auto meta_data_view = this->_meta_data_s | std::views::transform([](const auto &meta_data) {return QString(R"(<amll:meta key="%1" value="%2"/>)").arg(lyric::utils::toHtmlEscaped(meta_data.key)).arg(lyric::utils::toHtmlEscaped(meta_data.value));});
-    const auto meta_data_text = QStringList(meta_data_view.begin(), meta_data_view.end()).join("");
+    QStringList meta_data_list{};
+
+    for (auto &[key, value]: this->_meta_data_s) {
+        meta_data_list.push_back(QString(R"(<amll:meta key="%1" value="%2"/>)")
+        .arg(lyric::utils::toHtmlEscaped(key))
+        .arg(lyric::utils::toHtmlEscaped(value)));
+    }
+
+    auto meta_data_text = meta_data_list.join("");
 
     // region 翻译
     auto translation_text = QString();
