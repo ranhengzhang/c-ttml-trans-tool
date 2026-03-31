@@ -8,7 +8,7 @@
 
 <p align="center"><img src="https://img.shields.io/badge/C++-23-00599C?logo=cplusplus"/> <img src="https://img.shields.io/badge/CMake-3.25.0-064F8C?logo=cmake"/> <img src="https://img.shields.io/badge/Build-Release-brightgreen"/> <img src="https://img.shields.io/badge/Platform-Windows-blue"/></p>
 
-一个基于 C++ Qt 的 TTML 工具，目前暂不支持 Apple Music 新版本 
+一个基于 C++ Qt 的 TTML 工具，目前已支持 Apple Music 新版本 
 
 > 已实现功能：
 >
