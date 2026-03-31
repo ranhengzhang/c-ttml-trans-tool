@@ -24,7 +24,8 @@ QString LyricLine::toASS(const QString& role, LyricTime parent_begin, LyricTime 
     LyricTime last = this->getInnerBegin();
 
     for (const auto &syl: this->_syl_s) {
-        if (syl->getBegin() > last)
+        const auto interlude = static_cast<int64_t>(syl->getBegin() / 10 - last / 10);
+        if (interlude != 0)
             text.push_back(QString(R"({\k%1})").arg(static_cast<int64_t>(syl->getBegin() / 10 - last / 10)));
         text.push_back(syl->toASS());
         last = syl->getEnd();
