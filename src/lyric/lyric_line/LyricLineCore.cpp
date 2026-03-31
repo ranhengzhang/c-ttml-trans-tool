@@ -65,6 +65,8 @@ void LyricLine::match(const LyricLine &orig) {
                 or lyric::utils::isSymbol(this->_syl_s.at(i)->getText()) // 过滤符号
                 )
             ) ++i;
+        // 安全范围判断
+        if (i >= this->_syl_s.size()) break;
         // 接着定位原文
         while (j < orig._syl_s.size()
             and (orig._syl_s.at(j)->getIsText() // 过滤纯文本
