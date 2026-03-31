@@ -1,5 +1,32 @@
 # CHANGELOG (created by TRAE)
 
+## 1.13.19
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `7a22f3f` fix(lyric): Add safety bounds check in match function
+> - `31d6753` fix(ass): Correct timing calculations and interlude detection
+
+> [!CAUTION]
+>
+> **错误修复 (Bug Fixes)**
+>
+> - 修复 ASS 时间计算：在减法之前先除以时间值
+> - 修正间奏检测条件，从 > 改为 != 以实现精确时间检测
+> - 确保 ASS 生成中时间单位（厘秒）的一致性处理
+> - 在 match 函数中添加安全范围检查，防止越界访问
+> - 在过滤循环后添加索引检查，防止超出音节列表大小
+> - 防止处理不匹配歌词行时的潜在崩溃
+
+> [!TIP]
+>
+> **代码重构 (Refactoring)**
+>
+> - 在 LyricLineASS 中添加 interlude 变量以提高可读性
+> - 添加中文注释解释过滤逻辑和安全检查
+
 ## 1.13.17
 
 > [!IMPORTANT]
