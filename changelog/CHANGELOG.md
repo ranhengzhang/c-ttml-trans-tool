@@ -1,5 +1,34 @@
 # CHANGELOG (created by TRAE)
 
+## 1.14.19
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `df7490b` feat(agent): Add Agent class for TTML metadata support
+
+> [!NOTE]
+>
+> **功能增强 (Features)**
+>
+> - 添加 Agent 类用于 TTML 元数据支持
+> - 支持解析和生成 TTML 中的 ttm:agent 元素
+> - 实现 AgentType 枚举（Person, Group, Other）
+> - 支持 agent 名称列表（ttm:name）的解析和生成
+> - 添加 Agent 的 fromTTML 和 toTTML 方法
+> - 在 LyricObject 中集成 Agent 列表管理
+> - 支持多 agent 场景的 TTML 生成
+
+> [!TIP]
+>
+> **代码重构 (Refactoring)**
+>
+> - 重构 LyricObject 的 toTTML 方法，使用 agent 数据替代硬编码的 agent 元素
+> - 添加 Agent.cpp 和 Agent.hpp 新文件
+> - 使用 std::map 管理 AgentType 与字符串的映射
+> - 改进 TTML 元数据结构，支持更灵活的 agent 配置
+
 ## 1.13.19
 
 > [!IMPORTANT]
