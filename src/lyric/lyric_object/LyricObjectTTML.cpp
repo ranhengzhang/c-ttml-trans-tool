@@ -45,7 +45,28 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
     LyricObject lyric{};
     if (tt.hasAttribute("xml:lang")) lyric._lang = tt.attribute("xml:lang");
     else lyric._lang = "zh-Hans";
-    lyric._have_duet = tt.elementsByTagName("ttm:agent").length() > 1;
+
+    const auto agent_s = tt.elementsByTagName("ttm:agent");
+    for (int i = 0; i < agent_s.length(); ++i) {
+        auto xml = agent_s.at(i).toElement();
+        auto [agent, status] = lyric::utils::Agent::fromTTML(xml);
+
+        if (status == Status::InvalidFormat) return {{}, Status::InvalidFormat};
+        lyric._agent_s.push_back(agent);
+    }
+
+    std::unique_ptr<lyric::utils::Agent> main_agent{};
+    QString main_agent_id{};
+    bool is_duet = false;
+
+    for (auto &agent : lyric._agent_s) {
+        if (not agent.isGroup()) {
+            main_agent = std::make_unique<lyric::utils::Agent>(agent);
+            main_agent_id = agent.getId();
+            break;
+        }
+    }
+    lyric._have_duet = lyric._agent_s.length();
 
     const auto iTunesMetadata = tt.elementsByTagName("iTunesMetadata");
     if (iTunesMetadata.length() > 0) {
@@ -101,6 +122,19 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
             if (status != Status::Success) return {{}, status};
             if (line.getKey().isEmpty()) line.setKey(QString("L%1").arg(lyric._line_s.length() + 1));
             line.trim();
+            auto line_agent_id = line.getAgent();
+            auto line_agent = std::ranges::find_if(lyric._agent_s, [&line_agent_id](const auto &agent){return agent.getId() == line_agent_id;});
+            if (line_agent == lyric._agent_s.end()) return {{}, Status::InvalidStructure};
+            auto &agent = *line_agent;
+            if (agent.isGroup()) {
+                line.setIsDuet(true);
+            } else {
+                if (line_agent_id != main_agent_id) {
+                    is_duet = !is_duet;
+                    main_agent_id = line_agent_id;
+                }
+                line.setIsDuet(is_duet);
+            }
             lyric._line_s.push_back(line);
             lyric._have_bg |= line.haveBgLine();
             lyric._have_duet |= line.isDuet();
@@ -225,6 +259,14 @@ std::optional<QString> selectLang(QList<std::pair<QString, bool>> langs) {
 }
 
 QString LyricObject::toTTML() {
+    QStringList agent_data_list{};
+
+    for (auto &agent: this->_agent_s) {
+        agent_data_list.push_back(agent.toTTML());
+    }
+
+    auto agent_data_text = agent_data_list.join("");
+
     QStringList meta_data_list{};
 
     for (auto &[key, value]: this->_meta_data_s) {
@@ -351,9 +393,9 @@ QString LyricObject::toTTML() {
 
     const auto reg = QRegularExpression(R"(\s{2,})");
 
-    return QString(R"(<tt xmlns="http://www.w3.org/ns/ttml" xmlns:amll="http://www.example.com/ns/amll" xmlns:itunes="http://music.apple.com/lyric-ttml-internal" xmlns:ttm="http://www.w3.org/ns/ttml#metadata" xmlns:tts="http://www.w3.org/ns/ttml#styling" itunes:timing="Word" xml:lang="%1"><head><metadata><ttm:agent type="person" xml:id="v1"/>%2%3%4</metadata></head><body dur="%5">%6</body></tt>)")
+    return QString(R"(<tt xmlns="http://www.w3.org/ns/ttml" xmlns:amll="http://www.example.com/ns/amll" xmlns:itunes="http://music.apple.com/lyric-ttml-internal" xmlns:ttm="http://www.w3.org/ns/ttml#metadata" xmlns:tts="http://www.w3.org/ns/ttml#styling" itunes:timing="Word" xml:lang="%1"><head><metadata>%2%3%4</metadata></head><body dur="%5">%6</body></tt>)")
         .arg(this->_lang)
-        .arg(this->_have_duet ? R"(<ttm:agent type="other" xml:id="v2"/>)" : "")
+        .arg(agent_data_text)
         .arg(meta_data_text)
         .arg(!this->_translation_s.isEmpty() || !this->_transliteration_s.isEmpty() || !this->_song_writer_s.isEmpty() ?
             QString(R"(<iTunesMetadata xmlns="http://music.apple.com/lyric-ttml-internal"%1>%2%3</iTunesMetadata>)")

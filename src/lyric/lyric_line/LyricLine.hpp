@@ -29,6 +29,8 @@ public:
 
     void setKey(const QString &key);
 
+    void setIsDuet(bool is_duet);
+
     [[nodiscard]] static std::pair<LyricLine, Status> fromTTML(const QDomElement &p, LyricLine *parent, LyricObject &obj);
 
     [[nodiscard]] QString toTTML() const;
@@ -99,6 +101,8 @@ public:
 
     [[nodiscard]] LyricTime getInnerDuration() const;
 
+    [[nodiscard]] QString getAgent() const;
+
     [[nodiscard]] QString getKey() const;
 
     [[nodiscard]] bool isDuet() const;
@@ -117,6 +121,8 @@ private:
     LyricTime _begin{LyricTime::min()};
 
     LyricTime _end{LyricTime::max()};
+
+    QString _agent{};
 
     QString _key{};
 

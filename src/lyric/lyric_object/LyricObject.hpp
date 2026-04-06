@@ -10,6 +10,7 @@
 #include <QMap>
 #include <QList>
 
+#include "Agent.hpp"
 #include "utils.hpp"
 
 #include "LyricLine.hpp"
@@ -124,6 +125,8 @@ private:
     };
 
     QString _lang{};
+
+    QList<lyric::utils::Agent> _agent_s{};
 
     QStringList _song_writer_s{}; // 歌词作者
 

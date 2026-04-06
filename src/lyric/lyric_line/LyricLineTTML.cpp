@@ -16,7 +16,6 @@ std::pair<LyricLine, LyricLine::Status> LyricLine::fromTTML(const QDomElement &p
     LyricLine line;
 
     line._is_bg = parent != nullptr;
-    line._is_duet = parent ? parent->_is_duet : "v1" != p.attribute("ttm:agent");
     if (parent == nullptr && p.tagName() == "p") {
         const auto begin = LyricTime::parse(p.attribute("begin"));
         if (!begin.second) return {{}, Status::InvalidTimeFormat};
@@ -24,6 +23,7 @@ std::pair<LyricLine, LyricLine::Status> LyricLine::fromTTML(const QDomElement &p
         const auto end = LyricTime::parse(p.attribute("end"));
         if (!end.second) return {{}, Status::InvalidTimeFormat};
         line._end = end.first;
+        line._agent = p.attribute("ttm:agent");
         line._key = p.attribute(p.tagName() == "text" ? "for" : "itunes:key");
     }
 
@@ -120,11 +120,11 @@ std::pair<LyricLine, LyricLine::Status> LyricLine::fromTTML(const QDomElement &p
 }
 
 QString LyricLine::toTTML() const {
-    return QString(R"(<p begin="%1" end="%2" itunes:key="%3" ttm:agent="v%4">%5</p>)")
+    return QString(R"(<p begin="%1" end="%2" itunes:key="%3" ttm:agent="%4">%5</p>)")
     .arg(this->getLineBegin().toString(false, false, true))
     .arg(this->getLineEnd().toString(false, false, true))
     .arg(this->_key)
-    .arg(this->_is_duet ? "2" : "1")
+    .arg(this->_agent)
     .arg(this->toInnerTTML());
 }
 

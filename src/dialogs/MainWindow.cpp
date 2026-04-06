@@ -6,11 +6,11 @@
 #include <QClipboard>
 #include <QInputDialog>
 #include <QStack>
-#include <QNetworkReply>
 #include <QTimer>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QScrollBar>
+#include <QRegularExpression>
 
 #include "MainWindow.hpp"
 
@@ -35,6 +35,7 @@ QList<std::pair<QString, QString>> preset_metas{
             {"isrc", "歌曲关联 ISRC"}
 };
 QString pipe_name = "C_TTML_TOOL"; // 管道名称
+QRegularExpression empty_line_regexp(R"(\n{3,})");
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -441,6 +442,8 @@ QString compressTtmlV2(QString ttml) {
     // 解析为 xml
     auto [lyric, status] = LyricObject::fromTTML(ttml);
     if (status != LyricObject::Status::Success) {
+        // error dialog
+        QMessageBox::critical(nullptr, R"(错误)", R"(无法解析 TTML)");
         return ttml;
     }
 
@@ -1229,7 +1232,7 @@ void MainWindow::on_actionPreset_triggered()
         buffer.push_back("");
     }
 
-    QApplication::clipboard()->setText(buffer.join('\n').trimmed() + "\n\n");
+    QApplication::clipboard()->setText(buffer.join('\n').trimmed().replace(empty_line_regexp, "\n\n") + "\n\n");
     ui->statusbar->showMessage("复制成功");
 }
 

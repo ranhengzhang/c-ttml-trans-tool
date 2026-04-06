@@ -1,6 +1,10 @@
 .idea/
 .vscode/
+.claude/
 cmake-build*/
 CMakeLists.txt.user
 /compile.log
 /settings.ini
+.gitnexus
+AGENTS.md
+CLAUDE.md

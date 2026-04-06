@@ -10,6 +10,11 @@
 
 #include "lyricsyl.hpp"
 
+void LyricLine::setIsDuet(const bool is_duet) {
+    this->_is_duet = is_duet;
+    if (this->_bg_line) this->_bg_line->_is_duet = is_duet;
+}
+
 QString LyricLine::toTXT() const {
     std::span span_syls = this->_syl_s;
     auto result_view = span_syls
@@ -177,6 +182,10 @@ LyricTime LyricLine::getInnerEnd() const {
 
 LyricTime LyricLine::getInnerDuration() const {
     return this->getInnerEnd() - this->getInnerBegin();
+}
+
+QString LyricLine::getAgent() const {
+    return this->_agent;
 }
 
 QString LyricLine::getKey() const {
