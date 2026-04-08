@@ -1,5 +1,37 @@
 # CHANGELOG (created by TRAE)
 
+## 1.15.19
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `7005c50` fix(lyric): Improve lyric matching algorithm with secondary pass
+
+> [!NOTE]
+>
+> **功能增强 (Features)**
+>
+> - 改进歌词匹配算法，添加二次遍历检查未匹配音节
+> - 增强匹配覆盖率，处理歌词对齐中的边界情况
+> - 添加对已绑定音节的检查，避免重复绑定
+
+> [!CAUTION]
+>
+> **错误修复 (Bug Fixes)**
+>
+> - 修复 isSymbol 正则表达式，排除和号 (& 和 ＆) 字符
+> - 确保包含 & 的文本不被错误识别为纯符号
+
+> [!TIP]
+>
+> **代码重构 (Refactoring)**
+>
+> - 重构 match 函数，使用作用域块提高代码组织性
+> - 将主匹配逻辑封装在独立作用域中
+> - 添加二次遍历逻辑处理未匹配音节
+> - 改进代码结构和可读性
+
 ## 1.14.19
 
 > [!IMPORTANT]
