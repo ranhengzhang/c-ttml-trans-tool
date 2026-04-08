@@ -155,7 +155,7 @@ QString lyric::utils::toLineTrans(QString &dom_text, const SubType line_type) {
         .arg(buffer.join(""));
 }
 
-static const QRegularExpression punct_regex(R"(^\p{P}+$)");
+static const QRegularExpression punct_regex(R"(^((?!&|＆)\p{P})+$)");
 
 bool lyric::utils::isSymbol(const QString &text) {
     const auto trimmed = text.trimmed();

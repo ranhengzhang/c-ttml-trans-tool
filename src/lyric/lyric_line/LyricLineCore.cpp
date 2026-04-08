@@ -59,34 +59,59 @@ void LyricLine::appendSubLine(const SubType role, const QString &lang, const std
 }
 
 void LyricLine::match(const LyricLine &orig) {
-    int i = 0;
-    int j = 0;
+    {
+        int i = 0;
+        int j = 0;
 
-    do {
-        // 首先定位音译（音译可能留空所以要先定位）
-        while (i < this->_syl_s.size()
-            and (this->_syl_s.at(i)->getIsText() // 过滤纯文本
-                or this->_syl_s.at(i)->getText().trimmed().isEmpty() // 过滤空格
-                or lyric::utils::isSymbol(this->_syl_s.at(i)->getText()) // 过滤符号
-                )
-            ) ++i;
-        // 安全范围判断
-        if (i >= this->_syl_s.size()) break;
-        // 接着定位原文
-        while (j < orig._syl_s.size()
-            and (orig._syl_s.at(j)->getIsText() // 过滤纯文本
-                or orig._syl_s.at(j)->getText().trimmed().isEmpty() // 过滤空格
-                or lyric::utils::isSymbol(orig._syl_s.at(j)->getText()) // 过滤符号
-                or (orig._syl_s.at(j)->getBegin() - this->_syl_s.at(i)->getBegin()).abs() > 100 or (orig._syl_s.at(j)->getEnd() - this->_syl_s.at(i)->getEnd()).abs() > 100 // 过滤时间差
-                )
-            ) ++j;
+        do {
+            // 首先定位音译（音译可能留空所以要先定位）
+            while (i < this->_syl_s.size()
+                and (this->_syl_s.at(i)->getIsText() // 过滤纯文本
+                    or this->_syl_s.at(i)->getText().trimmed().isEmpty() // 过滤空格
+                    or lyric::utils::isSymbol(this->_syl_s.at(i)->getText()) // 过滤符号
+                    )
+                ) ++i;
+            // 安全范围判断
+            if (i >= this->_syl_s.size()) break;
+            // 接着定位原文
+            while (j < orig._syl_s.size()
+                and (orig._syl_s.at(j)->getIsText() // 过滤纯文本
+                    or orig._syl_s.at(j)->getText().trimmed().isEmpty() // 过滤空格
+                    or lyric::utils::isSymbol(orig._syl_s.at(j)->getText()) // 过滤符号
+                    or (orig._syl_s.at(j)->getBegin() - this->_syl_s.at(i)->getBegin()).abs() > 100 or (orig._syl_s.at(j)->getEnd() - this->_syl_s.at(i)->getEnd()).abs() > 100 // 过滤时间差
+                    )
+                ) ++j;
 
-        if (i < this->_syl_s.size() and j < orig._syl_s.size())
-            this->_syl_s.at(i)->setOrig(orig._syl_s.at(j));
+            if (i < this->_syl_s.size() and j < orig._syl_s.size())
+                this->_syl_s.at(i)->setOrig(orig._syl_s.at(j));
 
-        ++i;
-        ++j;
-    } while (i < this->_syl_s.size() and j < orig._syl_s.size());
+            ++i;
+            ++j;
+        } while (i < this->_syl_s.size() and j < orig._syl_s.size());
+    }
+    // 再遍历一次检查是否有没匹配上的
+    for (int i = 0; i < this->_syl_s.size(); ++i) {
+        auto &syl = this->_syl_s.at(i);
+        if (not syl->isText() and not syl->getOrig()) {
+            for (const auto & orig_syl : orig._syl_s) {
+                // 判断 is_text 和时间差
+                if (not orig_syl->isText() and (orig_syl->getBegin() - syl->getBegin()).abs() < 100 and (orig_syl->getEnd() - syl->getEnd()).abs() < 100) {
+                    // 检查是否已经绑定
+                    bool is_bind = false;
+                    for (int k = 0; k < this->_syl_s.size(); ++k) {
+                        if (k != i and this->_syl_s.at(k)->getOrig() == orig_syl) {
+                            is_bind = true;
+                            break;
+                        }
+                    }
+                    if (not is_bind) {
+                        syl->setOrig(orig_syl);
+                        break;
+                    }
+                }
+            }
+        }
+    }
     for (const auto &syl:this->_syl_s) {
         if (!syl->getOrig()) syl->setIsText(true);
     }
