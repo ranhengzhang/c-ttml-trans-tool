@@ -6,13 +6,10 @@
 #include "lyricline.hpp"
 #include "lyricsyl.hpp"
 
-int LyricLine::_spl_offset{0};
-
-QString LyricLine::toSingleSPL() {
+std::pair<LyricTime, QString> LyricLine::toSingleSPL() {
     QStringList line{};
     auto last = this->getInnerBegin();
 
-    line.push_back(QString(R"([%1])").arg((this->getInnerBegin() + _spl_offset++).toString(true, false, true)));
     for (const auto &syl: this->_syl_s) {
         if (syl->getBegin() > last) {
             line.push_back(QString("<%1>\u200B").arg(last.toString(true, false, true)));
@@ -29,14 +26,14 @@ QString LyricLine::toSingleSPL() {
         line_text.insert(line_text.lastIndexOf('['), ')');
     }
 
-    return line_text;
+    return {this->getInnerBegin(), line_text};
 }
 
-QString LyricLine::toSPL() {
+QList<std::tuple<bool, LyricTime, QString>> LyricLine::toSPL() {
+    QList<std::tuple<bool, LyricTime, QString>> list{};
     QStringList line{};
-    QStringList word{};
+    QList<std::pair<LyricTime, QString>> word{};
 
-    _spl_offset = 0;
     for (const auto &ptr: this->_transliteration | std::views::values) {
         if (const auto roma_pair = std::get_if<std::pair<QString, std::shared_ptr<QString>>>(ptr.get())) {
             if (not roma_pair->first.isEmpty()) line.push_back(roma_pair->first);
@@ -47,9 +44,7 @@ QString LyricLine::toSPL() {
         }
     }
 
-    auto text = this->toSingleSPL();
-    if (this->_bg_line) text.append(this->_bg_line->toSPL());
-    word.push_back(text);
+    word.push_back(this->toSingleSPL());
 
     for (const auto &ptr: this->_translation | std::views::values) {
         if (const auto trans_pair = std::get_if<std::pair<QString, std::shared_ptr<QString>>>(ptr.get())) {
@@ -61,5 +56,10 @@ QString LyricLine::toSPL() {
         }
     }
 
-    return (word + line).join("\n");
+    for (const auto &[time, str]: word) list.append({true, time, str});
+    for (const auto &str: line) list.append({false, LyricTime{}, str});
+
+    if (this->_bg_line) list.append(this->_bg_line->toSPL());
+
+    return list;
 }
