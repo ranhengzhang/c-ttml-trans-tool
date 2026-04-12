@@ -163,3 +163,7 @@ bool lyric::utils::isSymbol(const QString &text) {
     if (trimmed.isEmpty()) return false;
     return punct_regex.match(trimmed).hasMatch();
 }
+
+bool lyric::utils::compareKeysByLengthThenDefault(const QString &key1, const QString &key2) {
+    return key1.length() != key2.length() ? key1.length() < key2.length() : key1 < key2;
+}

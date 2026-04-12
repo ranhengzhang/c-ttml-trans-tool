@@ -43,6 +43,8 @@ namespace lyric::utils {
     QString toLineTrans(QString &dom_text, const SubType line_type);
 
     bool isSymbol(const QString &text);
+
+    bool compareKeysByLengthThenDefault(const QString &key1, const QString &key2);
 }
 
 #endif //LYRIC_PARSER_UTILS_H
