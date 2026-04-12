@@ -33,10 +33,24 @@ public:
 
     template<typename T>
     requires std::constructible_from<int64_t, T>
+    LyricTime operator-=(const T &rhs) {
+        this->_count -= static_cast<int64_t>(rhs);
+        return *this;
+    }
+
+    template<typename T>
+    requires std::constructible_from<int64_t, T>
     [[nodiscard]] LyricTime operator+(const T rhs) const {
         LyricTime time{};
         time._count = this->_count + static_cast<int64_t>(rhs);
         return time;
+    }
+
+    template<typename T>
+    requires std::constructible_from<int64_t, T>
+    LyricTime operator+=(const T rhs) {
+        this->_count += static_cast<int64_t>(rhs);
+        return *this;
     }
 
     template<typename T>
