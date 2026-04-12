@@ -1,5 +1,53 @@
 # CHANGELOG (created by TRAE)
 
+## 1.16.21
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `1f82f34` fix(ui): Correct variable name in translation file export
+> - `62d2f9a` refactor(lyric): Unify key sorting across LRC, QRC and TTML formats
+> - `5418035` refactor(spl): Redesign SPL output with structured time data
+> - `08ed295` feat(ttml): Improve agent handling and duet detection logic
+> - `db311f4` feat(utils): Add key comparison function for sorting
+> - `c94b597` feat(lyric_time): Add compound assignment operators for LyricTime
+
+> [!NOTE]
+>
+> **功能增强 (Features)**
+>
+> - 为 LyricTime 添加复合赋值运算符 (operator+= 和 operator-=)
+> - 支持模板类型，使用 std::constructible_from 约束
+> - 添加 compareKeysByLengthThenDefault 函数用于自定义键排序
+> - 改进 agent 处理和对唱检测逻辑
+> - 分别处理 person 和 group 类型的 agent
+> - 添加独立的 main_person_agent_id 和 main_group_agent_id 跟踪
+
+> [!CAUTION]
+>
+> **错误修复 (Bug Fixes)**
+>
+> - 修复翻译文件导出中的变量名错误：将 trans_lang 更正为 trans_text
+> - 确保正确的翻译内容写入输出文件
+> - 防止语言代码被写入而非实际文本
+
+> [!TIP]
+>
+> **代码重构 (Refactoring)**
+>
+> - 统一 LRC、QRC 和 TTML 格式的键排序逻辑
+> - 使用 compareKeysByLengthThenDefault 替代 compareKeysByNumber
+> - 移除 extractNumberFromKey 辅助函数
+> - 重新设计 SPL 输出，使用结构化时间数据
+> - 将 toSingleSPL 改为返回 pair<LyricTime, QString>
+> - 将 toSPL 改为返回 QList 元组列表
+> - 移除静态 _spl_offset，使用真实时间信息
+> - 添加重复时间检测和偏移调整
+> - 使用作用域块组织 agent 初始化逻辑
+> - 改进对唱检测，分别处理 person 和 group 类型
+> - 添加 region 注释组织元数据部分
+
 ## 1.15.19
 
 > [!IMPORTANT]
