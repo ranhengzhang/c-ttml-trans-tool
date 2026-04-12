@@ -5,6 +5,10 @@
 #include "LyricLine.hpp"
 #include "LyricObject.hpp"
 
+#include <vector>
+#include <algorithm>
+#include <ranges>
+
 std::tuple<QString, QString, QString> LyricObject::toQRC(const QString &ts_lang, const QString &roma_lang) {
     QStringList orig_text{};
     QString ts_text{};
@@ -29,7 +33,17 @@ std::tuple<QString, QString, QString> LyricObject::toQRC(const QString &ts_lang,
 QString LyricObject::getSubQRC(std::map<QString, std::shared_ptr<LyricTrans>> &map) {
     QStringList text{};
 
-    for (auto &[key, roma_ptr]: map) {
+    // Collect and sort keys by length then default order
+    std::vector<QString> keys;
+    keys.reserve(map.size());
+    for (const auto &[key, _]: map) {
+        keys.push_back(key);
+    }
+    std::ranges::sort(keys, lyric::utils::compareKeysByLengthThenDefault);
+
+    // Iterate through sorted keys
+    for (const auto &key: keys) {
+        const auto &roma_ptr = map.at(key);
         if (const auto pair_ptr = std::get_if<std::pair<QString, std::shared_ptr<QString>>>(roma_ptr.get())) {
             auto orig_line = *std::ranges::find_if(this->_line_s, [&key](auto &line) { return line.getKey() == key; });
             text.push_back(QString(R"([%1,%2]%3)")

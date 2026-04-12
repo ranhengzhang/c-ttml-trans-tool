@@ -14,21 +14,6 @@
 
 QRegularExpression pairs_reg(R"([(（]+(.*?)[）)]+)");
 
-// Helper function to extract numeric part from key (e.g., "L10" -> 10)
-int extractNumberFromKey(const QString &key) {
-    QRegularExpression numReg(R"(\d+)");
-    auto match = numReg.match(key);
-    if (match.hasMatch()) {
-        return match.captured(0).toInt();
-    }
-    return 0;
-}
-
-// Comparator for keys based on numeric value
-bool compareKeysByNumber(const QString &key1, const QString &key2) {
-    return extractNumberFromKey(key1) < extractNumberFromKey(key2);
-}
-
 std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString &ttml) {
     QDomDocument doc;
     const auto res = doc.setContent(ttml.trimmed(), QDomDocument::ParseOption::PreserveSpacingOnlyNodes);
@@ -65,16 +50,16 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
         std::unique_ptr<lyric::utils::Agent> main_person_agent{};
         std::unique_ptr<lyric::utils::Agent> main_group_agent{};
 
-    for (auto &agent : lyric._agent_s) {
+        for (auto &agent : lyric._agent_s) {
             if (agent.isPerson() and not main_person_agent) {
                 main_person_agent = std::make_unique<lyric::utils::Agent>(agent);
                 main_person_agent_id = agent.getId();
             } elif (agent.isGroup() and not main_group_agent) {
                 main_group_agent = std::make_unique<lyric::utils::Agent>(agent);
                 main_group_agent_id = agent.getId();
+            }
         }
-    }
-    lyric._have_duet = lyric._agent_s.length();
+        lyric._have_duet = lyric._agent_s.length();
     }
 
     // region 元数据
@@ -323,7 +308,7 @@ QString LyricObject::toTTML() {
             for (const auto &target: translation_map | std::views::keys) {
                 sorted_keys.push_back(target);
             }
-            std::ranges::sort(sorted_keys, compareKeysByNumber);
+            std::ranges::sort(sorted_keys, lyric::utils::compareKeysByLengthThenDefault);
 
             // Iterate through sorted keys
             for (const auto& target : sorted_keys) {
@@ -361,7 +346,7 @@ QString LyricObject::toTTML() {
             for (const auto &target: transliteration_map | std::views::keys) {
                 sorted_keys.push_back(target);
             }
-            std::ranges::sort(sorted_keys, compareKeysByNumber);
+            std::ranges::sort(sorted_keys, lyric::utils::compareKeysByLengthThenDefault);
 
             // Iterate through sorted keys
             for (const auto& target : sorted_keys) {
