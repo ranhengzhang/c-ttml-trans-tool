@@ -775,7 +775,7 @@ select_qrc:
             return;
         }
 
-        ts_file->write(trans_lang.toUtf8());
+        ts_file->write(trans_text.toUtf8());
         ts_file->close();
         delete ts_file;
     }
