@@ -1,0 +1,3 @@
+[submodule "src/lyric"]
+	path = src/lyric
+	url = git@github.com:ranhengzhang/ttml-cpp-qt-parser.git
