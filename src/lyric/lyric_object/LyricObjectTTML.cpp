@@ -91,9 +91,9 @@ std::pair<LyricObject, LyricObject::Status> LyricObject::fromTTML(const QString 
         } else {
             if (not lyric._meta_data_s.contains({key, value})) {
                 lyric._meta_data_s.push_back({key, value});
-                QStringList en_key{"LYRIC", "LYRICS"};
+                QStringList en_key{"LYRIC", "LYRICS", "LYRICIST", "LYRICSAUTHOR", "LYRICSBY", "WORDS", "WORDSBY", "TEXTBY", "POEMBY", "COMPOSER"};
                 QStringList cn_key = {"作词", "填词", "歌词"};
-                if ((en_key.contains(key.toUpper()) or cn_key.contains(key)) and not lyric._song_writer_s.contains(value)) {
+                if ((en_key.contains(key.toUpper().replace("_", "").replace("-", "").replace(" ", "")) or cn_key.contains(key)) and not lyric._song_writer_s.contains(value)) {
                     lyric._song_writer_s.push_back(value);
                 }
             }
