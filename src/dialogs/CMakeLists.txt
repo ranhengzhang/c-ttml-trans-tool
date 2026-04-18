@@ -1,4 +1,3 @@
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../lyric" "${CMAKE_CURRENT_BINARY_DIR}/lyric_build")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../widgets" "${CMAKE_CURRENT_BINARY_DIR}/widgets_build")
 
 set(DIALOGS_SOURCES
