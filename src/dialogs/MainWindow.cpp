@@ -1232,7 +1232,7 @@ void MainWindow::on_actionPreset_triggered()
         buffer.push_back("");
     }
 
-    QApplication::clipboard()->setText(buffer.join('\n').trimmed().replace(empty_line_regexp, "\n\n") + "\n\n");
+    QApplication::clipboard()->setText(buffer.join('\n').trimmed().replace(empty_line_regexp, "\n\n") + "\n\n### 备注\n\n");
     ui->statusbar->showMessage("复制成功");
 }
 
