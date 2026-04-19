@@ -1,5 +1,46 @@
 # CHANGELOG (created by TRAE)
 
+## 1.20.21
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `eafb6d2` build(cmake): Update CMake configuration for submodule integration
+> - `7a1ada8` feat(submodule): Add ttml-cpp-qt-parser as git submodule
+> - `b3a313e` refactor(lyric): Remove embedded lyric module for git submodule migration
+> - `c7b20dd` feat(ttml): Expand songwriter detection with more keyword variants
+> - `e241d9c` feat(ui): Add remarks section to preset clipboard output
+
+> [!NOTE]
+>
+> **功能增强 (Features)**
+>
+> - 添加备注区域到预设剪贴板输出
+> - 扩展词曲作者检测，支持更多关键词变体
+> - 添加 LYRICIST、LYRICSAUTHOR、LYRICSBY、WORDS、WORDSBY、TEXTBY、POEMBY、COMPOSER 等英文键
+> - 添加 ttml-cpp-qt-parser 作为 git 子模块
+> - 集成外部歌词解析模块
+
+> [!TIP]
+>
+> **代码重构 (Refactoring)**
+>
+> - 移除嵌入式歌词模块，迁移到 git 子模块
+> - 删除 src/lyric 目录下的所有源代码文件
+> - 清理不再需要的工具类和歌词处理代码
+
+> [!CAUTION]
+>
+> **构建系统 (Build System)**
+>
+> - 更新 CMake 配置以支持子模块集成
+> - 在主项目之前添加 lyric 子目录以获取版本号
+> - 使用 LYRIC_VERSION_COMBINED 作为第四位版本号组件
+> - 添加版本状态消息用于构建诊断
+> - 从 dialogs/CMakeLists.txt 中移除冗余的 lyric 子目录引用
+> - 实现主项目与 lyric 模块之间的版本同步
+
 ## 1.16.21
 
 > [!IMPORTANT]
