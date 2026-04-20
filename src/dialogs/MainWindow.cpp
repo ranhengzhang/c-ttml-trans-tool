@@ -425,52 +425,22 @@ void MainWindow::on_toASS_triggered() {
     ui->statusbar->showMessage(R"(ASS 生成完成)");
 }
 
-QString compressTtmlV1(QString ttml) {
-    const QRegularExpression space_span_reg(R"(<span[^>]*>([\s　])</span>)");
-    ttml.replace(space_span_reg, R"(\1)");
-
-    const QRegularExpression span_space_reg(R"(([\s　])+</span>([\s　])+)");
-    ttml.replace(span_space_reg, R"(</span>\2)");
-
-    const QRegularExpression same_time_reg(R"#(<span[^>]+begin="([^"]+)"[^>]+end="\1"[^>]*>(.*?)</span>)#");
-    ttml.replace(same_time_reg, R"(\2)");
-
-    return ttml;
-}
-
-QString compressTtmlV2(QString ttml) {
-    // 解析为 xml
-    auto [lyric, status] = LyricObject::fromTTML(ttml);
-    if (status != LyricObject::Status::Success) {
-        // error dialog
-        QMessageBox::critical(nullptr, R"(错误)", R"(无法解析 TTML)");
-        return ttml;
-    }
-
-    return lyric.toTTML();
-}
-
-QString compressTtml(QString ttml) {
-    lyric::utils::easyCompress(ttml);
-
-    return (ttml.contains("iTunesMetadata") ? compressTtmlV2(ttml) : compressTtmlV1(ttml))
-    .trimmed()
-    .replace(R"(" />)", R"("/>)")
-    .replace(R"(" >)", R"(">)")
-    .replace(R"(< )", R"(<)");
-}
-
 bool MainWindow::parse() {
     if (this->_lyric) {
         return true;
     }
 
-    const auto text = compressTtml(ui->TTMLTextEdit->toPlainText());
+    const auto [text, compress_status] = lyric::utils::compressTtml(ui->TTMLTextEdit->toPlainText());
 
-    auto [lrc, status] = LyricObject::fromTTML(text);
+    if (compress_status != lyric::utils::Status::Success) {
+        QMessageBox::critical(this, R"(错误)", R"(无法解析 TTML)");
+        ui->statusbar->showMessage(R"(TTML 解析失败)");
+    }
 
-    if (status != LyricObject::Status::Success) {
-        switch (status) {
+    auto [lrc, analyse_status] = LyricObject::fromTTML(text);
+
+    if (analyse_status != LyricObject::Status::Success) {
+        switch (analyse_status) {
             case lyric::utils::Status::InvalidFormat:
                 QMessageBox::critical(this, R"(错误)", R"(无法解析 TTML)");
                 break;
@@ -479,6 +449,8 @@ bool MainWindow::parse() {
                 break;
             case lyric::utils::Status::InvalidTimeFormat:
                 QMessageBox::critical(this, R"(错误)", R"(时间戳格式错误)");
+                break;
+            default:
                 break;
         }
         ui->statusbar->showMessage(R"(TTML 解析失败)");
@@ -1306,7 +1278,7 @@ void MainWindow::on_anotherQid_triggered() {
     ui->statusbar->showMessage("查询完成");
 }
 
-void MainWindow::on_compressButton_clicked() const {
+void MainWindow::on_compressButton_clicked() {
     auto* scroll_bar = ui->TTMLTextEdit->verticalScrollBar();
     double scroll_percent = 0.0;
 
@@ -1314,7 +1286,14 @@ void MainWindow::on_compressButton_clicked() const {
         scroll_percent = static_cast<double>(scroll_bar->value()) / scroll_bar->maximum();
     }
 
-    ui->TTMLTextEdit->setPlainText(compressTtml(ui->TTMLTextEdit->toPlainText()));
+    auto [ttml, status] = lyric::utils::compressTtml(ui->TTMLTextEdit->toPlainText());
+
+    if (status != lyric::utils::Status::Success) {
+        QMessageBox::critical(this, "压缩失败", "压缩失败");
+        return;
+    }
+
+    ui->TTMLTextEdit->setPlainText(ttml);
 
     if (scroll_bar->isVisible()) {
         scroll_bar->setValue(static_cast<int>(scroll_percent * scroll_bar->maximum()));
