@@ -49,6 +49,8 @@ private slots:
 
     void on_toTTML_triggered();
 
+    void on_toAMLL_triggered();
+
     void on_toASS_triggered();
 
     void on_toLRC_triggered();

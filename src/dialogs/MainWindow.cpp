@@ -391,6 +391,39 @@ void MainWindow::on_toTTML_triggered() {
     ui->statusbar->showMessage(R"(TTML 生成完成)");
 }
 
+void MainWindow::on_toAMLL_triggered() {
+    // ReSharper disable once CppTooWideScopeInitStatement
+    const auto ok = this->parse();
+
+    if (!ok) return;
+
+    const auto file_path = QFileDialog::getSaveFileName(this, R"(选择文件)", this->_lyric->getTitle(R"(ttml)"),
+                                                        R"(Timed Text Markup Language File (*.ttml))");
+
+    if (file_path.isEmpty()) {
+        QMessageBox::warning(this, R"(警告)", R"(未选择文件)");
+        return;
+    }
+
+    this->setEnabled(false);
+    ui->statusbar->showMessage(R"(TTML 生成中)");
+
+    const auto text = this->_lyric->toAMLL();
+    const auto file = new QFile(file_path);
+    if (!file->open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::critical(this, R"(错误)", QString(R"(无法打开文件：%1)").arg(file_path));
+        this->setEnabled(true);
+        return;
+    }
+
+    file->write(text.toUtf8());
+    file->close();
+    delete file;
+
+    this->setEnabled(true);
+    ui->statusbar->showMessage(R"(TTML 生成完成)");
+}
+
 
 void MainWindow::on_toASS_triggered() {
     // ReSharper disable once CppTooWideScopeInitStatement

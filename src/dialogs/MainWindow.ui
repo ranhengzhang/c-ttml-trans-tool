@@ -94,7 +94,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_input">
@@ -120,6 +120,7 @@
      <string>导出</string>
     </property>
     <addaction name="toTTML"/>
+    <addaction name="toAMLL"/>
     <addaction name="toASS"/>
     <addaction name="toLRC"/>
     <addaction name="toSPL"/>
@@ -412,6 +413,11 @@
   <action name="anotherQid">
    <property name="text">
     <string>查询另一 Qmid</string>
+   </property>
+  </action>
+  <action name="toAMLL">
+   <property name="text">
+    <string>AMLL</string>
    </property>
   </action>
  </widget>
