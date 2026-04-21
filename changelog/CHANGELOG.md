@@ -1,5 +1,36 @@
 # CHANGELOG (created by TRAE)
 
+## 1.22.21.1003
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `8f76e88` feat(ui): Add AMLL export functionality and bump version
+> - `5e93bba` refactor(ui): Migrate TTML compression to lyric submodule
+
+> [!NOTE]
+>
+> **功能增强 (Features)**
+>
+> - 添加 AMLL 格式导出功能
+> - 实现 on_toAMLL_triggered() 槽函数用于 AMLL 格式导出
+> - 添加 AMLL 导出操作到主窗口 UI 菜单
+> - 实现 AMLL 文件保存对话框，支持 TTML 过滤器
+> - 添加状态栏反馈显示 AMLL 生成过程
+
+> [!TIP]
+>
+> **代码重构 (Refactoring)**
+>
+> - 将 TTML 压缩功能迁移到 lyric 子模块
+> - 移除本地的 compressTtml 实现（V1、V2 和主函数）
+> - 使用 lyric::utils::compressTtml 替代本地实现
+> - 更新 parse() 方法处理压缩状态并显示错误对话框
+> - 更新 on_compressButton_clicked() 使用新 API 并检查状态
+> - 移除 on_compressButton_clicked() 槽函数的 const 限定符
+> - 在 switch 语句中添加 default 分支用于错误处理
+
 ## 1.20.21
 
 > [!IMPORTANT]
