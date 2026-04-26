@@ -990,6 +990,7 @@ void MainWindow::on_copyTTML_triggered()
 
     const auto text = this->_lyric->toTTML();
     QApplication::clipboard()->setText(text);
+    ui->statusbar->showMessage("导出成功");
 }
 
 void MainWindow::on_copyASS_triggered()
