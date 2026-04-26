@@ -135,6 +135,7 @@
      <string>复制</string>
     </property>
     <addaction name="copyTTML"/>
+    <addaction name="copyAMLL"/>
     <addaction name="copyASS"/>
     <addaction name="copyLRC"/>
     <addaction name="copySPL"/>
@@ -416,6 +417,11 @@
    </property>
   </action>
   <action name="toAMLL">
+   <property name="text">
+    <string>AMLL</string>
+   </property>
+  </action>
+  <action name="copyAMLL">
    <property name="text">
     <string>AMLL</string>
    </property>

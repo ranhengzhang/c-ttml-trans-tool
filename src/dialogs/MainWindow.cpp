@@ -993,6 +993,18 @@ void MainWindow::on_copyTTML_triggered()
     ui->statusbar->showMessage("导出成功");
 }
 
+void MainWindow::on_copyAMLL_triggered()
+{
+    // ReSharper disable once CppTooWideScopeInitStatement
+    const auto ok = this->parse();
+
+    if (!ok) return;
+
+    const auto text = this->_lyric->toAMLL();
+    QApplication::clipboard()->setText(text);
+    ui->statusbar->showMessage("导出成功");
+}
+
 void MainWindow::on_copyASS_triggered()
 {
     // ReSharper disable once CppTooWideScopeInitStatement

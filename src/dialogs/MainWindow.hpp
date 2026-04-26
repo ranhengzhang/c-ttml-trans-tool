@@ -75,6 +75,8 @@ private slots:
 
     void on_copyTTML_triggered();
 
+    void on_copyAMLL_triggered();
+
     void on_copyASS_triggered();
 
     void on_copyLRC_triggered();
