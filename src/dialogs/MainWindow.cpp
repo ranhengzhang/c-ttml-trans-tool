@@ -71,14 +71,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     if (server->listen(pipe_name)) {
         connect(server, &QLocalServer::newConnection, [server, this]() {
-            QLocalSocket* clientSocket = server->nextPendingConnection();
+            QLocalSocket* client_socket = server->nextPendingConnection();
 
             // 准备你要传递的信息
-            QString data = ui->TTMLTextEdit->toPlainText();
+            const QString data = ui->TTMLTextEdit->toPlainText();
 
-            clientSocket->write(data.toUtf8());
-            clientSocket->flush();
-            clientSocket->disconnectFromServer(); // 发送完关闭，防止阻塞
+            client_socket->write(data.toUtf8());
+            client_socket->flush();
+            client_socket->disconnectFromServer(); // 发送完关闭，防止阻塞
         });
     }
     // endregion

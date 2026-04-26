@@ -56,10 +56,10 @@ namespace tool::utils {
     /**
      * 执行同步 HTTP GET 请求
      * @param url 请求的 URL
-     * @param timeoutMs 超时时间（毫秒），默认 10 秒
+     * @param timeout_ms 超时时间（毫秒），默认 10 秒
      * @return NetworkResponse 包含请求结果的结构体
      */
-    NetworkResponse httpGet(const QUrl &url, int timeoutMs = 10000);
+    NetworkResponse httpGet(const QUrl &url, int timeout_ms = 10000);
 
     /**
      * 执行同步 HTTP POST 请求

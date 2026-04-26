@@ -62,37 +62,37 @@ QStringList tool::utils::getQids(const QString &vid) {
     QStringList result;
 
     //region 构建请求 JSON
-    QJsonObject commObj;
-    commObj["ct"] = "26";
-    commObj["cv"] = "2010101";
-    commObj["v"] = "2010101";
+    QJsonObject comm_obj;
+    comm_obj["ct"] = "26";
+    comm_obj["cv"] = "2010101";
+    comm_obj["v"] = "2010101";
 
-    QJsonObject paramObj;
-    paramObj["types"] = QJsonArray{1};
-    paramObj["ctx"] = 0;
+    QJsonObject param_obj;
+    param_obj["types"] = QJsonArray{1};
+    param_obj["ctx"] = 0;
     if (vid.startsWith("00")) {
-        paramObj["mids"] = QJsonArray{vid};
+        param_obj["mids"] = QJsonArray{vid};
     } else {
-        paramObj["ids"] = QJsonArray{vid.toLongLong()};
+        param_obj["ids"] = QJsonArray{vid.toLongLong()};
     }
 
-    QJsonObject reqObj;
-    reqObj["module"] = "music.trackInfo.UniformRuleCtrl";
-    reqObj["method"] = "CgiGetTrackInfo";
-    reqObj["param"] = paramObj;
+    QJsonObject req_obj;
+    req_obj["module"] = "music.trackInfo.UniformRuleCtrl";
+    req_obj["method"] = "CgiGetTrackInfo";
+    req_obj["param"] = param_obj;
 
-    QJsonObject rootObj;
-    rootObj["comm"] = commObj;
-    rootObj["req"] = reqObj;
+    QJsonObject root_obj;
+    root_obj["comm"] = comm_obj;
+    root_obj["req"] = req_obj;
 
-    const QJsonDocument jsonDoc(rootObj);
-    const QByteArray postData = jsonDoc.toJson();
+    const QJsonDocument json_doc(root_obj);
+    const QByteArray post_data = json_doc.toJson();
     //endregion
 
     // 使用封装的 httpPost 发送请求
     auto response = httpPost(
         QUrl("https://u.y.qq.com/cgi-bin/musicu.fcg"),
-        postData,
+        post_data,
         "application/json",
         10000
     );
@@ -135,7 +135,7 @@ QStringList tool::utils::getQids(const QString &vid) {
     if (!mid.isEmpty() and mid != vid) {
         result.push_back(mid);
     }
-    const auto id = QString::number(song["vid"].toInteger(-1));
+    const auto id = QString::number(song["id"].toInteger(-1));
     if (id != "-1" and id != vid) {
         result.push_back(id);
     }
@@ -143,7 +143,7 @@ QStringList tool::utils::getQids(const QString &vid) {
     return result;
 }
 
-tool::utils::NetworkResponse tool::utils::httpGet(const QUrl &url, const int timeoutMs) {
+tool::utils::NetworkResponse tool::utils::httpGet(const QUrl &url, const int timeout_ms) {
     NetworkResponse response;
     response.success = false;
     response.statusCode = 0;
@@ -167,7 +167,7 @@ tool::utils::NetworkResponse tool::utils::httpGet(const QUrl &url, const int tim
         reply->abort();
     });
 
-    timer.start(timeoutMs);
+    timer.start(timeout_ms);
     loop.exec();
 
     const bool isTimeout = !timer.isActive();
