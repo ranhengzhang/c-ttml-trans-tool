@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.5)
 add_subdirectory(src/lyric)
 
 # 使用 lyric 合并后的版本号作为主项目第四位版本号
-project(ttml-tool VERSION 1.22.21.${LYRIC_VERSION_COMBINED} LANGUAGES CXX)
+project(ttml-tool VERSION 1.23.22.${LYRIC_VERSION_COMBINED} LANGUAGES CXX)
 
 message(STATUS "ttml-tool version: ${PROJECT_VERSION}")
 

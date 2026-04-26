@@ -1,5 +1,27 @@
 # CHANGELOG (created by TRAE)
 
+## 1.23.22.1006
+
+> [!IMPORTANT]
+>
+> **提交记录 (History)**
+>
+> - `48ae786` feat(ui): Add AMLL copy to clipboard functionality
+> - `05e8e96` feat(ui): Add status bar feedback for TTML copy operation
+> - `24c4a51` dependence
+> - `e460bb2` gitignore
+> - `b1b06a1` format
+
+> [!NOTE]
+>
+> **功能增强 (Features)**
+>
+> - 添加 AMLL 复制到剪贴板功能
+> - 实现 on_copyAMLL_triggered() 槽函数用于复制 AMLL 到剪贴板
+> - 添加 copyAMLL 操作到主窗口 UI 复制菜单
+> - 为 TTML 复制操作添加状态栏反馈
+> - 复制 TTML 到剪贴板后显示"导出成功"消息
+
 ## 1.22.21.1003
 
 > [!IMPORTANT]
