@@ -1,5 +1,6 @@
 .idea/
 .vscode/
+.trae/
 .claude/
 cmake-build*/
 CMakeLists.txt.user
